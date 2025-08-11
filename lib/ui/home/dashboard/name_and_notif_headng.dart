@@ -1,0 +1,116 @@
+import 'package:flutter/material.dart';
+import 'package:hexcolor/hexcolor.dart';
+import 'package:kwik_port/colors/color.dart';
+
+Widget nameAndNotifHeading(context, newNotification, notificationFunc) {
+  return Row(
+    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    children: [
+      Row(
+        children: [
+          InkWell(
+            onTap: () {
+              // Navigator.push(
+              //     context,
+              //     MaterialPageRoute(
+              //         builder: (context) => Profiledetailscreen()));
+            },
+            child: Container(
+              height: 55,
+              width: 55,
+              padding: EdgeInsets.all(2),
+              decoration: BoxDecoration(
+                color: HexColor("#FFE8CC"),
+                shape: BoxShape.circle,
+                border: Border.all(color: colorCodes.white, width: 2.0),
+              ),
+              child: Center(
+                child: FittedBox(
+                  child: Text(
+                    "JG",
+                    style: TextStyle(
+                      fontFamily: "Poppins",
+                      color: HexColor("#FF8A00"), // Set your desired text color
+                      fontWeight: FontWeight.w600,
+                      fontSize: 20,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+          SizedBox(width: 10.0),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'John Gbenga',
+                style: TextStyle(
+                  fontFamily: 'Poppins',
+                  fontSize: 16.0,
+                  fontWeight: FontWeight.w600,
+                  color: colorCodes.black,
+                ),
+              ),
+              Text(
+                "ID: KWP-2024-001",
+                style: TextStyle(
+                  fontFamily: 'Poppins',
+                  fontSize: 14.0,
+                  fontWeight: FontWeight.w500,
+                  color: colorCodes.aluminium,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+      InkWell(
+        onTap: notificationFunc,
+        child: Container(
+          height: 48,
+          width: 48,
+          // alignment: Alignment.center,
+          decoration: BoxDecoration(
+            color: colorCodes.white,
+            border: Border.all(width: 1.5, color: HexColor("#EFEFEF")),
+            shape: BoxShape.circle,
+          ),
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              Image.asset(
+                'assets/images/icons/notification.png',
+                color: colorCodes.black,
+                height: 24,
+                width: 24,
+              ),
+              newNotification
+                  ? Positioned(
+                    bottom: 17,
+                    // top: 0,
+                    left: 18,
+                    child: CircleAvatar(
+                      radius: 3.0,
+                      backgroundColor: HexColor("#FF4E33"),
+                    ),
+                  )
+                  : Container(),
+            ],
+          ),
+        ),
+      ),
+    ],
+  );
+}
+
+String _generateInitials(String fullName) {
+  List<String> nameParts = fullName.split(' ');
+  if (nameParts.length >= 2) {
+    return '${nameParts[0][0]}${nameParts[1][0]}';
+  } else if (nameParts.length == 1) {
+    return '${nameParts[0][0]}';
+  } else {
+    return ''; // Handle the case where the name is empty
+  }
+}

@@ -1,0 +1,67 @@
+import 'package:flutter/material.dart';
+import 'package:kwik_port/colors/color.dart';
+import 'package:kwik_port/utils/text/textstyle.dart';
+
+Widget kwikbutton(
+  btntxt,
+  btnFunc, {
+  textColor,
+  backgroundcolor,
+  textWidth,
+  enabled = true,
+}) {
+  return InkWell(
+    onTap: btnFunc,
+    borderRadius: BorderRadius.circular(30),
+    child: Container(
+      height: 57,
+      width: 390,
+      alignment: Alignment.center,
+      decoration: BoxDecoration(
+        border: Border.all(
+          color:
+              backgroundcolor == null
+                  ? enabled == false
+                      ? colorCodes.darkGrey
+                      : colorCodes.frenchSkyBlue
+                  : colorCodes.darkGrey,
+          width: 1.5,
+        ),
+        gradient:
+            backgroundcolor == null
+                ? enabled == false
+                    ? null
+                    : LinearGradient(
+                      begin: Alignment.centerLeft,
+                      end: Alignment.centerRight,
+                      colors: [colorCodes.jordyBlue, colorCodes.azureBlue],
+                    )
+                : null,
+        color: enabled == true ? colorCodes.white : colorCodes.platinum,
+        borderRadius: BorderRadius.circular(30), // rounded corners
+        boxShadow:
+            enabled
+                ? [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.1),
+                    offset: const Offset(0, 3),
+                    blurRadius: 6,
+                  ),
+                ]
+                : [],
+      ),
+      child: Text(
+        btntxt,
+        style: kwikTextStlye(
+          16.0,
+          FontWeight.w600,
+          backgroundcolor == null
+              ? enabled == true
+                  ? colorCodes.whiteSmoke
+                  : colorCodes.aluminium
+              : colorCodes.textBlack,
+        ),
+      ),
+    ),
+  );
+}
