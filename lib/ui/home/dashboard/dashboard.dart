@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:kwik_port/colors/color.dart';
+import 'package:kwik_port/main.dart';
+import 'package:kwik_port/ui/home/contracts/contract_details_screen.dart';
 import 'package:kwik_port/ui/home/dashboard/name_and_notif_headng.dart';
 import 'package:kwik_port/ui/home/dashboard/wallet_balance_container.dart';
+import 'package:kwik_port/utils/button/bottom_navigatior_bar.dart';
 import 'package:kwik_port/utils/button/elavated_button.dart';
 import 'package:kwik_port/utils/containers/available_contract_container.dart';
 import 'package:kwik_port/utils/text/textstyle.dart';
@@ -16,9 +19,13 @@ class Dashboard extends StatefulWidget {
 
 class _DashboardState extends State<Dashboard> {
   bool notificationExist = false;
+  int itemCount = 3;
 
   @override
   Widget build(BuildContext context) {
+    setState(() {
+      currentIndex = 1;
+    });
     return WillPopScope(
       onWillPop: () async {
         // Return false to prevent going back
@@ -92,26 +99,59 @@ class _DashboardState extends State<Dashboard> {
                   ],
                 ),
                 SizedBox(height: 18),
-                avaiableontractContainer(
-                  "assets/images/cocoa.png",
-                  "Cocoa Bean",
-                  "assets/images/icons/tick-circle.png",
-                  "Open",
-                  "100 tons",
-                  "assets/images/icons/Country.png",
-                  "Argentina",
-                  "20 tons",
-                  "100 tons",
-                  "20%",
-                  "\$12,500",
-                  "assets/images/icons/Trending up.png",
-                  "15.5%",
-                  () {},
+                // avaiableontractContainer(
+                //   "assets/images/cocoa.png",
+                //   "Cocoa Bean",
+                //   "assets/images/icons/tick-circle.png",
+                //   "Open",
+                //   "100 tons",
+                //   "assets/images/icons/Country.png",
+                //   "Argentina",
+                //   "20 tons",
+                //   "100 tons",
+                //   "20%",
+                //   "\$12,500",
+                //   "assets/images/icons/Trending up.png",
+                //   "15.5%",
+                //   () {},
+                // ),
+                SizedBox(
+                  height: 320 * itemCount.toDouble(),
+                  child: ListView.separated(
+                    separatorBuilder: (context, index) => SizedBox(height: 16),
+                    itemCount: itemCount,
+                    itemBuilder: (ctx, index) {
+                      return avaiableontractContainer(
+                        "assets/images/cocoa.png",
+                        "Cocoa Bean",
+                        "assets/images/icons/tick-circle.png",
+                        "Open",
+                        "100 tons",
+                        "assets/images/icons/Country.png",
+                        "Argentina",
+                        "20 tons",
+                        "100 tons",
+                        "20%",
+                        "\$12,500",
+                        "assets/images/icons/Trending up.png",
+                        "15.5%",
+                        () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => ContractDetailsScreen(),
+                            ),
+                          );
+                        },
+                      );
+                    },
+                  ),
                 ),
               ],
             ),
           ],
         ),
+        bottomNavigationBar: Bottomnavigationbar(1),
       ),
     );
   }
@@ -130,7 +170,7 @@ class _DashboardState extends State<Dashboard> {
       width: 390,
       padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
       decoration: BoxDecoration(
-        border: Border.all(width: 1.2, color: HexColor("#EFEFEF")),
+        border: Border.all(width: 1.2, color: colorCodes.antiFlashWhite),
         borderRadius: BorderRadius.circular(6),
         color: colorCodes.white,
       ),

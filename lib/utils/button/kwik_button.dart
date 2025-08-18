@@ -9,6 +9,8 @@ Widget kwikbutton(
   backgroundcolor,
   textWidth,
   enabled = true,
+  buttonChild,
+  borderColor,
 }) {
   return InkWell(
     onTap: btnFunc,
@@ -24,7 +26,7 @@ Widget kwikbutton(
                   ? enabled == false
                       ? colorCodes.darkGrey
                       : colorCodes.frenchSkyBlue
-                  : colorCodes.darkGrey,
+                  : borderColor,
           width: 1.5,
         ),
         gradient:
@@ -34,34 +36,40 @@ Widget kwikbutton(
                     : LinearGradient(
                       begin: Alignment.centerLeft,
                       end: Alignment.centerRight,
-                      colors: [colorCodes.jordyBlue, colorCodes.azureBlue],
+                      colors: [
+                        colorCodes.jordyBlue,
+                        colorCodes.azureBlue,
+                        colorCodes.azureBlue,
+                      ],
                     )
                 : null,
-        color: enabled == true ? colorCodes.white : colorCodes.platinum,
+        color: enabled == true ? backgroundcolor : colorCodes.platinum,
         borderRadius: BorderRadius.circular(30), // rounded corners
-        boxShadow:
-            enabled
-                ? [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
-                    offset: const Offset(0, 3),
-                    blurRadius: 6,
-                  ),
-                ]
-                : [],
+        // boxShadow:
+        // enabled
+        //     ? [
+        //       BoxShadow(
+        //         color: Colors.black.withOpacity(0.1),
+        //         offset: const Offset(0, 3),
+        //         blurRadius: 6,
+        //       ),
+        //     ]
+        //     : [],
       ),
-      child: Text(
-        btntxt,
-        style: kwikTextStlye(
-          16.0,
-          FontWeight.w600,
-          backgroundcolor == null
-              ? enabled == true
-                  ? colorCodes.whiteSmoke
-                  : colorCodes.aluminium
-              : colorCodes.textBlack,
-        ),
-      ),
+      child:
+          buttonChild ??
+          Text(
+            btntxt,
+            style: kwikTextStlye(
+              16.0,
+              FontWeight.w600,
+              backgroundcolor == null
+                  ? enabled == true
+                      ? colorCodes.whiteSmoke
+                      : colorCodes.aluminium
+                  : colorCodes.textBlack,
+            ),
+          ),
     ),
   );
 }

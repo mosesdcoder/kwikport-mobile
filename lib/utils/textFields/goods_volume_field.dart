@@ -1,12 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:hexcolor/hexcolor.dart';
 import 'package:kwik_port/colors/color.dart';
 
-Widget nameFieldColumn(errorText, controller, {title, hintText, suffixIcon}) {
+Widget goodsVolumnFieldColumn(
+  errorText,
+  controller, {
+  title,
+  hintText,
+  suffixIcon,
+}) {
   return Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
       Text(
-        title ?? 'Full Name',
+        title ?? 'Volume(tons)',
         style: TextStyle(
           fontFamily: 'Poppins',
           fontSize: 14,
@@ -24,9 +31,9 @@ Widget nameFieldColumn(errorText, controller, {title, hintText, suffixIcon}) {
         ),
         controller: controller,
         autocorrect: true,
-        keyboardType: TextInputType.name,
+        keyboardType: TextInputType.numberWithOptions(),
         decoration: InputDecoration(
-          hintText: hintText ?? 'Enter full name',
+          hintText: hintText ?? 'Min: 1 ton',
           hintStyle: TextStyle(
             fontFamily: 'Poppins',
             color: colorCodes.graniteGrey,
@@ -48,10 +55,7 @@ Widget nameFieldColumn(errorText, controller, {title, hintText, suffixIcon}) {
             borderRadius: BorderRadius.circular(8),
             borderSide: BorderSide(
               width: 1.3,
-              color:
-                  (errorText != '')
-                      ? colorCodes.portlandOrange
-                      : colorCodes.azureBlue,
+              color: colorCodes.antiFlashWhite,
             ),
           ),
           enabledBorder: OutlineInputBorder(
@@ -61,7 +65,7 @@ Widget nameFieldColumn(errorText, controller, {title, hintText, suffixIcon}) {
               color:
                   (errorText != '')
                       ? colorCodes.portlandOrange
-                      : colorCodes.azureBlue,
+                      : colorCodes.antiFlashWhite,
             ),
           ),
           focusedBorder: OutlineInputBorder(
@@ -72,9 +76,6 @@ Widget nameFieldColumn(errorText, controller, {title, hintText, suffixIcon}) {
                       ? colorCodes.portlandOrange
                       : colorCodes.azureBlue,
             ),
-            // errorBorder:  OutlineInputBorder(
-            //   borderRadius: BorderRadius.circular(8),
-            //   borderSide: BorderSide(width: 1.3, color: colorCodes.portlandOrange),
           ),
         ),
       ),

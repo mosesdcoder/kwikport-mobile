@@ -129,6 +129,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           },
           textColor: colorCodes.textBlack,
           backgroundcolor: colorCodes.white,
+          borderColor: colorCodes.darkGrey,
         ),
       ],
     );

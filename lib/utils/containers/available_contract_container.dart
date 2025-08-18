@@ -25,7 +25,7 @@ Widget avaiableontractContainer(
     width: 390,
     padding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
     decoration: BoxDecoration(
-      border: Border.all(width: 1.2, color: HexColor("#EFEFEF")),
+      border: Border.all(width: 1.2, color: colorCodes.antiFlashWhite),
       borderRadius: BorderRadius.circular(6),
       color: colorCodes.white,
     ),
@@ -33,78 +33,85 @@ Widget avaiableontractContainer(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
-          children: [
-            Image.asset(goodsImg, height: 72, width: 72),
-            Column(
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      goodsName,
-                      style: kwikTextStlye(
-                        16.0,
-                        FontWeight.w600,
-                        colorCodes.black,
-                      ),
-                    ),
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.start,
 
-                    Container(
-                      height: 24,
-                      width: 64,
-                      decoration: BoxDecoration(
-                        border: Border.all(
-                          width: 1.2,
-                          color: HexColor("#4FBB75"),
-                        ),
-                        borderRadius: BorderRadius.circular(22),
-                        color: HexColor("#D5EFDE"),
-                      ),
-                      child: Row(
-                        children: [
-                          Image.asset(
-                            contractStatusIcon,
-                            height: 16,
-                            width: 16,
-                          ),
-                          Text(
-                            contractStatus,
-                            style: kwikTextStlye(
-                              10.0,
-                              FontWeight.w500,
-                              HexColor("#4FBB75"),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 4),
-                Text(
-                  "Total volume - $totalVolume",
-                  style: kwikTextStlye(
-                    12.0,
-                    FontWeight.w400,
-                    colorCodes.graniteGrey,
-                    fontStyle: FontStyle.italic,
-                  ),
-                ),
-                SizedBox(height: 8),
-                Row(
+          children: [
+            Row(
+              children: [
+                Image.asset(goodsImg, height: 72, width: 72),
+                SizedBox(width: 16),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Image.asset(countryFlag, height: 16, width: 16),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+
+                      children: [
+                        Text(
+                          goodsName,
+                          style: kwikTextStlye(
+                            16.0,
+                            FontWeight.w600,
+                            colorCodes.black,
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 4),
                     Text(
-                      country,
+                      "Total volume - $totalVolume",
                       style: kwikTextStlye(
                         12.0,
-                        FontWeight.w300,
+                        FontWeight.w400,
                         colorCodes.graniteGrey,
+                        fontStyle: FontStyle.italic,
                       ),
+                    ),
+                    SizedBox(height: 8),
+                    Row(
+                      children: [
+                        Image.asset(countryFlag, height: 16, width: 16),
+                        Text(
+                          country,
+                          style: kwikTextStlye(
+                            12.0,
+                            FontWeight.w300,
+                            colorCodes.graniteGrey,
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
               ],
+            ),
+            Container(
+              height: 24,
+              width: 64,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                border: Border.all(
+                  width: 1.2,
+                  color: colorCodes.mediumSeaGreen,
+                ),
+                borderRadius: BorderRadius.circular(22),
+                color: colorCodes.aeroblue,
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Image.asset(contractStatusIcon, height: 16, width: 16),
+                  Text(
+                    contractStatus,
+                    style: kwikTextStlye(
+                      10.0,
+                      FontWeight.w500,
+                      colorCodes.mediumSeaGreen,
+                    ),
+                  ),
+                ],
+              ),
             ),
           ],
         ),
@@ -172,7 +179,7 @@ Widget avaiableontractContainer(
                   style: kwikTextStlye(
                     12.0,
                     FontWeight.w600,
-                    HexColor("#2CAD59"),
+                    colorCodes.pigmentGreen,
                   ),
                 ),
               ],
