@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:kwik_port/colors/color.dart';
+import 'package:kwik_port/main.dart';
 import 'package:kwik_port/ui/onboarding/auth/forgot_password.dart';
 import 'package:kwik_port/ui/onboarding/login_successful_screen.dart';
 import 'package:kwik_port/ui/onboarding/auth/signup_screen.dart';
@@ -146,6 +147,7 @@ class _LoginScreenState extends State<LoginScreen> {
               kwikbutton('Login', () {
                 if (emailController.text.isNotEmpty &&
                     passwordController.text.isNotEmpty) {
+                  currentIndex = 1;
                   Navigator.push(
                     context,
                     MaterialPageRoute(

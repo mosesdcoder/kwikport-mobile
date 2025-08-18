@@ -73,7 +73,7 @@ Widget nameAndNotifHeading(context, newNotification, notificationFunc) {
           // alignment: Alignment.center,
           decoration: BoxDecoration(
             color: colorCodes.white,
-            border: Border.all(width: 1.5, color: HexColor("#EFEFEF")),
+            border: Border.all(width: 1.5, color: colorCodes.antiFlashWhite),
             shape: BoxShape.circle,
           ),
           child: Stack(

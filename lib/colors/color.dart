@@ -18,4 +18,9 @@ class ColorCodes {
   HexColor portlandOrange = HexColor("#FF4E33");
   HexColor squidInk = HexColor("#1E293B");
   HexColor mistyRose = HexColor("#FFDCD6");
+
+  HexColor mediumSeaGreen = HexColor("#4FBB75");
+  HexColor aeroblue = HexColor("#D5EFDE");
+  HexColor pigmentGreen = HexColor("#2CAD59");
+  HexColor antiFlashWhite = HexColor("#EFEFEF");
 }

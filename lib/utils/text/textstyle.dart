@@ -1,8 +1,15 @@
 import 'package:flutter/material.dart';
 
-TextStyle kwikTextStlye(fontSize, fontWeight, color, {decoration, fontStyle}) {
+TextStyle kwikTextStlye(
+  fontSize,
+  fontWeight,
+  color, {
+  decoration,
+  fontStyle,
+  fontFamily,
+}) {
   return TextStyle(
-    fontFamily: 'Poppins',
+    fontFamily: fontFamily ?? 'Poppins',
     fontSize: fontSize,
     fontWeight: fontWeight,
     color: color,

@@ -100,22 +100,22 @@ class _ConfirmOtpScreenState extends State<ConfirmOtpScreen> {
                     'Confirm Code',
                     () {
                       if (pinController.text.length == 6) {
-                        if (pinController.text != "123456") {
-                          showToast(
-                            'Oops! Invalid code .',
-                            'Please double check and enter it correctly.',
-                            colorCodes.mistyRose,
-                            colorCodes.portlandOrange,
-                            context,
-                          );
-                        } else {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => widget.screen,
-                            ),
-                          );
-                        }
+                        // if (pinController.text != "123456") {
+                        showToast(
+                          'Oops! Invalid code .',
+                          'Please double check and enter it correctly.',
+                          colorCodes.mistyRose,
+                          colorCodes.portlandOrange,
+                          context,
+                        );
+                        // } else { 
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => widget.screen,
+                          ),
+                        );
+                        // }
                       } else {}
                     },
 

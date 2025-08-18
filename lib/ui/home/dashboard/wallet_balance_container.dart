@@ -66,7 +66,7 @@ Widget activityProgressContainer(img, title, progress) {
     width: 185,
     padding: const EdgeInsets.symmetric(horizontal: 9.0, vertical: 12.0),
     decoration: BoxDecoration(
-      border: Border.all(width: 1.2, color: HexColor("#EFEFEF")),
+      border: Border.all(width: 1.2, color: colorCodes.antiFlashWhite),
       borderRadius: BorderRadius.circular(8),
       color: colorCodes.white,
     ),
