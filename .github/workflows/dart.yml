@@ -14,7 +14,7 @@ jobs:
       # 🛠️ 1. Checkout source
       - uses: actions/checkout@v3
 
-      # 🛠️ 2. Select Xcode 15.4 (supports iOS 17/18 SDKs)
+      # 🛠️ 2. Select Xcode 15.4 (supports iOS 17)
       - name: Select Xcode
         run: sudo xcode-select -s "/Applications/Xcode_15.4.app"
 
@@ -46,27 +46,31 @@ jobs:
         run: zip -qq -r -9 FlutterIpaExport.ipa Payload
         working-directory: build/ios/iphoneos
 
-      # 🛠️ 9. Ensure Git tag exists (auto-create if missing)
-      - name: Ensure release tag
+      # 🛠️ 9. Ensure tag exists (auto-create if missing)
+      - name: Ensure release tag exists
         run: |
           git fetch --tags
           if ! git rev-parse v1.0 >/dev/null 2>&1; then
-            echo "Tag v1.0 not found. Creating..."
             git tag v1.0
-            git push origin v1.0
-          else
-            echo "Tag v1.0 already exists."
+            git push origin v1.0 || true
           fi
 
-      # 🛠️ 10. Upload IPA to GitHub release
-      - name: Upload binaries to release
+      # 🛠️ 10. Upload IPA to GitHub Release
+      - name: Upload IPA to GitHub Release
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           file: build/ios/iphoneos/FlutterIpaExport.ipa
-          asset_name: FlutterIpaExport.ipa
           tag: v1.0
-          release_name: "iOS Build v1.0"
+          overwrite: true
+          body: "🚀 First iOS release (.ipa) build from GitHub Actions"
+
+      # 🛠️ 11. Upload IPA as Artifact (download from Actions UI)
+      - name: Upload IPA as Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: Flutter-IPA
+          path: build/ios/iphoneos/FlutterIpaExport.ipa
           overwrite: true
           make_latest: true
           body: "🚀 First automated iOS IPA build uploaded by GitHub Actions."
