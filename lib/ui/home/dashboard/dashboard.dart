@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:kwik_port/colors/color.dart';
 import 'package:kwik_port/main.dart';
+import 'package:kwik_port/ui/home/contracts/available_contract_screen.dart';
 import 'package:kwik_port/ui/home/contracts/contract_details_screen.dart';
 import 'package:kwik_port/ui/home/dashboard/name_and_notif_headng.dart';
+import 'package:kwik_port/ui/home/dashboard/procurement%20Agency/select_procurement_agency_screen.dart';
 import 'package:kwik_port/ui/home/dashboard/wallet_balance_container.dart';
 import 'package:kwik_port/utils/button/bottom_navigatior_bar.dart';
 import 'package:kwik_port/utils/button/elavated_button.dart';
@@ -48,27 +50,32 @@ class _DashboardState extends State<Dashboard> {
                   notificationFunc,
                 ),
                 SizedBox(height: 30),
-                Row(
-                  // mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    walletBalanceContainer(() {}),
-                    SizedBox(width: 5),
-                    Column(
-                      children: [
-                        activityProgressContainer(
-                          "assets/images/icons/kwik_tickets.png",
-                          "Active Kwiktickets",
-                          "01",
-                        ),
-                        SizedBox(height: 5),
-                        activityProgressContainer(
-                          "assets/images/icons/completed_ecport.png",
-                          "Completed Exports",
-                          "15",
-                        ),
-                      ],
-                    ),
-                  ],
+                SizedBox(
+                  width: MediaQuery.sizeOf(context).width,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      walletBalanceContainer(() {}, context),
+                      // SizedBox(width: 5),
+                      Column(
+                        children: [
+                          activityProgressContainer(
+                            "assets/images/icons/kwik_tickets.png",
+                            "Active Kwiktickets",
+                            "01",
+                            context,
+                          ),
+                          SizedBox(height: 5),
+                          activityProgressContainer(
+                            "assets/images/icons/completed_ecport.png",
+                            "Completed Exports",
+                            "15",
+                            context,
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
                 SizedBox(height: 18),
                 procurementContainer(),
@@ -85,7 +92,15 @@ class _DashboardState extends State<Dashboard> {
                       ),
                     ),
                     InkWell(
-                      onTap: () {},
+                      onTap: () {
+                        currentIndex = 2;
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => AvailableContractScreen(),
+                          ),
+                        );
+                      },
                       child: Text(
                         "See All",
                         style: kwikTextStlye(
@@ -136,6 +151,7 @@ class _DashboardState extends State<Dashboard> {
                         "assets/images/icons/Trending up.png",
                         "15.5%",
                         () {
+                          currentIndex = 2;
                           Navigator.push(
                             context,
                             MaterialPageRoute(
@@ -213,11 +229,14 @@ class _DashboardState extends State<Dashboard> {
           SizedBox(
             height: 23,
             // width: 58,
-            child: elevatedbutton(
-              "Proceed",
-              () {},
-              backgroundcolor: colorCodes.portlandOrange,
-            ),
+            child: elevatedbutton("Proceed", () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => SelectProcurementAgencyScreen(),
+                ),
+              );
+            }, backgroundcolor: colorCodes.portlandOrange),
           ),
         ],
       ),

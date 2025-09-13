@@ -26,7 +26,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       body: Container(
         height: MediaQuery.of(context).size.height,
         // height: MediaQuery.of(context).size.height - 500,
-        // width: MediaQuery.of(context).size.width,
+        width: MediaQuery.of(context).size.width,
         padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 0),
         child: PageView(
           controller: _pageController,
@@ -84,52 +84,94 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   }
 
   Widget onboardingView(img, title, subtitle) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.start,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        Image.asset(img, height: 480, width: 430),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
+    return ListView(
+      padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 0),
 
-          children: List.generate(4, (index) => getIndicator(index)),
-        ),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 10.0),
-          child: Text(
-            title,
-            style: kwikTextStlye(38.0, FontWeight.w700, colorCodes.textBlack),
-            textAlign: TextAlign.center,
-          ),
-        ),
-        // SizedBox(height: 8),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 10.0),
-          child: Text(
-            subtitle,
-            style: kwikTextStlye(16.0, FontWeight.w500, colorCodes.graniteGrey),
-            textAlign: TextAlign.center,
-          ),
-        ),
-        SizedBox(height: 15),
-        kwikbutton('Become an Exporter', () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => SignupScreen()),
-          );
-        }),
-        SizedBox(height: 15),
-        kwikbutton(
-          'Login',
-          () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => LoginScreen()),
-            );
-          },
-          textColor: colorCodes.textBlack,
-          backgroundcolor: colorCodes.white,
-          borderColor: colorCodes.darkGrey,
+      children: [
+        Stack(
+          children: [
+            Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Image.asset(
+                  img,
+                  // height: 430,
+                  width: 430,
+                ),
+                
+                
+              ],
+            ),
+       Container(
+        child:   Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Image.asset(
+                  img,
+                  // height: 430,
+                  width: 430,
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+            
+                  children: List.generate(4, (index) => getIndicator(index)),
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10.0,
+                    vertical: 0,
+                  ),
+                  child: Column(
+                    children: [
+                      Text(
+                        title,
+                        style: kwikTextStlye(
+                          32.0,
+                          FontWeight.w700,
+                          colorCodes.textBlack,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                      // SizedBox(height: 8),
+                      Text(
+                        subtitle,
+                        style: kwikTextStlye(
+                          16.0,
+                          FontWeight.w500,
+                          colorCodes.graniteGrey,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                      SizedBox(height: 15),
+                      kwikbutton('Become an Exporter', () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => SignupScreen()),
+                        );
+                      }),
+                      SizedBox(height: 10),
+                      kwikbutton(
+                        'Login',
+                        () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => LoginScreen()),
+                          );
+                        },
+                        textColor: colorCodes.textBlack,
+                        backgroundcolor: colorCodes.white,
+                        borderColor: colorCodes.darkGrey,
+                      ),
+                      SizedBox(height: 10),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+       )
+          ],
         ),
       ],
     );

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:kwik_port/colors/color.dart';
+import 'package:kwik_port/ui/home/dashboard/dashboard.dart';
 import 'package:kwik_port/utils/button/kwik_button.dart';
 import 'package:kwik_port/utils/text/contract_detail_heading_and_subtitle.dart';
 import 'package:kwik_port/utils/text/textstyle.dart';
@@ -233,16 +234,16 @@ class _KwikticketCreatedSuccessfullyState
               ),
               SizedBox(height: 24),
               kwikbutton("View Kwickticket", () {
-                // Navigator.push(
-                //   context,
-                //   MaterialPageRoute(builder: (context) => ()),
-                // );
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => Dashboard()),
+                );
               }),
               SizedBox(height: 10),
               kwikbutton(
                 'Back to Home',
                 () {
-                  Navigator.pop(context);
+                  // Navigator.pop(context);
                 },
                 textColor: colorCodes.textBlack,
                 backgroundcolor: colorCodes.white,

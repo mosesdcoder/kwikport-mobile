@@ -37,9 +37,15 @@ Widget nameFieldColumn(errorText, controller, {title, hintText, suffixIcon}) {
             horizontal: 14,
             vertical: 8,
           ),
+
           suffixIcon: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 3.0),
-            margin: const EdgeInsets.symmetric(horizontal: 4.0),
+            height: 12,
+            width: 12,
+            padding: const EdgeInsets.symmetric(
+              horizontal: 10.0,
+              vertical: 10.0,
+            ),
+            margin: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 3.0),
             child: suffixIcon ?? SizedBox(),
           ),
           fillColor: colorCodes.white,

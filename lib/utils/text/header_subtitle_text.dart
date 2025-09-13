@@ -2,7 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:kwik_port/colors/color.dart';
 import 'package:kwik_port/utils/text/textstyle.dart';
 
-Column headerSubtitleDescription(title, description) {
+Column headerSubtitleDescription(
+  title,
+  description, {
+  subtitlefontSize,
+  subtitlefontWeight,
+}) {
   return Column(
     mainAxisAlignment: MainAxisAlignment.start,
     crossAxisAlignment: CrossAxisAlignment.start,
@@ -14,7 +19,11 @@ Column headerSubtitleDescription(title, description) {
       SizedBox(height: 4),
       Text(
         description,
-        style: kwikTextStlye(16.0, FontWeight.w400, colorCodes.jetBlack),
+        style: kwikTextStlye(
+          subtitlefontSize ?? 16.0,
+          subtitlefontWeight ?? FontWeight.w400,
+          colorCodes.jetBlack,
+        ),
       ),
     ],
   );

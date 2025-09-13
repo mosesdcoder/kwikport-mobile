@@ -21,8 +21,8 @@ class _BottomnavigationbarState extends State<Bottomnavigationbar> {
       child: Align(
         alignment: Alignment.bottomCenter,
         child: Container(
-          height: 79,
-          padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 24),
+          height: 85,
+          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
           decoration: BoxDecoration(
             color: colorCodes.white,
             border: Border.all(color: colorCodes.antiFlashWhite),
@@ -83,6 +83,7 @@ class _BottomnavigationbarState extends State<Bottomnavigationbar> {
 
   Widget btmNavCol(location, indexId, img2, img1, screen) {
     return Expanded(
+      // width: 65,
       child: InkWell(
         onTap: () {
           setState(() {

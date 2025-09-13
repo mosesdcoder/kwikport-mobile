@@ -56,7 +56,11 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                       'Enter your details below to set up your profile',
                     ),
                     SizedBox(height: 32),
-                    nameFieldColumn(nameerrorText, fullNamecontroller),
+                    nameFieldColumn(
+                      nameerrorText,
+                      fullNamecontroller,
+                      title: "Username",
+                    ),
                     nameerrorText == ""
                         ? Container()
                         : validationtext(nameerrorText),
@@ -71,8 +75,8 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                           bussinessNamecontroller.text.isNotEmpty
                               ? Image.asset(
                                 'assets/images/icons/Checkbox.png',
-                                height: 16,
-                                width: 16,
+                                height: 12,
+                                width: 12,
                               )
                               : SizedBox(),
                     ),

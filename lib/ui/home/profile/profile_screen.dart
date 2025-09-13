@@ -121,7 +121,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         "Phone Number",
                         "Email Address",
                         "+234-810-9957-139",
-                        "+234-810-9957-139",
+                        "Johngbenga@gmail.com",
                       ),
                       SizedBox(height: 20.0),
                       contractDetailHeadingAndSubtitle(

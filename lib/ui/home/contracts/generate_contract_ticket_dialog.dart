@@ -43,151 +43,180 @@ class _GenerateContractTicketDialogState
 
   @override
   Widget build(BuildContext context) {
-    return Dialog(
-      surfaceTintColor: HexColor("#121212"),
-      child: Container(
-        height: 552,
-        // width: double.infinity,
-        width: 390,
-
-        decoration: BoxDecoration(
-          color: colorCodes.white,
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: colorCodes.antiFlashWhite, width: 1.2),
-        ),
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  "Generate kwikticket",
-                  style: kwikTextStlye(20.0, FontWeight.w600, colorCodes.black),
-                ),
-                InkWell(
-                  onTap: () {
-                    Navigator.pop(context);
-                  },
-                  child: Image.asset(
-                    "assets/images/icons/close-circle.png",
-                    height: 24,
-                    width: 24,
-                  ),
-                ),
-              ],
-            ),
-            SizedBox(height: 12),
-            Image.asset("assets/images/cocoa.png", height: 52, width: 52),
-            SizedBox(height: 8),
-            Text(
-              "Agricultural Commodity ",
-              style: kwikTextStlye(
-                12.0,
-                FontWeight.w300,
-                colorCodes.graniteGrey,
-              ),
-            ),
-            SizedBox(height: 2),
-            Text(
-              "Cocoa bean",
-              style: kwikTextStlye(20.0, FontWeight.w600, colorCodes.black),
-            ),
-            SizedBox(height: 16),
-            goodsVolumnFieldColumn(
-              "",
-              volumeControlller,
-              suffixIcon: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
+    return SizedBox(
+      width: 390,
+      child: Dialog(
+        // child: SingleChildScrollView(
+        // child: Padding(
+        // padding: EdgeInsets.only(
+        //   bottom: MediaQuery.of(context).viewInsets.bottom,
+        //   left: 16,
+        //   right: 16,
+        //   top: 16,
+        // ),
+        child: Container(
+          height: 550,
+          // height: double.infinity,
+          // width: double.infinity,
+          // width: MediaQuery.of(context).size.width - 50,
+          width: 390,
+          decoration: BoxDecoration(
+            color: colorCodes.white,
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(color: colorCodes.antiFlashWhite, width: 1.2),
+          ),
+          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16),
+          child: ListView(
+            children: [
+              Column(
+                // mainAxisSize: MainAxisSize.min,
                 children: [
-                  InkWell(
-                    onTap: () {
-                      if (volumeControlller.text.isNotEmpty) {
-                        setState(() {
-                          volumeControlller.text =
-                              (double.parse(volumeControlller.text) + 1.0)
-                                  .toString();
-                          print(volumeControlller.text);
-                        });
-                      }
-                    },
-                    child: Image.asset(
-                      "assets/images/icons/arrow-up.png",
-                      height: 12,
-                      width: 12,
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        "Generate kwikticket",
+                        style: kwikTextStlye(
+                          20.0,
+                          FontWeight.w600,
+                          colorCodes.black,
+                        ),
+                      ),
+                      InkWell(
+                        onTap: () {
+                          Navigator.pop(context);
+                        },
+                        child: Image.asset(
+                          "assets/images/icons/close-circle.png",
+                          height: 24,
+                          width: 24,
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 12),
+                  Image.asset("assets/images/cocoa.png", height: 52, width: 52),
+                  SizedBox(height: 8),
+                  Text(
+                    "Agricultural Commodity ",
+                    style: kwikTextStlye(
+                      12.0,
+                      FontWeight.w300,
+                      colorCodes.graniteGrey,
                     ),
                   ),
-                  InkWell(
-                    onTap: () {
-                      if (volumeControlller.text.isNotEmpty) {
-                        final volume = double.parse(volumeControlller.text);
-                        if (volume == 1.0) {
-                        } else {
-                          setState(() {
-                            2 - 1;
-                            volumeControlller.text =
-                                (double.parse(volumeControlller.text) - 1.0)
-                                    .toString();
-                          });
-                        }
-                      }
-                    },
-                    child: Image.asset(
-                      "assets/images/icons/arrow-down.png",
-                      height: 12,
-                      width: 12,
+                  SizedBox(height: 2),
+                  Text(
+                    "Cocoa bean",
+                    style: kwikTextStlye(
+                      20.0,
+                      FontWeight.w600,
+                      colorCodes.black,
                     ),
                   ),
+                  SizedBox(height: 16),
+                  goodsVolumnFieldColumn(
+                    "",
+                    volumeControlller,
+                    suffixIcon: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        InkWell(
+                          onTap: () {
+                            if (volumeControlller.text.isNotEmpty) {
+                              setState(() {
+                                volumeControlller.text =
+                                    (double.parse(volumeControlller.text) + 1.0)
+                                        .toString();
+                                print(volumeControlller.text);
+                              });
+                            }
+                          },
+                          child: Image.asset(
+                            "assets/images/icons/arrow-up.png",
+                            height: 12,
+                            width: 12,
+                          ),
+                        ),
+                        InkWell(
+                          onTap: () {
+                            if (volumeControlller.text.isNotEmpty) {
+                              final volume = double.parse(
+                                volumeControlller.text,
+                              );
+                              if (volume == 1.0) {
+                              } else {
+                                setState(() {
+                                  2 - 1;
+                                  volumeControlller.text =
+                                      (double.parse(volumeControlller.text) -
+                                              1.0)
+                                          .toString();
+                                });
+                              }
+                            }
+                          },
+                          child: Image.asset(
+                            "assets/images/icons/arrow-down.png",
+                            height: 12,
+                            width: 12,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  SizedBox(height: 8),
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: RichText(
+                      textAlign: TextAlign.start,
+                      text: TextSpan(
+                        style: TextStyle(
+                          fontFamily: "",
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          color: colorCodes.mediumSeaGreen,
+                        ),
+                        children: [
+                          TextSpan(text: " Available: "),
+                          TextSpan(text: "80 tons"),
+                        ],
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 24),
+                  marketRateContainer(
+                    "₦12,000,000",
+                    "Total Cost (${volumeControlller.text} tons)",
+                    "₦246,000,000",
+                    volumeControlller.text,
+                  ),
+                  SizedBox(height: 24),
+                  kwikbutton("Generate Ticket", () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder:
+                            (context) => KwikticketCreatedSuccessfully(
+                              kwikticketID: "#Kwk-8989-09",
+                              exporterName: "John  Gbenga",
+                              exportItem: "Cocoa bean",
+                              contractType: "Agricultural Commodity",
+                              stakedVolume: "20.5 tons",
+                              capitalCost: "₦246,000,000",
+                              destination: "Argentina",
+                            ),
+                      ),
+                    );
+                  }),
+                  SizedBox(height: 10),
                 ],
               ),
-            ),
-            SizedBox(height: 8),
-            Align(
-              alignment: Alignment.centerLeft,
-              child: RichText(
-                textAlign: TextAlign.start,
-                text: TextSpan(
-                  style: TextStyle(
-                    fontFamily: "",
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                    color: colorCodes.mediumSeaGreen,
-                  ),
-                  children: [
-                    TextSpan(text: " Available: "),
-                    TextSpan(text: "80 tons"),
-                  ],
-                ),
-              ),
-            ),
-            SizedBox(height: 24),
-            marketRateContainer(
-              "₦12,000,000",
-              "Total Cost (${volumeControlller.text} tons)",
-              "₦246,000,000",
-              volumeControlller.text,
-            ),
-            SizedBox(height: 24),
-            kwikbutton("Generate Ticket", () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder:
-                      (context) => KwikticketCreatedSuccessfully(
-                        kwikticketID: "#Kwk-8989-09",
-                        exporterName: "John  Gbenga",
-                        exportItem: "Cocoa bean",
-                        contractType: "Agricultural Commodity",
-                        stakedVolume: "20.5 tons",
-                        capitalCost: "₦246,000,000",
-                        destination: "Argentina",
-                      ),
-                ),
-              );
-            }),
-          ],
+            ],
+          ),
         ),
+        // ),
+        // ),
       ),
     );
   }
@@ -196,8 +225,8 @@ class _GenerateContractTicketDialogState
 Widget marketRateContainer(pricePerTon, totalCost, totalCostPrice, volume) {
   return Container(
     height: volume == "" ? 92 : 130,
-    width: 342,
-    padding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+    width: 352,
+    padding: EdgeInsets.symmetric(horizontal: 5, vertical: 16),
     decoration: BoxDecoration(
       color: colorCodes.whiteSmoke,
       borderRadius: BorderRadius.circular(8),
@@ -225,7 +254,7 @@ Widget marketRateContainer(pricePerTon, totalCost, totalCostPrice, volume) {
             Text(
               "Price per ton",
               style: kwikTextStlye(
-                14.0,
+                12.0,
                 FontWeight.w300,
                 colorCodes.graniteGrey,
               ),
@@ -250,8 +279,8 @@ Widget marketRateContainer(pricePerTon, totalCost, totalCostPrice, volume) {
                 Text(
                   totalCost,
                   style: kwikTextStlye(
-                    14.0,
-                    FontWeight.w600,
+                    12.0,
+                    FontWeight.w300,
                     colorCodes.textBlack,
                   ),
                 ),

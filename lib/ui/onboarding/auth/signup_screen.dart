@@ -103,10 +103,22 @@ class _SignupScreenState extends State<SignupScreen> {
               headerSubtitleDescription(
                 'Create an Account',
                 'Enter your detail below to create your account',
+                subtitlefontSize: 14.0,
+                subtitlefontWeight: FontWeight.w300,
               ),
               SizedBox(height: 32),
               nameFieldColumn(fullnameVal, fullnameController),
               SizedBox(height: 16),
+              Text(
+                'Phone Number',
+                style: TextStyle(
+                  fontFamily: 'Poppins',
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                  color: colorCodes.black,
+                ),
+              ),
+              SizedBox(height: 8),
               phoneTextfield(
                 phoneNumberFocusNode,
                 phoneNumberController,

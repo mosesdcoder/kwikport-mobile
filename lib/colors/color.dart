@@ -23,4 +23,9 @@ class ColorCodes {
   HexColor aeroblue = HexColor("#D5EFDE");
   HexColor pigmentGreen = HexColor("#2CAD59");
   HexColor antiFlashWhite = HexColor("#EFEFEF");
+  HexColor paleCornflowerBlue = HexColor("#B1CEF9");
+  HexColor bluetiful = HexColor("#166CEC");
+  HexColor rufous = HexColor("#9F2D00");
+  HexColor yellowOrange = HexColor("#FFAA33");
+  HexColor floralWhite = HexColor("#FFF7ED");
 }

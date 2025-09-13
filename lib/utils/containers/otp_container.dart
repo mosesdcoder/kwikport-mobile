@@ -56,7 +56,7 @@ Widget otpContainer(
 
                     selectedColor: colorText,
                     activeColor: colorText,
-                    inactiveColor: colorCodes.graniteGrey,
+                    inactiveColor: colorCodes.graniteGrey.withOpacity(0.4),
                   ),
                   onChanged: onTextChanged,
                   autoFocus: true,

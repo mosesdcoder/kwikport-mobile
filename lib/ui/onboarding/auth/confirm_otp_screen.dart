@@ -27,8 +27,8 @@ class _ConfirmOtpScreenState extends State<ConfirmOtpScreen> {
   int pinLength = 6;
   bool hasError = false;
   late String errorMessage;
-  Color colorText = colorCodes.black;
-  Color defaultBorderColor = colorCodes.graniteGrey;
+  Color colorText = colorCodes.jetBlack;
+  Color defaultBorderColor = colorCodes.jetBlack;
   @override
   void initState() {
     super.initState();
@@ -108,7 +108,7 @@ class _ConfirmOtpScreenState extends State<ConfirmOtpScreen> {
                           colorCodes.portlandOrange,
                           context,
                         );
-                        // } else { 
+                        // } else {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
