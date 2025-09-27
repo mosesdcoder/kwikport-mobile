@@ -4,6 +4,7 @@ import 'package:kwik_port/colors/color.dart';
 import 'package:kwik_port/main.dart';
 import 'package:kwik_port/ui/home/contracts/contract_screen.dart';
 import 'package:kwik_port/ui/home/dashboard/dashboard.dart';
+import 'package:kwik_port/ui/home/exportfulfillment/KycVerification/kyc_verification_screen.dart';
 import 'package:kwik_port/ui/home/profile/profile_screen.dart';
 import 'package:kwik_port/utils/text/textstyle.dart';
 
@@ -54,7 +55,7 @@ class _BottomnavigationbarState extends State<Bottomnavigationbar> {
                 'Contracts',
               ),
               btmNavCol(
-                const Dashboard(),
+                const KycVerificationScreen(),
                 3,
                 'ticket_enabled.png',
                 'ticket.png',

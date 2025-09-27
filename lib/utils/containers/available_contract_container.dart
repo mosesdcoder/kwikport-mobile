@@ -222,3 +222,151 @@ Widget avaiableontractContainer(
     ),
   );
 }
+
+Widget avaiableontractContainerUpdated(
+  goodsImg,
+  goodsName,
+  contractStatusIcon,
+  contractStatus,
+  goodsquality,
+  countryFlag,
+  country,
+  contractValue,
+
+  viewContractFunc,
+) {
+  return Container(
+    height: 179,
+    width: 342,
+    // padding: EdgeInsets.only(horizontal: 16, vertical: 16),
+    decoration: BoxDecoration(
+      border: Border.all(width: 1.2, color: colorCodes.antiFlashWhite),
+      borderRadius: BorderRadius.circular(16),
+      color: colorCodes.white,
+      boxShadow: [
+        BoxShadow(
+          color: const Color(0x1A000000), // #0000001A (black with opacity 0.1)
+          offset: const Offset(0, 0), // x,y shadow position
+          blurRadius: 20, // blur amount
+          spreadRadius: 0, // spread
+        ),
+      ],
+    ),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        InkWell(
+          onTap: viewContractFunc,
+          child: Image.asset(
+            "assets/images/Group 2367.png",
+            height: 86,
+            width: 342,
+          ),
+        ),
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+          child: Column(
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        goodsName,
+                        style: kwikTextStlye(
+                          18.0,
+                          FontWeight.w600,
+                          colorCodes.black,
+                        ),
+                      ),
+
+                      SizedBox(height: 4),
+                      Text(
+                        "$goodsquality",
+                        style: kwikTextStlye(
+                          12.0,
+                          FontWeight.w300,
+                          colorCodes.graniteGrey,
+                        ),
+                      ),
+                    ],
+                  ),
+                  Container(
+                    height: 24,
+                    width: 64,
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      border: Border.all(
+                        width: 1.2,
+                        color: colorCodes.mediumSeaGreen,
+                      ),
+                      borderRadius: BorderRadius.circular(22),
+                      color: colorCodes.aeroblue,
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Image.asset(contractStatusIcon, height: 16, width: 16),
+                        Text(
+                          contractStatus,
+                          style: kwikTextStlye(
+                            10.0,
+                            FontWeight.w500,
+                            colorCodes.mediumSeaGreen,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(height: 4),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Row(
+                    children: [
+                      Image.asset(countryFlag, height: 16, width: 16),
+                      Text(
+                        country,
+                        style: kwikTextStlye(
+                          12.0,
+                          FontWeight.w300,
+                          colorCodes.graniteGrey,
+                        ),
+                      ),
+                    ],
+                  ),
+                  Column(
+                    children: [
+                      Text(
+                        contractValue,
+                        style: kwikTextStlye(
+                          12.0,
+                          FontWeight.w600,
+                          colorCodes.black,
+                        ),
+                      ),
+                      Text(
+                        "Total contract value",
+                        style: kwikTextStlye(
+                          10.0,
+                          FontWeight.w300,
+                          colorCodes.graniteGrey,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ],
+    ),
+  );
+}

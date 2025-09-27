@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:kwik_port/colors/color.dart';
+import 'package:kwik_port/main.dart';
+import 'package:kwik_port/ui/home/contracts/kwikticket_screen.dart';
 import 'package:kwik_port/ui/home/dashboard/dashboard.dart';
+import 'package:kwik_port/utils/button/backNav_button.dart';
+import 'package:kwik_port/utils/button/bottom_navigatior_bar.dart';
 import 'package:kwik_port/utils/button/kwik_button.dart';
 import 'package:kwik_port/utils/text/contract_detail_heading_and_subtitle.dart';
 import 'package:kwik_port/utils/text/textstyle.dart';
@@ -35,15 +39,29 @@ class _KwikticketCreatedSuccessfullyState
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBody: true,
       backgroundColor: colorCodes.whiteSmoke,
       body: ListView(
-        padding: EdgeInsets.symmetric(horizontal: 20, vertical: 35),
+        padding: EdgeInsets.symmetric(horizontal: 20, vertical: 40),
         children: [
           Column(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              SizedBox(height: 20),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: backnavButton(
+                  context,
+                  func: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => Dashboard()),
+                    );
+                    currentIndex = 1;
+                  },
+                ),
+              ),
+              SizedBox(height: 15),
               Image.asset(
                 'assets/images/icons/ticket_generate_success.png',
                 height: 96,
@@ -56,6 +74,44 @@ class _KwikticketCreatedSuccessfullyState
                 textAlign: TextAlign.center,
               ),
               SizedBox(height: 21),
+              Container(
+                height: 45,
+                width: 300,
+                alignment: Alignment.center,
+                padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                decoration: BoxDecoration(
+                  color: colorCodes.white,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(
+                    width: 1.5,
+                    color: colorCodes.paleCornflowerBlue,
+                  ),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Image.asset(
+                      "assets/images/icons/dashboard/kwikticket_blue.png",
+                      height: 25,
+                      width: 25,
+                    ),
+                    SizedBox(width: 6),
+                    SizedBox(
+                      width: 242,
+                      child: Text(
+                        "This is your personalised contract offer.",
+                        style: kwikTextStlye(
+                          12.0,
+                          FontWeight.w300,
+                          colorCodes.jetBlack,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              SizedBox(height: 24),
               Container(
                 height: 395,
                 width: 390,
@@ -74,7 +130,7 @@ class _KwikticketCreatedSuccessfullyState
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    contractDetailHeadingAndSubtitle(
+                    contractDetailHeadingAndSubtitletwo(
                       "Kwikticket ID",
                       "Exporter Name",
                       widget.kwikticketID,
@@ -83,7 +139,7 @@ class _KwikticketCreatedSuccessfullyState
                       // "John  Gbenga",
                     ),
                     SizedBox(height: 20),
-                    contractDetailHeadingAndSubtitle(
+                    contractDetailHeadingAndSubtitletwo(
                       "Export Item",
                       "Contract type",
                       widget.exportItem,
@@ -93,21 +149,21 @@ class _KwikticketCreatedSuccessfullyState
                       // "Agricultural Commodity",
                     ),
                     SizedBox(height: 20),
-                    contractDetailHeadingAndSubtitle(
-                      "Staked volume",
-                      "Capital cost",
+                    contractDetailHeadingAndSubtitletwo(
+                      "Selected Capacity",
+                      "Commodity Cost",
                       widget.stakedVolume,
                       widget.capitalCost,
                       // "20.5 tons",
                       // "₦246,000,000",
                       fontFamily: "",
                     ),
-
+                    SizedBox(height: 20),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          "Total contract value",
+                          "Buyer Price Per Ton",
                           style: kwikTextStlye(
                             12.0,
                             FontWeight.w300,
@@ -115,7 +171,7 @@ class _KwikticketCreatedSuccessfullyState
                           ),
                         ),
                         Text(
-                          "Projected Return",
+                          "Export Gross Earning",
                           style: kwikTextStlye(
                             12.0,
                             FontWeight.w300,
@@ -210,7 +266,7 @@ class _KwikticketCreatedSuccessfullyState
                               //   width: 16,
                               // ),
                               Text(
-                                "Awaiting",
+                                "Non-active",
                                 style: kwikTextStlye(
                                   10.0,
                                   FontWeight.w500,
@@ -236,12 +292,24 @@ class _KwikticketCreatedSuccessfullyState
               kwikbutton("View Kwickticket", () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => Dashboard()),
+                  MaterialPageRoute(
+                    builder:
+                        (context) => KwikticketScreen(
+                          kwikticketID: widget.kwikticketID,
+                          exporterName: widget.exporterName,
+                          exportItem: widget.exportItem,
+                          contractType: widget.contractType,
+                          stakedVolume: widget.stakedVolume,
+                          capitalCost: widget.capitalCost,
+                          destination: widget.destination,
+                        ),
+                  ),
                 );
+                currentIndex = 3;
               }),
               SizedBox(height: 10),
               kwikbutton(
-                'Back to Home',
+                'Back to Home', //dud
                 () {
                   // Navigator.pop(context);
                 },
@@ -267,10 +335,12 @@ class _KwikticketCreatedSuccessfullyState
                   ],
                 ),
               ),
+              SizedBox(height: 50),
             ],
           ),
         ],
       ),
+      bottomNavigationBar: Bottomnavigationbar(3),
     );
   }
 }

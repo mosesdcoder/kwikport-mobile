@@ -6,12 +6,13 @@ import 'package:kwik_port/utils/button/kwik_button.dart';
 import 'package:kwik_port/utils/text/textstyle.dart';
 
 class AgencySelectionConfirmedDialog extends StatefulWidget {
-  final serviceFee, totalcostTons, totalCost;
+  final serviceFee, totalcostTons, totalCost, continueFunc;
   const AgencySelectionConfirmedDialog({
     super.key,
     required this.serviceFee,
     required this.totalcostTons,
     required this.totalCost,
+    required this.continueFunc,
   });
 
   @override
@@ -35,7 +36,7 @@ class _AgencySelectionConfirmedDialogState
             borderRadius: BorderRadius.circular(16),
             border: Border.all(color: colorCodes.antiFlashWhite, width: 1.2),
           ),
-          padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 24),
+          padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 24),
           child: ListView(
             children: [
               Column(
@@ -49,8 +50,8 @@ class _AgencySelectionConfirmedDialogState
                   Text(
                     "Agency Selection Confirmed!",
                     style: kwikTextStlye(
-                      18.0,
-                      FontWeight.w600,
+                      16.0,
+                      FontWeight.w500,
                       colorCodes.black,
                     ),
                   ),
@@ -68,7 +69,7 @@ class _AgencySelectionConfirmedDialogState
                       ),
                     ),
                     padding: const EdgeInsets.symmetric(
-                      horizontal: 13.0,
+                      horizontal: 10.0,
                       vertical: 24,
                     ),
                     child: Column(
@@ -83,7 +84,7 @@ class _AgencySelectionConfirmedDialogState
                         Text(
                           "GreenGate Procurement",
                           style: kwikTextStlye(
-                            18.0,
+                            16.0,
                             FontWeight.w600,
                             colorCodes.black,
                           ),
@@ -136,8 +137,8 @@ class _AgencySelectionConfirmedDialogState
                                     "Total Cost (${widget.totalcostTons} tons)",
                                     textAlign: TextAlign.center,
                                     style: kwikTextStlye(
-                                      12.0,
-                                      FontWeight.w600,
+                                      10.0,
+                                      FontWeight.w500,
                                       colorCodes.black,
                                     ),
                                   ),
@@ -146,8 +147,8 @@ class _AgencySelectionConfirmedDialogState
                                     textAlign: TextAlign.center,
                                     style: TextStyle(
                                       fontFamily: "",
-                                      fontSize: 12.0,
-                                      fontWeight: FontWeight.w600,
+                                      fontSize: 10.0,
+                                      fontWeight: FontWeight.w500,
                                       color: colorCodes.black,
                                     ),
                                   ),
@@ -173,14 +174,7 @@ class _AgencySelectionConfirmedDialogState
                   SizedBox(height: 50),
                   kwikbutton(
                     "Continue your export tracking",
-                    () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => ExportJourneyScreen(),
-                        ),
-                      );
-                    },
+                    widget.continueFunc,
                     buttonChild: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
@@ -193,7 +187,7 @@ class _AgencySelectionConfirmedDialogState
                         Text(
                           "Continue your export tracking",
                           style: kwikTextStlye(
-                            14.0,
+                            12.0,
                             FontWeight.w500,
                             colorCodes.whiteSmoke,
                           ),

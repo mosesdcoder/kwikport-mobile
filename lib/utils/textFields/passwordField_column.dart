@@ -70,7 +70,7 @@ Column passwordtextFieldColumn(
                       : Image.asset(
                         'assets/images/icons/eye.png',
                         color: colorCodes.graniteGrey,
-                        width: 2,
+                        width: 24,
                         height: 24,
                       ),
             ),

@@ -71,7 +71,7 @@ class _ContractDetailsScreenState extends State<ContractDetailsScreen>
                           width: 342,
                         ),
                         Positioned(
-                          top: 23,
+                          top: 35,
                           right: 17,
                           // bottom: 0,
                           // left: 0,

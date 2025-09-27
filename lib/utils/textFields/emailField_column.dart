@@ -77,3 +77,80 @@ Widget emailFieldColumn(errorText, controller, {title}) {
     ],
   );
 }
+
+Widget kycemailFieldColumn(errorText, controller, {title}) {
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Text(
+        title ?? 'Email Address',
+        style: TextStyle(
+          fontFamily: 'Poppins',
+          fontSize: 12,
+          fontWeight: FontWeight.w500,
+          color: colorCodes.black,
+        ),
+      ),
+      SizedBox(height: 5),
+      TextField(
+        style: TextStyle(
+          fontFamily: 'Poppins',
+          fontSize: 12,
+          fontWeight: FontWeight.w300,
+          color: colorCodes.graniteGrey,
+        ),
+        controller: controller,
+        autocorrect: true,
+        keyboardType: TextInputType.emailAddress,
+        decoration: InputDecoration(
+          hintText: 'user@gmail.com',
+          hintStyle: TextStyle(
+            fontFamily: 'Poppins',
+            color: colorCodes.graniteGrey,
+            fontSize: 12,
+            fontWeight: FontWeight.w300,
+          ),
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 14,
+            vertical: 8,
+          ),
+
+          fillColor: colorCodes.antiFlashWhite,
+          filled: true,
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(8),
+            borderSide: BorderSide(
+              width: 1.3,
+              color:
+                  (errorText != '')
+                      ? colorCodes.portlandOrange
+                      : colorCodes.antiFlashWhite,
+            ),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(8),
+            borderSide: BorderSide(
+              width: 1.3,
+              color:
+                  (errorText != '')
+                      ? colorCodes.portlandOrange
+                      : colorCodes.antiFlashWhite,
+            ),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(8),
+            borderSide: BorderSide(
+              color:
+                  (errorText != '')
+                      ? colorCodes.portlandOrange
+                      : colorCodes.antiFlashWhite,
+            ),
+            // errorBorder:  OutlineInputBorder(
+            //   borderRadius: BorderRadius.circular(8),
+            //   borderSide: BorderSide(width: 1.3, color: colorCodes.portlandOrange),
+          ),
+        ),
+      ),
+    ],
+  );
+}

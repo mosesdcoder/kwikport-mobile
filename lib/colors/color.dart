@@ -28,4 +28,10 @@ class ColorCodes {
   HexColor rufous = HexColor("#9F2D00");
   HexColor yellowOrange = HexColor("#FFAA33");
   HexColor floralWhite = HexColor("#FFF7ED");
+  HexColor papayaWhip = HexColor("#FFEED6");
+  HexColor sinopia = HexColor("#CA3500");
+  HexColor gainsboro = HexColor("#D8D8D8");
+  HexColor aeroBlue = HexColor("#D5EFDE");
+  HexColor mintCream = HexColor("#F5FDF8");
+  HexColor sunset = HexColor("#FFD7A8");
 }

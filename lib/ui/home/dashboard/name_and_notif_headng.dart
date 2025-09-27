@@ -65,40 +65,55 @@ Widget nameAndNotifHeading(context, newNotification, notificationFunc) {
           ),
         ],
       ),
-      InkWell(
-        onTap: notificationFunc,
-        child: Container(
-          height: 48,
-          width: 48,
-          // alignment: Alignment.center,
-          decoration: BoxDecoration(
-            color: colorCodes.white,
-            border: Border.all(width: 1.5, color: colorCodes.antiFlashWhite),
-            shape: BoxShape.circle,
+      Row(
+        children: [
+          InkWell(
+            onTap: () {},
+            child: Image.asset(
+              "assets/images/icons/informationIcon.png",
+              height: 44,
+              width: 44,
+            ),
           ),
-          child: Stack(
-            alignment: Alignment.center,
-            children: [
-              Image.asset(
-                'assets/images/icons/notification.png',
-                color: colorCodes.black,
-                height: 24,
-                width: 24,
+          InkWell(
+            onTap: notificationFunc,
+            child: Container(
+              height: 48,
+              width: 48,
+              // alignment: Alignment.center,
+              decoration: BoxDecoration(
+                color: colorCodes.white,
+                border: Border.all(
+                  width: 1.5,
+                  color: colorCodes.antiFlashWhite,
+                ),
+                shape: BoxShape.circle,
               ),
-              newNotification
-                  ? Positioned(
-                    bottom: 17,
-                    // top: 0,
-                    left: 18,
-                    child: CircleAvatar(
-                      radius: 3.0,
-                      backgroundColor: HexColor("#FF4E33"),
-                    ),
-                  )
-                  : Container(),
-            ],
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  Image.asset(
+                    'assets/images/icons/notification.png',
+                    color: colorCodes.black,
+                    height: 24,
+                    width: 24,
+                  ),
+                  newNotification
+                      ? Positioned(
+                        top: 12,
+                        // top: 0,
+                        right: 15,
+                        child: CircleAvatar(
+                          radius: 3.0,
+                          backgroundColor: colorCodes.portlandOrange,
+                        ),
+                      )
+                      : Container(),
+                ],
+              ),
+            ),
           ),
-        ),
+        ],
       ),
     ],
   );

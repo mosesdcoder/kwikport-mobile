@@ -18,7 +18,7 @@ Widget procurementAgencyContainer(
   return Container(
     height: 250,
     width: 390,
-    padding: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+    padding: EdgeInsets.symmetric(horizontal: 12, vertical: 20),
     decoration: BoxDecoration(
       borderRadius: BorderRadius.circular(16),
       color: colorCodes.white,
@@ -66,19 +66,13 @@ Widget procurementAgencyContainer(
           ],
         ),
         SizedBox(height: 15),
-        Row(
+        Column(
           children: [
-            SizedBox(height: 40, width: 40),
-            SizedBox(width: 10),
-            Column(
-              children: [
-                infoRow("Service Fee", serviceFee, serviceFeeConvert),
-                SizedBox(height: 5),
-                infoRow("Delivery Time", "4 days", "96hours"),
-                SizedBox(height: 5),
-                infoRow("Reviews", "120 reviews", ""),
-              ],
-            ),
+            infoRow("Service Fee", serviceFee, serviceFeeConvert),
+            SizedBox(height: 5),
+            infoRow("Delivery Time", "4 days", "96hours"),
+            SizedBox(height: 5),
+            infoRow("Reviews", "120 reviews", ""),
           ],
         ),
         SizedBox(height: 15),
@@ -87,7 +81,7 @@ Widget procurementAgencyContainer(
           children: [
             SizedBox(
               height: 31,
-              width: 161,
+              width: 140,
               child: kwikbutton(
                 "View Details",
                 viewDetailsFunc,
@@ -99,7 +93,7 @@ Widget procurementAgencyContainer(
             ),
             SizedBox(
               height: 31,
-              width: 161,
+              width: 140,
               child: kwikbutton("Select", selectFunc, fontSize: 12.0),
             ),
           ],

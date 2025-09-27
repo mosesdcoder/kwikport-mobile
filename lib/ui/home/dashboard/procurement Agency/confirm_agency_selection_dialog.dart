@@ -6,12 +6,12 @@ import 'package:kwik_port/utils/button/kwik_button.dart';
 import 'package:kwik_port/utils/text/textstyle.dart';
 
 class ConfirmAgencySelectionDialog extends StatefulWidget {
-  final serviceFee, totalcostTons, totalCost;
+  final serviceFee, totalcostTons, totalCost,confirmFunc;
   const ConfirmAgencySelectionDialog({
     super.key,
     required this.serviceFee,
     required this.totalcostTons,
-    required this.totalCost,
+    required this.totalCost,required this.confirmFunc,
   });
 
   @override
@@ -27,7 +27,7 @@ class _ConfirmAgencySelectionDialogState
       width: 390,
       child: Dialog(
         child: Container(
-          height: 770,
+          height: 810,
 
           width: 390,
           decoration: BoxDecoration(
@@ -35,7 +35,7 @@ class _ConfirmAgencySelectionDialogState
             borderRadius: BorderRadius.circular(16),
             border: Border.all(color: colorCodes.antiFlashWhite, width: 1.2),
           ),
-          padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 24),
+          padding: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 24),
           child: ListView(
             children: [
               Column(
@@ -66,8 +66,7 @@ class _ConfirmAgencySelectionDialogState
                   ),
                   SizedBox(height: 25),
                   Container(
-                    height: 462,
-
+                    // height: 462,
                     width: 342,
                     decoration: BoxDecoration(
                       color: colorCodes.whiteSmoke,
@@ -78,7 +77,7 @@ class _ConfirmAgencySelectionDialogState
                       ),
                     ),
                     padding: const EdgeInsets.symmetric(
-                      horizontal: 13.0,
+                      horizontal: 10.0,
                       vertical: 24,
                     ),
                     child: Column(
@@ -94,14 +93,14 @@ class _ConfirmAgencySelectionDialogState
                           "GreenGate Procurement",
                           style: kwikTextStlye(
                             18.0,
-                            FontWeight.w600,
+                            FontWeight.w400,
                             colorCodes.black,
                           ),
                         ),
                         SizedBox(height: 24),
                         Container(
                           height: 92,
-                          width: 304,
+                          width: 308,
                           padding: EdgeInsets.symmetric(
                             horizontal: 10,
                             vertical: 16,
@@ -146,8 +145,8 @@ class _ConfirmAgencySelectionDialogState
                                     "Total Cost (${widget.totalcostTons} tons)",
                                     textAlign: TextAlign.center,
                                     style: kwikTextStlye(
-                                      12.0,
-                                      FontWeight.w600,
+                                      10.0,
+                                      FontWeight.w500,
                                       colorCodes.black,
                                     ),
                                   ),
@@ -156,8 +155,8 @@ class _ConfirmAgencySelectionDialogState
                                     textAlign: TextAlign.center,
                                     style: TextStyle(
                                       fontFamily: "",
-                                      fontSize: 12.0,
-                                      fontWeight: FontWeight.w600,
+                                      fontSize: 10.0,
+                                      fontWeight: FontWeight.w500,
                                       color: colorCodes.black,
                                     ),
                                   ),
@@ -177,21 +176,7 @@ class _ConfirmAgencySelectionDialogState
                           ),
                         ),
                         SizedBox(height: 20),
-                        kwikbutton("Confirm Selection", () {
-                          Navigator.pop(context);
-                          showDialog(
-                            barrierDismissible: false,
-                            context: context,
-
-                            builder: (BuildContext context) {
-                              return AgencySelectionConfirmedDialog(
-                                serviceFee: "\$50",
-                                totalcostTons: "20.5",
-                                totalCost: "₦246,000,000",
-                              );
-                            },
-                          );
-                        }),
+                        kwikbutton("Confirm Selection", widget.confirmFunc),
                         SizedBox(height: 12),
                         kwikbutton(
                           "Cancel",

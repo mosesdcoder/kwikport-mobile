@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:kwik_port/colors/color.dart';
+import 'package:kwik_port/main.dart';
 import 'package:kwik_port/ui/home/contracts/kwikticket_created_successfully.dart';
 import 'package:kwik_port/utils/button/kwik_button.dart';
 import 'package:kwik_port/utils/text/textstyle.dart';
@@ -201,13 +202,14 @@ class _GenerateContractTicketDialogState
                               kwikticketID: "#Kwk-8989-09",
                               exporterName: "John  Gbenga",
                               exportItem: "Cocoa bean",
-                              contractType: "Agricultural Commodity",
+                              contractType: "FOB",
                               stakedVolume: "20.5 tons",
                               capitalCost: "₦246,000,000",
                               destination: "Argentina",
                             ),
                       ),
                     );
+                    currentIndex = 3;
                   }),
                   SizedBox(height: 10),
                 ],

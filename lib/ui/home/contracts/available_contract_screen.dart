@@ -37,7 +37,7 @@ class _AvailableContractScreenState extends State<AvailableContractScreen> {
         ),
       ),
       body: ListView(
-        padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+        padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
         children: [
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,

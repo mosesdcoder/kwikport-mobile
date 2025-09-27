@@ -12,6 +12,8 @@ Widget kwikbutton(
   buttonChild,
   borderColor,
   fontSize,
+
+  fontFamily,
 }) {
   return InkWell(
     onTap: btnFunc,
@@ -62,6 +64,7 @@ Widget kwikbutton(
           Text(
             btntxt,
             style: kwikTextStlye(
+              fontFamily: fontFamily ?? "Poppins",
               fontSize ?? 16.0,
               FontWeight.w600,
               backgroundcolor == null

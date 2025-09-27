@@ -4,7 +4,7 @@ import 'package:kwik_port/colors/color.dart';
 import 'package:kwik_port/utils/text/textstyle.dart';
 
 Widget walletBalanceContainer(visibilityFunc, context) {
-  double width = MediaQuery.sizeOf(context).width / 2;
+  double width = MediaQuery.of(context).size.width / 2;
   return Container(
     height: 160,
     width: width - 20, // 170,
@@ -62,7 +62,7 @@ Widget walletBalanceContainer(visibilityFunc, context) {
 }
 
 Widget activityProgressContainer(img, title, progress, context) {
-  double width = MediaQuery.sizeOf(context).width / 2;
+  double width = MediaQuery.of(context).size.width / 2;
   return Container(
     height: 77,
     width: width - 20, //165,
@@ -72,29 +72,53 @@ Widget activityProgressContainer(img, title, progress, context) {
       borderRadius: BorderRadius.circular(8),
       color: colorCodes.white,
     ),
-    child: Expanded(
-      child: Row(
+    child: Row(
+      children: [
+        Image.asset(img, height: 30, width: 30),
+        SizedBox(width: 7),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            Text(
+              title,
+              style: kwikTextStlye(
+                10.0,
+                FontWeight.w300,
+                colorCodes.graniteGrey,
+              ),
+            ),
+            SizedBox(height: 3),
+            Text(
+              progress,
+              style: kwikTextStlye(15.0, FontWeight.w600, colorCodes.black),
+            ),
+          ],
+        ),
+      ],
+    ),
+  );
+}
+
+Widget quickActionsContainer(actionImg, title, func) {
+  return InkWell(
+    onTap: func,
+    child: Container(
+      height: 94,
+      width: 150,
+      padding: EdgeInsets.symmetric(horizontal: 5, vertical: 10),
+      decoration: BoxDecoration(
+        color: colorCodes.white,
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Image.asset(img, height: 30, width: 30),
-          SizedBox(width: 7),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              Text(
-                title,
-                style: kwikTextStlye(
-                  10.0,
-                  FontWeight.w300,
-                  colorCodes.graniteGrey,
-                ),
-              ),
-              SizedBox(height: 3),
-              Text(
-                progress,
-                style: kwikTextStlye(15.0, FontWeight.w600, colorCodes.black),
-              ),
-            ],
+          Image.asset(actionImg, height: 44, width: 44),
+          SizedBox(height: 5),
+          Text(
+            title,
+            style: kwikTextStlye(10.0, FontWeight.w500, colorCodes.black),
           ),
         ],
       ),

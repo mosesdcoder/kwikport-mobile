@@ -4,7 +4,10 @@ import 'package:kwik_port/colors/color.dart';
 import 'package:kwik_port/main.dart';
 import 'package:kwik_port/ui/home/contracts/available_contract_screen.dart';
 import 'package:kwik_port/ui/home/contracts/contract_details_screen.dart';
+import 'package:kwik_port/ui/home/contracts/contract_screen.dart';
+import 'package:kwik_port/ui/home/contracts/request_contract_screen.dart';
 import 'package:kwik_port/ui/home/dashboard/name_and_notif_headng.dart';
+import 'package:kwik_port/ui/home/dashboard/notifcation/notification_screen.dart';
 import 'package:kwik_port/ui/home/dashboard/procurement%20Agency/select_procurement_agency_screen.dart';
 import 'package:kwik_port/ui/home/dashboard/wallet_balance_container.dart';
 import 'package:kwik_port/utils/button/bottom_navigatior_bar.dart';
@@ -20,14 +23,17 @@ class Dashboard extends StatefulWidget {
 }
 
 class _DashboardState extends State<Dashboard> {
-  bool notificationExist = false;
+  bool notificationExist = true;
   int itemCount = 3;
+  @override
+  void initState() {
+    super.initState();
+    currentIndex = 1;
+    notificationExist;
+  }
 
   @override
   Widget build(BuildContext context) {
-    setState(() {
-      currentIndex = 1;
-    });
     return WillPopScope(
       onWillPop: () async {
         // Return false to prevent going back
@@ -79,6 +85,43 @@ class _DashboardState extends State<Dashboard> {
                 ),
                 SizedBox(height: 18),
                 procurementContainer(),
+                SizedBox(height: 25),
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    "Quick Actions",
+                    style: kwikTextStlye(
+                      16.0,
+                      FontWeight.w500,
+                      colorCodes.black,
+                    ),
+                  ),
+                ),
+                SizedBox(height: 16),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    quickActionsContainer(
+                      "assets/images/icons/dashboard/fundwallet_acction.png",
+                      "Fund Wallet",
+                      () {},
+                    ),
+                    SizedBox(width: 20),
+                    quickActionsContainer(
+                      "assets/images/icons/dashboard/requestcontract_action.png",
+                      "Request Contract",
+                      () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => RequestContractScreen(),
+                          ),
+                        );
+                        currentIndex = 2;
+                      },
+                    ),
+                  ],
+                ),
                 SizedBox(height: 24),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -97,7 +140,7 @@ class _DashboardState extends State<Dashboard> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => AvailableContractScreen(),
+                            builder: (context) => ContractScreen(),
                           ),
                         );
                       },
@@ -114,53 +157,63 @@ class _DashboardState extends State<Dashboard> {
                   ],
                 ),
                 SizedBox(height: 18),
-                // avaiableontractContainer(
-                //   "assets/images/cocoa.png",
-                //   "Cocoa Bean",
-                //   "assets/images/icons/tick-circle.png",
-                //   "Open",
-                //   "100 tons",
-                //   "assets/images/icons/Country.png",
-                //   "Argentina",
-                //   "20 tons",
-                //   "100 tons",
-                //   "20%",
-                //   "\$12,500",
-                //   "assets/images/icons/Trending up.png",
-                //   "15.5%",
-                //   () {},
-                // ),
-                SizedBox(
-                  height: 320 * itemCount.toDouble(),
-                  child: ListView.separated(
-                    separatorBuilder: (context, index) => SizedBox(height: 16),
-                    itemCount: itemCount,
-                    itemBuilder: (ctx, index) {
-                      return avaiableontractContainer(
-                        "assets/images/cocoa.png",
-                        "Cocoa Bean",
-                        "assets/images/icons/tick-circle.png",
-                        "Open",
-                        "100 tons",
-                        "assets/images/icons/Country.png",
-                        "Argentina",
-                        "20 tons",
-                        "100 tons",
-                        "20%",
-                        "\$12,500",
-                        "assets/images/icons/Trending up.png",
-                        "15.5%",
-                        () {
-                          currentIndex = 2;
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => ContractDetailsScreen(),
-                            ),
-                          );
-                        },
-                      );
-                    },
+
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 55.0),
+                  child: SizedBox(
+                    height: 200, // * itemCount.toDouble(),
+                    child: ListView.separated(
+                      // padding: EdgeInsets.only(bottom: 30),
+                      // physics: NeverScrollableScrollPhysics(),
+                      scrollDirection: Axis.horizontal,
+                      separatorBuilder: (context, index) => SizedBox(width: 16),
+                      itemCount: itemCount,
+                      itemBuilder: (ctx, index) {
+                        return avaiableontractContainerUpdated(
+                          "assets/images/Group 2367.png",
+                          "Cocoa Beans",
+                          "assets/images/icons/tick-circle.png",
+                          "Open",
+                          "Grade A - Premium Quality",
+                          "assets/images/icons/Country.png",
+                          "Argentina",
+                          "\$12,500",
+                          () {
+                            currentIndex = 2;
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => ContractDetailsScreen(),
+                              ),
+                            );
+                          },
+                        );
+                        // avaiableontractContainer(
+                        // "assets/images/cocoa.png",
+                        // "Cocoa Bean",
+                        // "assets/images/icons/tick-circle.png",
+                        // "Open",
+                        // "100 tons",
+                        // "assets/images/icons/Country.png",
+                        // "Argentina",
+                        // "20 tons",
+                        // "100 tons",
+                        // "20%",
+                        // "\$12,500",
+                        // "assets/images/icons/Trending up.png",
+                        // "15.5%",
+                        // () {
+                        //   currentIndex = 2;
+                        //   Navigator.push(
+                        //     context,
+                        //     MaterialPageRoute(
+                        //       builder: (context) => ContractDetailsScreen(),
+                        //     ),
+                        //   );
+                        // },
+                        // );
+                      },
+                    ),
                   ),
                 ),
               ],
@@ -173,13 +226,13 @@ class _DashboardState extends State<Dashboard> {
   }
 
   void notificationFunc() {
-    // Navigator.push(
-    //   context,
-    //   MaterialPageRoute(
-    //     builder: (context) => Notificationscreen(),
-    //   ),
-    // );
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => NotificationScreen()),
+    );
+    currentIndex = 1;
   }
+
   Widget procurementContainer() {
     return Container(
       height: 70,

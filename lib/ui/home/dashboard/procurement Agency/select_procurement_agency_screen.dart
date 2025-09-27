@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_countdown_timer/flutter_countdown_timer.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:kwik_port/colors/color.dart';
+import 'package:kwik_port/ui/home/dashboard/exportJourney/export_journey_screen.dart';
 import 'package:kwik_port/ui/home/dashboard/procurement%20Agency/agency_container.dart';
+import 'package:kwik_port/ui/home/dashboard/procurement%20Agency/agency_selection_confirmed_dialog.dart';
 import 'package:kwik_port/ui/home/dashboard/procurement%20Agency/confirm_agency_selection_dialog.dart';
 import 'package:kwik_port/utils/button/back_nav_header.dart';
 import 'package:kwik_port/utils/button/bottom_navigatior_bar.dart';
@@ -42,7 +44,12 @@ class _SelectProcurementAgencyScreenState
         children: [
           Column(
             children: [
-              backNavRow(context, "Select Procurement Agency", fontSize: 20.0),
+              backNavRow(
+                context,
+                "Select Procurement Agency",
+                fontSize: 18.0,
+                imgsize: 36.0,
+              ),
               SizedBox(height: 31),
               Image.asset(
                 "assets/images/icons/procuement_select_check.png",
@@ -69,7 +76,7 @@ class _SelectProcurementAgencyScreenState
                 height: 119,
                 width: 390,
                 alignment: Alignment.center,
-                padding: EdgeInsets.symmetric(horizontal: 15, vertical: 15),
+                padding: EdgeInsets.symmetric(horizontal: 10, vertical: 15),
                 decoration: BoxDecoration(
                   color: HexColor("#D0E1FB").withOpacity(0.3),
                   borderRadius: BorderRadius.circular(16),
@@ -89,7 +96,7 @@ class _SelectProcurementAgencyScreenState
                     ),
                     SizedBox(width: 10),
                     SizedBox(
-                      width: 302,
+                      width: 260,
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -121,7 +128,7 @@ class _SelectProcurementAgencyScreenState
                 height: 80,
                 width: 390,
                 alignment: Alignment.center,
-                padding: EdgeInsets.symmetric(horizontal: 15, vertical: 15),
+                padding: EdgeInsets.symmetric(horizontal: 10, vertical: 15),
                 decoration: BoxDecoration(
                   color: colorCodes.floralWhite,
                   borderRadius: BorderRadius.circular(16),
@@ -141,7 +148,7 @@ class _SelectProcurementAgencyScreenState
                     ),
                     SizedBox(width: 10),
                     SizedBox(
-                      width: 290,
+                      width: 250,
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -187,6 +194,7 @@ class _SelectProcurementAgencyScreenState
               SizedBox(
                 height: 260 * itemCount.toDouble(),
                 child: ListView.separated(
+                  physics: NeverScrollableScrollPhysics(),
                   separatorBuilder: (context, index) => SizedBox(height: 20),
                   itemCount: itemCount,
                   itemBuilder: (ctx, index) {
@@ -210,6 +218,31 @@ class _SelectProcurementAgencyScreenState
                               serviceFee: "\$50",
                               totalcostTons: "20.5",
                               totalCost: "₦246,000,000",
+                              confirmFunc: () {
+                                Navigator.pop(context);
+                                showDialog(
+                                  barrierDismissible: false,
+                                  context: context,
+
+                                  builder: (BuildContext context) {
+                                    return AgencySelectionConfirmedDialog(
+                                      serviceFee: "\$50",
+                                      totalcostTons: "20.5",
+                                      totalCost: "₦246,000,000",
+                                      continueFunc: () {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder:
+                                                (context) =>
+                                                    ExportJourneyScreen(),
+                                          ),
+                                        );
+                                      },
+                                    );
+                                  },
+                                );
+                              },
                             );
                           },
                         );
