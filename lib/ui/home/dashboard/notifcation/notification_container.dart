@@ -30,8 +30,8 @@ Widget notificationContainer(
                   notifstatus == "completed"
                       ? "assets/images/icons/dashboard/notif1.png"
                       : "assets/images/icons/dashboard/notif2.png",
-                  height: 30,
-                  width: 30,
+                  height: 28,
+                  width: 28,
                 ),
                 SizedBox(width: 5),
                 Text(
@@ -67,9 +67,9 @@ Widget notificationContainer(
         ),
         Row(
           children: [
-            SizedBox(width: 35),
+            SizedBox(width: 30),
             SizedBox(
-              width: 280,
+              width: 260,
               child: RichText(
                 text: TextSpan(
                   style: TextStyle(

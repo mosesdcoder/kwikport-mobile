@@ -1,5 +1,8 @@
 {
     "cSpell.words": [
         "kwikbutton"
+    ],
+    "java.project.sourcePaths": [
+        "lib/api/controller/contractsApi"
     ]
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hexcolor/hexcolor.dart';
+import 'package:kwik_port/api/model/dashboard_model.dart';
 import 'package:kwik_port/colors/color.dart';
 import 'package:kwik_port/main.dart';
 import 'package:kwik_port/ui/home/exportfulfillment/export_fulfillment_screen.dart';
@@ -10,23 +11,16 @@ import 'package:kwik_port/utils/text/contract_detail_heading_and_subtitle.dart';
 import 'package:kwik_port/utils/text/textstyle.dart';
 
 class KwikticketScreen extends StatefulWidget {
-  final kwikticketID,
-      exporterName,
-      exportItem,
-      contractType,
-      stakedVolume,
-      capitalCost,
-      destination;
-  const KwikticketScreen({
-    super.key,
-    required this.kwikticketID,
-    required this.exporterName,
-    required this.exportItem,
-    required this.contractType,
-    required this.stakedVolume,
-    required this.capitalCost,
-    required this.destination,
-  });
+  final KwikTicketModel kwikticket;
+
+  // final kwikticketID,
+  //     exporterName,
+  //     exportItem,
+  //     contractType,
+  //     stakedVolume,
+  //     capitalCost,
+  //     destination;
+  const KwikticketScreen({super.key, required this.kwikticket});
 
   @override
   State<KwikticketScreen> createState() => _KwikticketScreenState();
@@ -101,7 +95,7 @@ class _KwikticketScreenState extends State<KwikticketScreen> {
               ),
               SizedBox(height: 20),
               Container(
-                height: 436,
+                height: 460,
                 width: 390,
                 padding: EdgeInsets.symmetric(horizontal: 20, vertical: 29),
                 decoration: BoxDecoration(
@@ -112,38 +106,41 @@ class _KwikticketScreenState extends State<KwikticketScreen> {
                   ),
                 ),
                 child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.start,
 
                   children: [
                     contractDetailHeadingAndSubtitletwo(
                       "Kwikticket ID",
                       "Exporter Name",
-                      widget.kwikticketID,
-                      widget.exporterName,
+                      widget.kwikticket.uniqueId,
+                      widget.kwikticket.exporter?.businessName,
                       // "#Kwk-8989-09",
                       // "John  Gbenga",
                     ),
-                    SizedBox(height: 20),
+                    SizedBox(height: 15),
                     contractDetailHeadingAndSubtitletwo(
                       "Export Item",
                       "Contract type",
-                      widget.exportItem,
-                      widget.contractType,
+                      widget.kwikticket.contract?.commodityName,
+                      widget.kwikticket.contract?.contractType == 1
+                                    ? "International Buyer"
+                                    : "Local Buyer",
 
                       // "Cocoa bean",
                       // "Agricultural Commodity",
                     ),
-                    SizedBox(height: 20),
+                    SizedBox(height: 15),
                     contractDetailHeadingAndSubtitletwo(
                       "Selected Capacity",
                       "Commodity Cost",
-                      widget.stakedVolume,
-                      widget.capitalCost,
+                      "${widget.kwikticket.contract?.totalQuantity} Tons",
+                      "${widget.kwikticket.contract?.totalAmount}",
                       // "20.5 tons",
                       // "₦246,000,000",
                       fontFamily: "",
                     ),
-                    SizedBox(height: 20),
+                    SizedBox(height: 15),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -169,7 +166,7 @@ class _KwikticketScreenState extends State<KwikticketScreen> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          "\$12,500",
+                          "₦${widget.kwikticket.contract?.buyerSpecification?.buyerPricePerUnit}",
                           style: kwikTextStlye(
                             14.0,
                             FontWeight.w600,
@@ -184,7 +181,7 @@ class _KwikticketScreenState extends State<KwikticketScreen> {
                               width: 16,
                             ),
                             Text(
-                              "15.5%",
+                              "${widget.kwikticket.contract?.projectedIncome}%",
                               style: kwikTextStlye(
                                 14.0,
                                 FontWeight.w600,
@@ -196,7 +193,7 @@ class _KwikticketScreenState extends State<KwikticketScreen> {
                       ],
                     ),
 
-                    SizedBox(height: 20),
+                    SizedBox(height: 15),
 
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -223,7 +220,7 @@ class _KwikticketScreenState extends State<KwikticketScreen> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          widget.destination,
+                          widget.kwikticket.contract!.destinationCountry,
                           style: kwikTextStlye(
                             14.0,
                             FontWeight.w600,
@@ -251,7 +248,9 @@ class _KwikticketScreenState extends State<KwikticketScreen> {
                               //   width: 16,
                               // ),
                               Text(
-                                "Non-active",
+                                widget.kwikticket.isActive == true
+                                    ? "Active"
+                                    : "Non-active",
                                 style: kwikTextStlye(
                                   10.0,
                                   FontWeight.w500,
@@ -263,13 +262,13 @@ class _KwikticketScreenState extends State<KwikticketScreen> {
                         ),
                       ],
                     ),
-                    SizedBox(height: 31),
+                    SizedBox(height: 22),
                     Container(
                       height: 58,
-                      width: 331,
+                      width: 335,
                       alignment: Alignment.center,
                       padding: EdgeInsets.symmetric(
-                        horizontal: 10,
+                        horizontal: 8,
                         vertical: 10,
                       ),
                       decoration: BoxDecoration(
@@ -286,12 +285,12 @@ class _KwikticketScreenState extends State<KwikticketScreen> {
                         children: [
                           Image.asset(
                             "assets/images/icons/dashboard/kwikticket_blue.png",
-                            height: 25,
-                            width: 25,
+                            height: 23,
+                            width: 23,
                           ),
-                          SizedBox(width: 6),
+                          SizedBox(width: 3),
                           SizedBox(
-                            width: 242,
+                            width: 232,
                             child: Text(
                               "This ticket represents your secured allocation in this export contract.",
                               style: kwikTextStlye(
@@ -312,7 +311,10 @@ class _KwikticketScreenState extends State<KwikticketScreen> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => ExportFulfillmentScreen(),
+                    builder:
+                        (context) => ExportFulfillmentScreen(
+                          kwikticket: widget.kwikticket,
+                        ),
                   ),
                 );
                 currentIndex = 3;

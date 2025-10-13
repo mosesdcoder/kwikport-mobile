@@ -62,7 +62,7 @@ class _RequestSubmitDialogState extends State<RequestSubmitDialog> {
             SizedBox(height: 10),
 
             Container(
-              height: 77,
+              height: 97,
               width: 331,
               alignment: Alignment.center,
               padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
@@ -75,17 +75,17 @@ class _RequestSubmitDialogState extends State<RequestSubmitDialog> {
                 ),
               ),
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Image.asset(
                     "assets/images/icons/dashboard/kwikticket_blue.png",
-                    height: 25,
-                    width: 25,
+                    height: 22,
+                    width: 22,
                   ),
                   SizedBox(width: 6),
                   SizedBox(
-                    width: 242,
+                    width: 230,
                     child: Text(
                       "Your request has been submitted. Our team will review it and notify you by in-app notification or email. If approved, we'll begin sourcing an export contract for your product. If not, we'll also notify you.",
                       style: kwikTextStlye(

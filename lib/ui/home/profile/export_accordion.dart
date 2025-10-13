@@ -54,7 +54,7 @@ class _ExportAccordionState extends State<ExportAccordion> {
                   children: [
                     SizedBox(
                       height: 86,
-                      width: 34,
+                      width: 30,
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
@@ -95,7 +95,7 @@ class _ExportAccordionState extends State<ExportAccordion> {
                         ],
                       ),
                     ),
-                    SizedBox(width: 10),
+                    SizedBox(width: 8),
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -167,7 +167,7 @@ class _ExportAccordionState extends State<ExportAccordion> {
           Container(
             width: MediaQuery.of(context).size.width,
             height: 465,
-            padding: const EdgeInsets.symmetric(horizontal: 14),
+            padding: const EdgeInsets.symmetric(horizontal: 10),
             decoration: BoxDecoration(
               // border: Border(
               color: colorCodes.white,
@@ -181,11 +181,11 @@ class _ExportAccordionState extends State<ExportAccordion> {
                   alignment: Alignment.topLeft,
                   child: Image.asset(
                     "assets/images/icons/dashboard/Vector 955.png",
-                    width: 6,
+                    width: 10,
                     height: 56,
                   ),
                 ),
-                SizedBox(width: 22),
+                SizedBox(width: 8),
                 Expanded(child: widget.child),
               ],
             ),

@@ -28,7 +28,7 @@ class _IdentityVerificationState extends State<IdentityVerification> {
           Container(
             height: 718,
             width: 391,
-            padding: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+            padding: EdgeInsets.symmetric(horizontal: 15, vertical: 20),
             decoration: BoxDecoration(
               color: colorCodes.white,
               borderRadius: BorderRadius.circular(16),
@@ -108,10 +108,10 @@ class _IdentityVerificationState extends State<IdentityVerification> {
                     children: [
                       Image.asset(
                         "assets/images/icons/dashboard/info_red.png",
-                        height: 34,
-                        width: 34,
+                        height: 32,
+                        width: 32,
                       ),
-                      SizedBox(width: 10),
+                      SizedBox(width: 8),
                       SizedBox(
                         width: 228,
                         child: Column(

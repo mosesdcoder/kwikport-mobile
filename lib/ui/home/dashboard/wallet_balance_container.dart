@@ -3,7 +3,7 @@ import 'package:hexcolor/hexcolor.dart';
 import 'package:kwik_port/colors/color.dart';
 import 'package:kwik_port/utils/text/textstyle.dart';
 
-Widget walletBalanceContainer(visibilityFunc, context) {
+Widget dashboardBalanceContainer(walletBalance, visibilityFunc, context) {
   double width = MediaQuery.of(context).size.width / 2;
   return Container(
     height: 160,
@@ -40,11 +40,11 @@ Widget walletBalanceContainer(visibilityFunc, context) {
         ),
         SizedBox(height: 12),
         Text(
-          "Gross Earning",
+          "Wallet Balance",
           style: kwikTextStlye(14.0, FontWeight.w300, colorCodes.whiteSmoke),
         ),
         Text(
-          "\$24,580.00",
+          "\$$walletBalance",
           style: TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.w600,
@@ -100,12 +100,13 @@ Widget activityProgressContainer(img, title, progress, context) {
   );
 }
 
-Widget quickActionsContainer(actionImg, title, func) {
+Widget quickActionsContainer(actionImg, title, func, {width}) {
   return InkWell(
     onTap: func,
     child: Container(
       height: 94,
-      width: 150,
+      width: width ?? 150,
+
       padding: EdgeInsets.symmetric(horizontal: 5, vertical: 10),
       decoration: BoxDecoration(
         color: colorCodes.white,

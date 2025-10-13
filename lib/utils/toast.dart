@@ -2,10 +2,11 @@ import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:kwik_port/colors/color.dart';
+import 'package:toastification/toastification.dart';
 
 final FToast fToast = FToast();
 
-void showToast(
+void showToastContainer(
   String title,
   String message,
   Color color,
@@ -45,7 +46,7 @@ void showToast(
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 16,
-                color: colorCodes.black,
+                color: colorCodes.white,
                 fontWeight: FontWeight.w600,
               ),
             ),
@@ -69,5 +70,20 @@ void showToast(
     child: toast,
     gravity: ToastGravity.BOTTOM,
     toastDuration: const Duration(seconds: 3),
+  );
+}
+
+void showToastE({
+  required BuildContext context,
+  required String message,
+  Duration duration = const Duration(seconds: 3),
+}) {
+  toastification.show(
+    context: context,
+    title: Text(message),
+    autoCloseDuration: duration,
+    dragToClose: true,
+    style: ToastificationStyle.flatColored,
+    type: ToastificationType.error,
   );
 }

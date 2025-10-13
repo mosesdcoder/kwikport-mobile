@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hexcolor/hexcolor.dart';
+import 'package:kwik_port/api/model/userModel.dart';
 import 'package:kwik_port/colors/color.dart';
 import 'package:kwik_port/ui/home/dashboard/dashboard.dart';
 import 'package:kwik_port/utils/button/kwik_button.dart';
@@ -60,7 +61,7 @@ class _ProfileSetupSuccessState extends State<ProfileSetupSuccess> {
                         children: [
                           TextSpan(text: "Your export ID is "),
                           TextSpan(
-                            text: 'KWP-2024-001 ',
+                            text: '${userDataVar?.exporter!.exporterUniqueId} ',
                             style: TextStyle(color: colorCodes.black),
                           ),
                         ],

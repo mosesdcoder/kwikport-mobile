@@ -9,13 +9,14 @@ Column passwordtextFieldColumn(
   // hintText,
   _isvisible,
   onPressedVisibility,
-  context,
-) {
+  context, {
+  title,
+}) {
   return Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
       Text(
-        'Password',
+        title ?? 'Password',
         style: TextStyle(
           fontFamily: 'Poppins',
           fontSize: 14,

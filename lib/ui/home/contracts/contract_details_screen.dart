@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hexcolor/hexcolor.dart';
+import 'package:kwik_port/api/model/dashboard_model.dart';
 import 'package:kwik_port/colors/color.dart';
 import 'package:kwik_port/main.dart';
 import 'package:kwik_port/ui/home/contracts/contract_details_delivered_screen.dart';
@@ -10,7 +11,16 @@ import 'package:kwik_port/utils/text/contract_detail_heading_and_subtitle.dart';
 import 'package:kwik_port/utils/text/textstyle.dart';
 
 class ContractDetailsScreen extends StatefulWidget {
-  const ContractDetailsScreen({super.key});
+  final ContractModel contract;
+  // final int contractStatus;
+  // final String? contractId; // or String depending on your backend response
+
+  const ContractDetailsScreen({
+    super.key,
+    // required this.contractId,
+    // required this.contractStatus,
+    required this.contract,
+  });
 
   @override
   State<ContractDetailsScreen> createState() => _ContractDetailsScreenState();
@@ -19,10 +29,17 @@ class ContractDetailsScreen extends StatefulWidget {
 class _ContractDetailsScreenState extends State<ContractDetailsScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
+  late String contractId;
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
+    // contractId = widget.contractId!;
+    // Optional: if you plan to fetch contract details from API
+    // WidgetsBinding.instance.addPostFrameCallback((_) {
+    //   Provider.of<ContractDetailsApi>(context, listen: false)
+    //       .fetchContractDetails(widget.contractId);
+    // });
   }
 
   @override
@@ -75,17 +92,39 @@ class _ContractDetailsScreenState extends State<ContractDetailsScreen>
                           right: 17,
                           // bottom: 0,
                           // left: 0,
-                          child: Image.asset(
-                            "assets/images/icons/active_status.png",
-                            height: 23,
+                          child: Container(
+                            height: 25,
                             width: 48,
+                            alignment: Alignment.center,
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 4,
+                              vertical: 4,
+                            ),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(6),
+                              border: Border.all(
+                                width: 1.2,
+                                color: HexColor("#95D6AC"),
+                              ),
+                              color: colorCodes.pigmentGreen,
+                            ),
+                            child: Text(
+                              widget.contract.contractStatus == 0
+                                  ? "Active"
+                                  : "Closed",
+                              style: kwikTextStlye(
+                                10.0,
+                                FontWeight.w500,
+                                colorCodes.white,
+                              ),
+                            ),
                           ),
                         ),
                       ],
                     ),
                     SizedBox(height: 19),
                     Text(
-                      "Cocoa Beans",
+                      widget.contract.commodityName,
                       style: kwikTextStlye(
                         24.0,
                         FontWeight.w600,
@@ -202,16 +241,16 @@ class _ContractDetailsScreenState extends State<ContractDetailsScreen>
                           contractDetailHeadingAndSubtitle(
                             "Contract ID",
                             "Commodity",
-                            "KW-COCOA-0525",
-                            "Cocoa",
+                            widget.contract.contractId,
+                            widget.contract.commodityName,
                           ),
 
                           SizedBox(height: 20),
                           contractDetailHeadingAndSubtitle(
                             "Buyer",
-                            "Global Cocoa Imports Ltd.",
+                            "${widget.contract.buyerSpecification?.buyerName ?? "N/A"}",
                             "Destination",
-                            "Netherlands",
+                            widget.contract.destinationCountry,
                           ),
                           SizedBox(height: 20),
                           Row(
@@ -239,7 +278,7 @@ class _ContractDetailsScreenState extends State<ContractDetailsScreen>
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Text(
-                                "\$12,500",
+                                "${widget.contract.totalAmount}",
                                 style: kwikTextStlye(
                                   14.0,
                                   FontWeight.w600,
@@ -254,7 +293,7 @@ class _ContractDetailsScreenState extends State<ContractDetailsScreen>
                                     width: 16,
                                   ),
                                   Text(
-                                    "\$1,500,000",
+                                    "${widget.contract.projectedIncome}",
                                     style: kwikTextStlye(
                                       14.0,
                                       FontWeight.w600,
@@ -291,7 +330,9 @@ class _ContractDetailsScreenState extends State<ContractDetailsScreen>
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Text(
-                                "Freight on board (FOB)",
+                                widget.contract.contractType == 1
+                                    ? "International Buyer"
+                                    : "Local Buyer", //  "Freight on board (FOB)",
                                 style: kwikTextStlye(
                                   14.0,
                                   FontWeight.w600,
@@ -319,7 +360,9 @@ class _ContractDetailsScreenState extends State<ContractDetailsScreen>
                                       width: 16,
                                     ),
                                     Text(
-                                      "Open",
+                                      widget.contract.contractStatus == 0
+                                          ? "Open"
+                                          : "Closed",
                                       style: kwikTextStlye(
                                         10.0,
                                         FontWeight.w500,
@@ -362,15 +405,17 @@ class _ContractDetailsScreenState extends State<ContractDetailsScreen>
                               contractDetailHeadingAndSubtitletwo(
                                 "Moisture Content",
                                 "Bean Count",
-                                "≤7.5%",
-                                "100-110 per 100g",
+                                "${widget.contract.buyerSpecification?.moistureContent ?? "N/A"}", //   "≤7.5%",
+                                "${widget.contract.buyerSpecification?.commodityCountPerMeasurement ?? "N/A"}",
                               ),
                               SizedBox(height: 10),
                               contractDetailHeadingAndSubtitletwo(
                                 "Buyer",
-                                "Global Cocoa Imports Ltd.",
                                 "Destination",
-                                "Netherlands",
+
+                                widget.contract.buyerSpecification?.buyerName ??
+                                    "N/A",
+                                widget.contract.destinationCountry,
                               ),
                             ],
                           ),
@@ -416,7 +461,7 @@ class _ContractDetailsScreenState extends State<ContractDetailsScreen>
                                     MainAxisAlignment.spaceBetween,
                                 children: [
                                   Text(
-                                    "N2,500,000",
+                                    "${widget.contract.buyerSpecification?.buyerPricePerUnit ?? "N/A"}",
                                     style: TextStyle(
                                       fontFamily: "",
                                       fontSize: 14.0,
@@ -426,7 +471,7 @@ class _ContractDetailsScreenState extends State<ContractDetailsScreen>
                                   ),
 
                                   Text(
-                                    "\$3,200",
+                                    "${widget.contract.pricePerUnitInUSD}",
                                     style: kwikTextStlye(
                                       14.0,
                                       FontWeight.w600,
@@ -444,7 +489,9 @@ class _ContractDetailsScreenState extends State<ContractDetailsScreen>
                             context,
                             MaterialPageRoute(
                               builder:
-                                  (context) => ContractDetailsDeliveredScreen(),
+                                  (context) => ContractDetailsDeliveredScreen(
+                                    contract: widget.contract,
+                                  ),
                             ),
                           );
                         }),
@@ -454,27 +501,6 @@ class _ContractDetailsScreenState extends State<ContractDetailsScreen>
                 ),
               ),
 
-              // SizedBox(height: 27),
-              // kwikbutton("Generate kwikticket", () {
-              //   showDialog(
-              //     barrierDismissible: false,
-              //     context: context,
-
-              //     builder: (BuildContext context) {
-              //       return GenerateContractTicketDialog();
-              //     },
-              //   );
-              // }),
-              // SizedBox(height: 10),
-              // kwikbutton(
-              //   'Back to Home',
-              //   () {
-              //     Navigator.pop(context);
-              //   },
-              //   textColor: colorCodes.textBlack,
-              //   backgroundcolor: colorCodes.white,
-              //   borderColor: colorCodes.antiFlashWhite,
-              // ),
               SizedBox(height: 50),
             ],
           ),

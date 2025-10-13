@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:kwik_port/api/controller/agency/export_stage_api.dart';
+import 'package:kwik_port/api/controller/agency/get_agency_api.dart';
 import 'package:kwik_port/colors/color.dart';
 import 'package:kwik_port/ui/home/dashboard/exportJourney/export_journey_screen.dart';
 import 'package:kwik_port/ui/home/dashboard/procurement%20Agency/agency_selection_confirmed_dialog.dart';
@@ -7,6 +9,7 @@ import 'package:kwik_port/utils/button/back_nav_header.dart';
 import 'package:kwik_port/utils/button/bottom_navigatior_bar.dart';
 import 'package:kwik_port/utils/button/kwik_button.dart';
 import 'package:kwik_port/utils/text/textstyle.dart';
+import 'package:provider/provider.dart';
 
 class PackagingAndDocumentation extends StatefulWidget {
   const PackagingAndDocumentation({super.key});
@@ -18,8 +21,26 @@ class PackagingAndDocumentation extends StatefulWidget {
 
 class _PackagingAndDocumentationState extends State<PackagingAndDocumentation> {
   int itemCount = 5;
+  String? selectedAgencyId;
+  String? selectedAgencyName;
+
+  @override
+  void initState() {
+    super.initState();
+    // stageType for packaging & documentation (as you noted earlier) -> use 2
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<GetAgencyApi>(
+        context,
+        listen: false,
+      ).fetchAgenciesByStageType(2);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
+    final agencyApi = Provider.of<GetAgencyApi>(context);
+    final exportStageApi = Provider.of<ExportStageApi>(context, listen: false);
+
     return Scaffold(
       extendBody: true,
       appBar: PreferredSize(
@@ -49,7 +70,7 @@ class _PackagingAndDocumentationState extends State<PackagingAndDocumentation> {
                 height: 138,
                 width: 390,
                 alignment: Alignment.center,
-                padding: EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+                padding: EdgeInsets.symmetric(horizontal: 10, vertical: 14),
                 decoration: BoxDecoration(
                   color: colorCodes.white,
                   borderRadius: BorderRadius.circular(16),
@@ -67,9 +88,9 @@ class _PackagingAndDocumentationState extends State<PackagingAndDocumentation> {
                       height: 20,
                       width: 20,
                     ),
-                    SizedBox(width: 10),
+                    SizedBox(width: 8),
                     SizedBox(
-                      width: 290,
+                      width: 265,
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -105,28 +126,38 @@ class _PackagingAndDocumentationState extends State<PackagingAndDocumentation> {
                 ),
               ),
               SizedBox(height: 20),
-              SizedBox(
-                height: 225 * itemCount.toDouble(),
-                child: ListView.separated(
-                  physics: NeverScrollableScrollPhysics(),
-                  separatorBuilder: (context, index) => SizedBox(height: 20),
-                  itemCount: itemCount,
-                  itemBuilder: (ctx, index) {
-                    return selectPakagingAgency(
-                      "assets/images/icons/dashboard/procurement_agency_logo.png",
-                      "NigerCert Exports Ltd.",
-                      "₦108,500",
-                      "\$70",
-                      "4.8",
-                      "145 reviews",
-                      "3days",
-                      "Phytosanitary Cert", //Not done
-                      2,
-                      false,
-                    );
-                  },
+              if (agencyApi.loading) const CircularProgressIndicator(),
+              if (!agencyApi.loading && agencyApi.agencies.isEmpty)
+                const Text('No agencies found'),
+              if (!agencyApi.loading && agencyApi.agencies.isNotEmpty)
+                Expanded(
+                  child: ListView.separated(
+                    itemCount: agencyApi.agencies.length,
+                    separatorBuilder: (_, __) => const SizedBox(height: 12),
+                    itemBuilder: (ctx, index) {
+                      final agency =
+                          agencyApi.agencies[index] as Map<String, dynamic>;
+                      final id = agency['id']?.toString() ?? '';
+                      final name = agency['name']?.toString() ?? 'Unnamed';
+                      final fee = agency['serviceFee']?.toString() ?? '0';
+                      final days =
+                          agency['numberOfDaysToDeliver']?.toString() ?? '-';
+                      return selectPakagingAgency(
+                        "assets/images/icons/dashboard/procurement_agency_logo.png",
+                        name,
+                        "₦$fee",
+                        "\$$fee",
+                        "4.8",
+                        "145 reviews",
+                        "$days days",
+                        // "${daysToHours(int.tryParse(days) ?? 0)}hours",
+                        "Phytosanitary Cert", //Not done
+                        2,
+                        false,
+                      );
+                    },
+                  ),
                 ),
-              ),
 
               kwikbutton(
                 "Confirm Agency Selection",
@@ -156,7 +187,9 @@ class _PackagingAndDocumentationState extends State<PackagingAndDocumentation> {
                                     context,
                                     MaterialPageRoute(
                                       builder:
-                                          (context) => ExportJourneyScreen(),
+                                          (context) => ExportJourneyScreen(
+                                            exporterContractId: '',
+                                          ),
                                     ),
                                   );
                                 },
@@ -195,6 +228,10 @@ class _PackagingAndDocumentationState extends State<PackagingAndDocumentation> {
       ),
       bottomNavigationBar: Bottomnavigationbar(1),
     );
+  }
+
+  int daysToHours(int days) {
+    return days * 24;
   }
 
   Widget selectPakagingAgency(

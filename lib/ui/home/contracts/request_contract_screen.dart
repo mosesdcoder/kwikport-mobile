@@ -49,7 +49,7 @@ class _RequestContractScreenState extends State<RequestContractScreen> {
             // crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Container(
-                height: 1170,
+                height: 1195,
                 width: 391,
                 padding: EdgeInsets.only(
                   left: 15,

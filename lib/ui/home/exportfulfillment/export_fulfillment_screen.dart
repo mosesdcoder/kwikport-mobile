@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kwik_port/api/model/dashboard_model.dart';
 import 'package:kwik_port/colors/color.dart';
 import 'package:kwik_port/main.dart';
 import 'package:kwik_port/ui/home/exportfulfillment/KycVerification/fund_export_contract.dart';
@@ -9,7 +10,9 @@ import 'package:kwik_port/utils/button/kwik_button.dart';
 import 'package:kwik_port/utils/text/textstyle.dart';
 
 class ExportFulfillmentScreen extends StatefulWidget {
-  const ExportFulfillmentScreen({super.key});
+  final KwikTicketModel kwikticket;
+
+  const ExportFulfillmentScreen({super.key, required this.kwikticket});
 
   @override
   State<ExportFulfillmentScreen> createState() =>
@@ -87,7 +90,7 @@ class _ExportFulfillmentScreenState extends State<ExportFulfillmentScreen> {
                 height: 109,
                 width: 390,
                 alignment: Alignment.center,
-                padding: EdgeInsets.symmetric(horizontal: 10, vertical: 15),
+                padding: EdgeInsets.symmetric(horizontal: 8, vertical: 15),
                 decoration: BoxDecoration(
                   color: colorCodes.white,
                   borderRadius: BorderRadius.circular(16),
@@ -105,9 +108,9 @@ class _ExportFulfillmentScreenState extends State<ExportFulfillmentScreen> {
                       height: 20,
                       width: 20,
                     ),
-                    SizedBox(width: 6),
+                    SizedBox(width: 4),
                     SizedBox(
-                      width: 310,
+                      width: 275,
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -134,6 +137,7 @@ class _ExportFulfillmentScreenState extends State<ExportFulfillmentScreen> {
                   ],
                 ),
               ),
+              SizedBox(height: 50),
             ],
           ),
         ],
@@ -146,7 +150,7 @@ class _ExportFulfillmentScreenState extends State<ExportFulfillmentScreen> {
     return Container(
       height: 277,
       width: 390,
-      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+      padding: EdgeInsets.symmetric(horizontal: 12, vertical: 20),
       decoration: BoxDecoration(
         color: colorCodes.white,
         borderRadius: BorderRadius.circular(16),
@@ -161,7 +165,7 @@ class _ExportFulfillmentScreenState extends State<ExportFulfillmentScreen> {
                 height: 25,
                 width: 25,
               ),
-              SizedBox(width: 12),
+              SizedBox(width: 10),
               Text(
                 title,
                 style: kwikTextStlye(14.0, FontWeight.w600, colorCodes.black),
@@ -171,9 +175,9 @@ class _ExportFulfillmentScreenState extends State<ExportFulfillmentScreen> {
           SizedBox(height: 5),
           Row(
             children: [
-              SizedBox(width: 37),
+              SizedBox(width: 18),
               SizedBox(
-                width: 290,
+                width: 275,
                 child: Text(
                   subtitle,
                   style: kwikTextStlye(
@@ -188,15 +192,15 @@ class _ExportFulfillmentScreenState extends State<ExportFulfillmentScreen> {
           SizedBox(height: 10),
           Row(
             children: [
-              SizedBox(width: 35),
+              SizedBox(width: 26),
               Image.asset(
                 "assets/images/icons/dashboard/Frame 1000006245.png",
                 height: 25,
                 width: 25,
               ),
-              SizedBox(width: 9),
+              SizedBox(width: 6),
               SizedBox(
-                width: 238,
+                width: 230,
                 child: Text(
                   dataOne,
                   style: kwikTextStlye(
@@ -211,15 +215,15 @@ class _ExportFulfillmentScreenState extends State<ExportFulfillmentScreen> {
           SizedBox(height: 7),
           Row(
             children: [
-              SizedBox(width: 35),
+              SizedBox(width: 26),
               Image.asset(
                 "assets/images/icons/dashboard/Frame 1000006245.png",
                 height: 25,
                 width: 25,
               ),
-              SizedBox(width: 9),
+              SizedBox(width: 6),
               SizedBox(
-                width: 238,
+                width: 230,
                 child: Text(
                   dataTwo,
                   style: kwikTextStlye(
@@ -234,15 +238,15 @@ class _ExportFulfillmentScreenState extends State<ExportFulfillmentScreen> {
           SizedBox(height: 7),
           Row(
             children: [
-              SizedBox(width: 35),
+              SizedBox(width: 26),
               Image.asset(
                 "assets/images/icons/dashboard/Frame 1000006245.png",
                 height: 25,
                 width: 25,
               ),
-              SizedBox(width: 9),
+              SizedBox(width: 6),
               SizedBox(
-                width: 238,
+                width: 230,
                 child: Text(
                   dataThree,
                   style: kwikTextStlye(
@@ -262,7 +266,11 @@ class _ExportFulfillmentScreenState extends State<ExportFulfillmentScreen> {
               () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => FundExportContract()),
+                  MaterialPageRoute(
+                    builder:
+                        (context) =>
+                            FundExportContract(kwikticket: widget.kwikticket),
+                  ),
                 );
                 currentIndex = 3;
               },
@@ -303,7 +311,7 @@ class _ExportFulfillmentScreenState extends State<ExportFulfillmentScreen> {
     return Container(
       height: 440,
       width: 390,
-      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 20),
       decoration: BoxDecoration(
         color: colorCodes.white,
         borderRadius: BorderRadius.circular(16),
@@ -318,7 +326,7 @@ class _ExportFulfillmentScreenState extends State<ExportFulfillmentScreen> {
                 height: 25,
                 width: 25,
               ),
-              SizedBox(width: 12),
+              SizedBox(width: 10),
               Text(
                 title,
                 style: kwikTextStlye(14.0, FontWeight.w600, colorCodes.black),
@@ -328,9 +336,9 @@ class _ExportFulfillmentScreenState extends State<ExportFulfillmentScreen> {
           SizedBox(height: 5),
           Row(
             children: [
-              SizedBox(width: 37),
+              SizedBox(width: 18),
               SizedBox(
-                width: 290,
+                width: 265,
                 child: Text(
                   subtitle,
                   style: kwikTextStlye(
@@ -345,15 +353,15 @@ class _ExportFulfillmentScreenState extends State<ExportFulfillmentScreen> {
           SizedBox(height: 10),
           Row(
             children: [
-              SizedBox(width: 35),
+              SizedBox(width: 25),
               Image.asset(
                 "assets/images/icons/dashboard/Frame 1000006245.png",
                 height: 25,
                 width: 25,
               ),
-              SizedBox(width: 9),
+              SizedBox(width: 6),
               SizedBox(
-                width: 238,
+                width: 226,
                 child: Text(
                   dataOne,
                   style: kwikTextStlye(
@@ -368,15 +376,15 @@ class _ExportFulfillmentScreenState extends State<ExportFulfillmentScreen> {
           SizedBox(height: 7),
           Row(
             children: [
-              SizedBox(width: 35),
+              SizedBox(width: 25),
               Image.asset(
                 "assets/images/icons/dashboard/Frame 1000006245.png",
                 height: 25,
                 width: 25,
               ),
-              SizedBox(width: 9),
+              SizedBox(width: 6),
               SizedBox(
-                width: 238,
+                width: 226,
                 child: Text(
                   dataTwo,
                   style: kwikTextStlye(
@@ -391,15 +399,15 @@ class _ExportFulfillmentScreenState extends State<ExportFulfillmentScreen> {
           SizedBox(height: 7),
           Row(
             children: [
-              SizedBox(width: 35),
+              SizedBox(width: 25),
               Image.asset(
                 "assets/images/icons/dashboard/Frame 1000006245.png",
                 height: 25,
                 width: 25,
               ),
-              SizedBox(width: 9),
+              SizedBox(width: 5),
               SizedBox(
-                width: 238,
+                width: 226,
                 child: Text(
                   dataThree,
                   style: kwikTextStlye(
@@ -428,12 +436,12 @@ class _ExportFulfillmentScreenState extends State<ExportFulfillmentScreen> {
               children: [
                 Image.asset(
                   "assets/images/icons/dashboard/info_red.png",
-                  height: 34,
-                  width: 34,
+                  height: 32,
+                  width: 32,
                 ),
-                SizedBox(width: 10),
+                SizedBox(width: 8),
                 SizedBox(
-                  width: 218,
+                  width: 213,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -469,7 +477,10 @@ class _ExportFulfillmentScreenState extends State<ExportFulfillmentScreen> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => KycVerificationScreen(),
+                    builder:
+                        (context) => KycVerificationScreen(
+                          kwikticket: widget.kwikticket,
+                        ),
                   ),
                 );
                 currentIndex = 3;

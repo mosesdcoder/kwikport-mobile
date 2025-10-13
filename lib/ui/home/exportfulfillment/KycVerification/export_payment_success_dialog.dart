@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:hexcolor/hexcolor.dart';
+import 'package:kwik_port/api/model/dashboard_model.dart';
 import 'package:kwik_port/colors/color.dart';
+import 'package:kwik_port/ui/home/dashboard/dashboard.dart';
 import 'package:kwik_port/ui/home/dashboard/procurement%20Agency/select_procurement_agency_screen.dart';
 import 'package:kwik_port/utils/button/kwik_button.dart';
 import 'package:kwik_port/utils/text/textstyle.dart';
 import 'package:kwik_port/ui/home/exportfulfillment/KycVerification/export_payment_confirmed.dart';
 
 class ExportPaymentSucessfulDialog extends StatefulWidget {
-  const ExportPaymentSucessfulDialog({super.key});
+  final KwikTicketModel kwikticket;
+  const ExportPaymentSucessfulDialog({super.key, required this.kwikticket});
 
   @override
   State<ExportPaymentSucessfulDialog> createState() =>
@@ -46,7 +49,14 @@ class _ExportPaymentSucessfulDialogState
                 ),
                 InkWell(
                   onTap: () {
-                    Navigator.pop(context);
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder:
+                            (context) =>
+                                Dashboard(kwikticket: widget.kwikticket),
+                      ),
+                    );
                   },
                   child: Image.asset(
                     "assets/images/icons/close-circle.png",
@@ -58,8 +68,9 @@ class _ExportPaymentSucessfulDialogState
             ),
             SizedBox(height: 40),
             Text(
-              "KYC Submitted Successfully!",
-              style: kwikTextStlye(20.0, FontWeight.w600, colorCodes.black),
+              "Congratulations!",
+
+              style: kwikTextStlye(15.0, FontWeight.w600, colorCodes.black),
             ),
             SizedBox(height: 10),
             Text(
@@ -69,10 +80,10 @@ class _ExportPaymentSucessfulDialogState
             ),
             SizedBox(height: 10),
             Container(
-              height: 77,
+              height: 90,
               width: 331,
               alignment: Alignment.center,
-              padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+              padding: EdgeInsets.symmetric(horizontal: 6, vertical: 10),
               decoration: BoxDecoration(
                 color: colorCodes.white,
                 borderRadius: BorderRadius.circular(16),
@@ -83,16 +94,16 @@ class _ExportPaymentSucessfulDialogState
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Image.asset(
                     "assets/images/icons/dashboard/kwikticket_blue.png",
                     height: 25,
                     width: 25,
                   ),
-                  SizedBox(width: 6),
+                  SizedBox(width: 4),
                   SizedBox(
-                    width: 242,
+                    width: 200,
                     child: Text(
                       "This represents your secured contract value. Agency costs and logistics will be managed automatically as you progress.",
                       style: kwikTextStlye(
@@ -123,11 +134,14 @@ class _ExportPaymentSucessfulDialogState
                 children: [
                   confirmeddetailRow(
                     "Gross Earnings:",
-                    " \$4,200",
+                    " ${widget.kwikticket.contract?.projectedIncome}",
                     fontFamily: "",
                   ),
                   SizedBox(height: 10),
-                  confirmeddetailRow("Commodity:", "Cocoa (10 MT)"),
+                  confirmeddetailRow(
+                    "Commodity:",
+                    "${widget.kwikticket.commodity?.name}",
+                  ),
                   SizedBox(height: 10),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -142,7 +156,7 @@ class _ExportPaymentSucessfulDialogState
                       ),
                       Container(
                         height: 28,
-                        width: 102,
+                        width: 160,
                         alignment: Alignment.center,
                         decoration: BoxDecoration(
                           color: colorCodes.whiteSmoke,
@@ -156,14 +170,14 @@ class _ExportPaymentSucessfulDialogState
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Text(
-                              "#KPX92831",
+                              "${widget.kwikticket.contract?.contractId}",
                               style: kwikTextStlye(
                                 10.0,
                                 FontWeight.w500,
                                 colorCodes.black,
                               ),
                             ),
-                            SizedBox(width: 10),
+                            // SizedBox(width: 3),
                             InkWell(
                               onTap: () {},
                               child: Image.asset(
@@ -187,7 +201,10 @@ class _ExportPaymentSucessfulDialogState
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => SelectProcurementAgencyScreen(),
+                    builder:
+                        (context) => SelectProcurementAgencyScreen(
+                          kwikticket: widget.kwikticket,
+                        ),
                   ),
                 );
               },
@@ -203,7 +220,7 @@ class _ExportPaymentSucessfulDialogState
                   Text(
                     "Select Procurement Agency",
                     style: kwikTextStlye(
-                      16.0,
+                      14.0,
                       FontWeight.w500,
                       colorCodes.whiteSmoke,
                     ),

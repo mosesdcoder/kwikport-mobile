@@ -34,4 +34,8 @@ class ColorCodes {
   HexColor aeroBlue = HexColor("#D5EFDE");
   HexColor mintCream = HexColor("#F5FDF8");
   HexColor sunset = HexColor("#FFD7A8");
+  HexColor blackPurple = HexColor("#260B1F");
+  HexColor eggPlantPurple = HexColor("#420132");
+  HexColor eigengrau = HexColor("#0A0D1C");
+  HexColor blueBlack = HexColor("#061042");
 }

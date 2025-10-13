@@ -1,12 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:kwik_port/api/model/dashboard_model.dart';
 import 'package:kwik_port/colors/color.dart';
 import 'package:kwik_port/main.dart';
+import 'package:kwik_port/ui/home/dashboard/dashboard.dart';
 import 'package:kwik_port/ui/home/exportfulfillment/KycVerification/fund_export_contract.dart';
 import 'package:kwik_port/utils/button/kwik_button.dart';
 import 'package:kwik_port/utils/text/textstyle.dart';
 
 class KycSuccessfulDialog extends StatefulWidget {
-  const KycSuccessfulDialog({super.key});
+  final KwikTicketModel kwikticket;
+
+  const KycSuccessfulDialog({super.key, required this.kwikticket});
 
   @override
   State<KycSuccessfulDialog> createState() => _KycSuccessfulDialogState();
@@ -20,14 +24,13 @@ class _KycSuccessfulDialogState extends State<KycSuccessfulDialog> {
       child: Dialog(
         child: Container(
           height: 770,
-
           width: 390,
           decoration: BoxDecoration(
             color: colorCodes.white,
             borderRadius: BorderRadius.circular(16),
             border: Border.all(color: colorCodes.antiFlashWhite, width: 1.2),
           ),
-          padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 24),
+          padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 24),
           child: ListView(
             children: [
               Column(
@@ -41,7 +44,7 @@ class _KycSuccessfulDialogState extends State<KycSuccessfulDialog> {
                   Text(
                     "KYC Submitted Successfully!",
                     style: kwikTextStlye(
-                      18.0,
+                      16.0,
                       FontWeight.w600,
                       colorCodes.black,
                     ),
@@ -49,6 +52,7 @@ class _KycSuccessfulDialogState extends State<KycSuccessfulDialog> {
                   SizedBox(height: 10),
                   Text(
                     "Your documents are being reviewed and it may take a while.",
+                    textAlign: TextAlign.center,
                     style: kwikTextStlye(
                       14.0,
                       FontWeight.w300,
@@ -57,7 +61,7 @@ class _KycSuccessfulDialogState extends State<KycSuccessfulDialog> {
                   ),
                   SizedBox(height: 25),
                   Container(
-                    height: 226,
+                    height: 230,
                     width: 342,
                     alignment: Alignment.center,
                     padding: EdgeInsets.symmetric(horizontal: 8, vertical: 10),
@@ -127,7 +131,7 @@ class _KycSuccessfulDialogState extends State<KycSuccessfulDialog> {
                         SizedBox(width: 4),
                         SizedBox(
                           // height: 100,
-                          width: 255,
+                          width: 235,
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -159,7 +163,10 @@ class _KycSuccessfulDialogState extends State<KycSuccessfulDialog> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => FundExportContract(),
+                        builder:
+                            (context) => FundExportContract(
+                              kwikticket: widget.kwikticket,
+                            ),
                       ),
                     );
                     currentIndex = 3;
@@ -167,7 +174,13 @@ class _KycSuccessfulDialogState extends State<KycSuccessfulDialog> {
                   SizedBox(height: 12),
                   kwikbutton(
                     "Back to Home",
-                    () {},
+                    () {
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(builder: (context) => Dashboard()),
+                      );
+                      currentIndex = 1;
+                    },
                     backgroundcolor: colorCodes.white,
                     textColor: colorCodes.black,
                     borderColor: colorCodes.antiFlashWhite,
@@ -192,7 +205,7 @@ class _KycSuccessfulDialogState extends State<KycSuccessfulDialog> {
           Image.asset(img, height: 20, width: 20),
           SizedBox(width: 4),
           SizedBox(
-            width: 250,
+            width: 210,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [

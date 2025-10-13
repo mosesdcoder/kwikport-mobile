@@ -1,15 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:hexcolor/hexcolor.dart';
+import 'package:kwik_port/api/controller/kwikTickets/create_kwikticket_api.dart';
+import 'package:kwik_port/api/model/dashboard_model.dart';
+import 'package:kwik_port/api/model/userModel.dart';
 import 'package:kwik_port/colors/color.dart';
 import 'package:kwik_port/main.dart';
 import 'package:kwik_port/ui/home/contracts/generate_contract_ticket_dialog.dart';
+import 'package:kwik_port/ui/home/contracts/kwikticket_created_successfully.dart';
 import 'package:kwik_port/ui/home/contracts/overviewRichText.dart';
 import 'package:kwik_port/utils/button/bottom_navigatior_bar.dart';
 import 'package:kwik_port/utils/button/kwik_button.dart';
 import 'package:kwik_port/utils/text/textstyle.dart';
+import 'package:kwik_port/utils/toast.dart';
+import 'package:provider/provider.dart';
 
 class ContractDetailsDeliveredScreen extends StatefulWidget {
-  const ContractDetailsDeliveredScreen({super.key});
+  final ContractModel contract;
+  const ContractDetailsDeliveredScreen({super.key, required this.contract});
 
   @override
   State<ContractDetailsDeliveredScreen> createState() =>
@@ -22,6 +29,10 @@ class _ContractDetailsDeliveredScreenState
 
   @override
   Widget build(BuildContext context) {
+    final createTicketApi = Provider.of<CreateKwikticketApi>(
+      context,
+      listen: false,
+    );
     return Scaffold(
       extendBody: true,
       backgroundColor: colorCodes.whiteSmoke,
@@ -67,7 +78,7 @@ class _ContractDetailsDeliveredScreenState
                       SizedBox(height: 2),
                       FittedBox(
                         child: Text(
-                          "ID: KWP-2024-001",
+                          widget.contract.contractId,
                           style: TextStyle(
                             fontFamily: 'Poppins',
                             fontSize: 14.0,
@@ -125,10 +136,32 @@ class _ContractDetailsDeliveredScreenState
                       right: 17,
                       // bottom: 0,
                       // left: 0,
-                      child: Image.asset(
-                        "assets/images/icons/active_status.png",
-                        height: 23,
+                      child: Container(
+                        height: 25,
                         width: 48,
+                        alignment: Alignment.center,
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 4,
+                          vertical: 4,
+                        ),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(6),
+                          border: Border.all(
+                            width: 1.2,
+                            color: HexColor("#95D6AC"),
+                          ),
+                          color: colorCodes.pigmentGreen,
+                        ),
+                        child: Text(
+                          widget.contract.contractStatus == 0
+                              ? "Active"
+                              : "Closed",
+                          style: kwikTextStlye(
+                            10.0,
+                            FontWeight.w500,
+                            colorCodes.white,
+                          ),
+                        ),
                       ),
                     ),
                   ],
@@ -216,7 +249,7 @@ class _ContractDetailsDeliveredScreenState
                 Row(
                   children: [
                     Text(
-                      "Ivory Coast ",
+                      "Nigeria ",
                       style: kwikTextStlye(
                         10.0,
                         FontWeight.w300,
@@ -231,7 +264,7 @@ class _ContractDetailsDeliveredScreenState
                     ),
                     SizedBox(width: 8),
                     Text(
-                      "Netherlands",
+                      widget.contract.destinationCountry,
                       style: kwikTextStlye(
                         10.0,
                         FontWeight.w300,
@@ -245,32 +278,43 @@ class _ContractDetailsDeliveredScreenState
                   "CONTRACT OVERVIEW",
                   style: kwikTextStlye(20.0, FontWeight.w600, colorCodes.black),
                 ),
-                overviewRichText(
-                  "Commodity",
-                  "Cocoa (Premium Grade, fermented & dried)",
-                ),
+                overviewRichText("Commodity", widget.contract.commodityName),
                 SizedBox(height: 4),
                 overviewRichText(
                   "Contract Type",
-                  "International Buyer Agreement — verified & binding",
+                  widget.contract.contractType == 1
+                      ? "International Buyer Agreement — verified & binding"
+                      : "Local Buyer Agreement — verified & binding",
                 ),
                 SizedBox(height: 4),
-                overviewRichText("Total Volume Requested", "50 tons"),
+                overviewRichText(
+                  "Total Volume Requested",
+                  "${widget.contract.totalQuantity} tons",
+                ),
                 SizedBox(height: 4),
-                overviewRichText("Price per Ton (₦)", "₦2,500,000"),
+                overviewRichText(
+                  "Price per Ton (₦)",
+                  "₦${widget.contract.buyerSpecification?.buyerPricePerUnit}",
+                ),
                 SizedBox(height: 4),
-                overviewRichText("Projected Earnings per Ton (USD)", "\$3,200"),
+                overviewRichText(
+                  "Projected Earnings per Ton (USD)",
+                  "${widget.contract.pricePerUnitInUSD}",
+                ),
                 SizedBox(height: 4),
                 overviewRichText(
                   "Contract Duration",
-                  "60 days from activation",
+                  "${widget.contract.contractDuration} days from activation",
                 ),
                 SizedBox(height: 4),
-                overviewRichText("Buyer", "Global Cocoa Imports Ltd."),
+                overviewRichText(
+                  "Buyer",
+                  "${widget.contract.buyerSpecification?.buyerPricePerUnit}",
+                ),
                 SizedBox(height: 4),
                 overviewRichText(
                   "Quick Snapshot",
-                  "50 tons | ₦2,500,000/ton | \$3,200 projected earnings",
+                  "${widget.contract.totalQuantity} tons | ₦${widget.contract.buyerSpecification?.buyerPricePerUnit}ton | ${widget.contract.pricePerUnitInUSD} projected earnings",
                 ),
                 SizedBox(height: 34),
                 Text(
@@ -289,17 +333,17 @@ class _ContractDetailsDeliveredScreenState
                 SizedBox(height: 20),
                 specificationsRow(
                   "Quality",
-                  "Premium grade cocoa, minimum 20% fat, no foreign matter",
+                  "Premium grade ${widget.contract.commodityName}, minimum ${widget.contract.buyerSpecification?.fatContentInPercentage}% fat, no foreign matter",
                 ),
                 SizedBox(height: 13),
                 specificationsRow(
                   "Packaging",
-                  "50kg food-grade sacks, properly sealed & labeled",
+                  "${widget.contract.totalQuantity} food-grade sacks, properly sealed & labeled",
                 ),
                 SizedBox(height: 13),
                 specificationsRow(
                   "Delivery Location",
-                  "Designated port warehouse",
+                  widget.contract.destinationCountry,
                 ),
                 SizedBox(height: 13),
                 specificationsRow(
@@ -712,14 +756,78 @@ class _ContractDetailsDeliveredScreenState
           ),
           SizedBox(height: 35),
           kwikbutton("Generate Contract", () {
-            showDialog(
-              barrierDismissible: false,
-              context: context,
+            if (checkterms == true) {
+              showDialog(
+                barrierDismissible: false,
+                context: context,
 
-              builder: (BuildContext context) {
-                return GenerateContractTicketDialog();
-              },
-            );
+                builder: (BuildContext context) {
+                  return GenerateContractTicketDialog(
+                    contract: widget.contract,
+                    generateFunc: () async {
+                      final newTicket = await createTicketApi
+                          .createKwikTicket(
+                            exportContractId: widget.contract.id,
+                            exporterId: userDataVar?.exporter?.id ?? "",
+                            peggedDollarValue:
+                                widget.contract.projectedIncome ?? 0.0,
+                            badge: "Gold",
+                            deadline: DateTime.now().add(
+                              Duration(
+                                days: widget.contract.contractDuration ?? 0,
+                              ),
+                            ),
+                            kwikTicketAmount:
+                                widget.contract.totalAmount ?? 0.0,
+                            projectedIncomeInDollars:
+                                widget.contract.projectedIncome ?? 0.0,
+                            // exporterId: widget.contract.exporterId ?? "N/A",
+                          )
+                          .then((newTicket) {
+                            if (createTicketApi.isSuccessful == true &&
+                                newTicket != null) {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder:
+                                      (_) => KwikticketCreatedSuccessfully(
+                                        // kwikticketID: "#${newTicket.uniqueId}",
+                                        // exporterName:
+                                        //     newTicket.exporter?.businessName ??
+                                        //     "",
+                                        // exportItem:
+                                        //     newTicket.commodity?.name ?? "",
+                                        // contractType: "FOB",
+                                        // stakedVolume:
+                                        //     "${newTicket.totalQuantity} tons",
+                                        // capitalCost:
+                                        //     "₦${newTicket.kwikTicketAmount}",
+                                        // destination:
+                                        //     newTicket
+                                        //         .contract
+                                        //         ?.destinationCountry ??
+                                        //     "",
+                                        kwikticket: newTicket,
+                                      ),
+                                ),
+                              );
+                            } else {
+                              showToastContainer(
+                                "Error",
+                                createTicketApi.message,
+                                colorCodes.mistyRose,
+                                colorCodes.portlandOrange,
+                                context,
+                              );
+                            }
+                          });
+
+                      currentIndex = 3;
+                    },
+                  );
+                },
+              );
+            }
           }),
           SizedBox(height: 35),
         ],

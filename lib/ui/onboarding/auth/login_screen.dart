@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_overlay_loader/flutter_overlay_loader.dart';
+import 'package:kwik_port/api/controller/authApi/loginApi.dart';
+import 'package:kwik_port/api/utils/loader.dart';
 import 'package:kwik_port/colors/color.dart';
 import 'package:kwik_port/main.dart';
 import 'package:kwik_port/ui/onboarding/auth/forgot_password.dart';
@@ -6,11 +9,14 @@ import 'package:kwik_port/ui/onboarding/login_successful_screen.dart';
 import 'package:kwik_port/ui/onboarding/auth/signup_screen.dart';
 import 'package:kwik_port/utils/button/backNav_button.dart';
 import 'package:kwik_port/utils/button/kwik_button.dart';
+import 'package:kwik_port/utils/button/loading_dialog.dart';
 import 'package:kwik_port/utils/text/signuptxtFunc.dart';
 import 'package:kwik_port/utils/text/textstyle.dart';
 import 'package:kwik_port/utils/text/validationtext.dart';
 import 'package:kwik_port/utils/textFields/emailField_column.dart';
 import 'package:kwik_port/utils/textFields/passwordField_column.dart';
+import 'package:kwik_port/utils/toast.dart';
+import 'package:provider/provider.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -81,6 +87,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final loginProvider = Provider.of<LoginApi>(context);
     return Scaffold(
       backgroundColor: colorCodes.whiteSmoke,
       body: ListView(
@@ -129,7 +136,10 @@ class _LoginScreenState extends State<LoginScreen> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => ForgotPasswordScreen(),
+                        builder:
+                            (context) => ForgotPasswordScreen(
+                              email: emailController.text,
+                            ),
                       ),
                     );
                   },
@@ -144,18 +154,17 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
               ),
               SizedBox(height: 32),
-              kwikbutton('Login', () {
-                if (emailController.text.isNotEmpty &&
-                    passwordController.text.isNotEmpty) {
-                  currentIndex = 1;
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => LoginSuccessfulScreen(),
-                    ),
-                  );
-                }
-              }),
+              kwikbutton(
+                'Login',
+                () =>
+                //  Navigator.push(
+                //   context,
+                //   MaterialPageRoute(
+                //     builder: (context) => LoginSuccessfulScreen(),
+                //   ),
+                // ),
+                login(loginProvider),
+              ),
               SizedBox(height: 12),
               Align(
                 alignment: Alignment.center,
@@ -193,6 +202,49 @@ class _LoginScreenState extends State<LoginScreen> {
         ],
       ),
     );
+  }
+
+  login(LoginApi loginProvider) {
+    if (emailController.text.isNotEmpty && passwordController.text.isNotEmpty) {
+      // showLoader(context: context);
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return LoadingDialog();
+        },
+      );
+      loginProvider
+          .login(emailController.text, passwordController.text, context)
+          .then((_) {
+            // Loader.hide();
+            Navigator.pop(context);
+            if (loginProvider.isLoggedIn) {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => LoginSuccessfulScreen(),
+                ),
+              );
+              showToastContainer(
+                "Login Successful",
+                loginProvider.message,
+                colorCodes.pigmentGreen,
+                colorCodes.mediumSeaGreen,
+                context,
+              );
+              currentIndex = 1;
+            } else {
+              showToastContainer(
+                "Login Failed",
+                loginProvider.message,
+                colorCodes.mistyRose,
+                colorCodes.portlandOrange,
+                context,
+              );
+            }
+          });
+      currentIndex = 1;
+    }
   }
 
   Widget signInContainer(img, text) {

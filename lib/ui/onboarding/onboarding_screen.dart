@@ -68,7 +68,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               'Get paid in dollars',
             ),
             onboardingView(
-              'assets/images/onboardingtwo.png',
+              'assets/images/04- Onboarding V1.1 1.png',
               'Start Your First Export!',
               'Start your first export today and watch it go global.',
               '',

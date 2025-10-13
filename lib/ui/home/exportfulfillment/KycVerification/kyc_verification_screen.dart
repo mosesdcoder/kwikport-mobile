@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hexcolor/hexcolor.dart';
+import 'package:kwik_port/api/model/dashboard_model.dart';
 import 'package:kwik_port/colors/color.dart';
 import 'package:kwik_port/ui/home/exportfulfillment/KycVerification/bussiness_informatin.dart';
 import 'package:kwik_port/ui/home/exportfulfillment/KycVerification/document_verification.dart';
@@ -11,7 +12,9 @@ import 'package:kwik_port/utils/button/bottom_navigatior_bar.dart';
 import 'package:kwik_port/utils/text/textstyle.dart';
 
 class KycVerificationScreen extends StatefulWidget {
-  const KycVerificationScreen({super.key});
+  final KwikTicketModel kwikticket;
+
+  const KycVerificationScreen({super.key, required this.kwikticket});
 
   @override
   State<KycVerificationScreen> createState() => _KycVerificationScreenState();
@@ -133,7 +136,7 @@ class _KycVerificationScreenState extends State<KycVerificationScreen> {
               context: context,
 
               builder: (BuildContext context) {
-                return KycSuccessfulDialog();
+                return KycSuccessfulDialog(kwikticket: widget.kwikticket);
               },
             );
           },

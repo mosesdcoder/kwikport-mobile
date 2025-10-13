@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hexcolor/hexcolor.dart';
+import 'package:kwik_port/api/controller/agency/export_substage_api.dart';
 import 'package:kwik_port/colors/color.dart';
 import 'package:kwik_port/ui/home/dashboard/exportJourney/export_complete_screen.dart';
 import 'package:kwik_port/ui/home/dashboard/exportJourney/packaging_and_documentation.dart';
@@ -8,9 +9,12 @@ import 'package:kwik_port/utils/button/back_nav_header.dart';
 import 'package:kwik_port/utils/button/bottom_navigatior_bar.dart';
 import 'package:kwik_port/utils/button/kwik_button.dart';
 import 'package:kwik_port/utils/text/textstyle.dart';
+import 'package:provider/provider.dart';
 
 class ExportJourneyScreen extends StatefulWidget {
-  const ExportJourneyScreen({super.key});
+  final String exporterContractId;
+
+  const ExportJourneyScreen({super.key, required this.exporterContractId});
 
   @override
   State<ExportJourneyScreen> createState() => _ExportJourneyScreenState();
@@ -48,8 +52,30 @@ class _ExportJourneyScreenState extends State<ExportJourneyScreen> {
     List.filled(5, false), // Final Export
   ];
   List<bool> isChecked = [false, false, false, false, false];
+  int selectedMainStage = 1; // you can change depending on stage
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<ExportSubStageApi>(context, listen: false).getSubStages(
+        exporterContractId: widget.exporterContractId,
+        mainStage: selectedMainStage,
+      );
+    });
+  }
+
+  Future<void> _refresh() async {
+    await Provider.of<ExportSubStageApi>(context, listen: false).getSubStages(
+      exporterContractId: widget.exporterContractId,
+      mainStage: selectedMainStage,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    final exportSubStageProvider = Provider.of<ExportSubStageApi>(context);
+
     return Scaffold(
       extendBody: true,
       appBar: PreferredSize(
@@ -73,7 +99,7 @@ class _ExportJourneyScreenState extends State<ExportJourneyScreen> {
               Container(
                 // height: 581,
                 width: 391,
-                padding: EdgeInsets.symmetric(horizontal: 18, vertical: 20),
+                padding: EdgeInsets.symmetric(horizontal: 12, vertical: 20),
                 decoration: BoxDecoration(
                   color: colorCodes.white,
                   borderRadius: BorderRadius.circular(16),
@@ -111,6 +137,7 @@ class _ExportJourneyScreenState extends State<ExportJourneyScreen> {
                     ),
 
                     SizedBox(height: 25),
+                    // ExportAccordion(title: title, statusbtntxt: statusbtntxt, statusbtnFunc: statusbtnFunc, child: child)
                     ExportAccordion(
                       title: "Procurement 🏭",
                       statusbtntxt: "Completed",
@@ -344,12 +371,12 @@ class _ExportJourneyScreenState extends State<ExportJourneyScreen> {
                         children: [
                           Image.asset(
                             "assets/images/icons/dashboard/Frame 10000060291.png",
-                            height: 25,
-                            width: 25,
+                            height: 24,
+                            width: 24,
                           ),
-                          SizedBox(width: 10),
+                          SizedBox(width: 8),
                           SizedBox(
-                            width: 250,
+                            width: 238,
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
@@ -457,8 +484,8 @@ class _ExportJourneyScreenState extends State<ExportJourneyScreen> {
                 checkterms == true
                     ? Image.asset(
                       "assets/images/icons/dashboard/Checkbox (1).png",
-                      height: 25,
-                      width: 25,
+                      height: 23,
+                      width: 23,
                     )
                     : Container(
                       height: 20,
@@ -479,7 +506,7 @@ class _ExportJourneyScreenState extends State<ExportJourneyScreen> {
           ),
           SizedBox(width: 5),
           SizedBox(
-            width: 225,
+            width: 220,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -497,10 +524,10 @@ class _ExportJourneyScreenState extends State<ExportJourneyScreen> {
                     ),
                     delay == true
                         ? Container(
-                          width: 59,
+                          width: 57,
                           height: 20,
                           padding: const EdgeInsets.symmetric(
-                            horizontal: 8,
+                            horizontal: 5,
                             vertical: 3,
                           ),
                           decoration: BoxDecoration(
@@ -515,7 +542,7 @@ class _ExportJourneyScreenState extends State<ExportJourneyScreen> {
                             delaydate,
                             style: kwikTextStlye(
                               10.0,
-                              FontWeight.w500,
+                              FontWeight.w400,
                               colorCodes.textBlack,
                             ),
                           ),

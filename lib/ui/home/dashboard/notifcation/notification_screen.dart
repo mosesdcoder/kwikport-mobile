@@ -165,10 +165,10 @@ class _NotificationScreenState extends State<NotificationScreen>
       ),
       backgroundColor: colorCodes.whiteSmoke,
       body: ListView(
-        padding: EdgeInsets.only(left: 20, right: 20, top: 10, bottom: 60),
+        padding: EdgeInsets.only(left: 18, right: 18, top: 10, bottom: 70),
         children: [
           SizedBox(
-            height: MediaQuery.of(context).size.height - 180,
+            height: MediaQuery.of(context).size.height - 170,
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,
@@ -182,7 +182,7 @@ class _NotificationScreenState extends State<NotificationScreen>
                         height: 90 * itemCount.toDouble(),
                         width: 390,
                         padding: const EdgeInsets.symmetric(
-                          horizontal: 20,
+                          horizontal: 10,
                           vertical: 20,
                         ),
                         decoration: BoxDecoration(
@@ -212,7 +212,7 @@ class _NotificationScreenState extends State<NotificationScreen>
                         height: 90 * itemCount.toDouble(),
                         width: 390,
                         padding: const EdgeInsets.symmetric(
-                          horizontal: 20,
+                          horizontal: 10,
                           vertical: 20,
                         ),
                         decoration: BoxDecoration(
@@ -242,7 +242,7 @@ class _NotificationScreenState extends State<NotificationScreen>
                         height: 90 * itemCount.toDouble(),
                         width: 390,
                         padding: const EdgeInsets.symmetric(
-                          horizontal: 20,
+                          horizontal: 10,
                           vertical: 20,
                         ),
                         decoration: BoxDecoration(
@@ -272,7 +272,7 @@ class _NotificationScreenState extends State<NotificationScreen>
                         height: 90 * itemCount.toDouble(),
                         width: 390,
                         padding: const EdgeInsets.symmetric(
-                          horizontal: 20,
+                          horizontal: 0,
                           vertical: 20,
                         ),
                         decoration: BoxDecoration(

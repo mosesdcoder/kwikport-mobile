@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hexcolor/hexcolor.dart';
+import 'package:kwik_port/api/model/dashboard_model.dart';
 import 'package:kwik_port/colors/color.dart';
 import 'package:kwik_port/main.dart';
 import 'package:kwik_port/ui/home/contracts/kwikticket_created_successfully.dart';
@@ -8,7 +9,13 @@ import 'package:kwik_port/utils/text/textstyle.dart';
 import 'package:kwik_port/utils/textFields/goods_volume_field.dart';
 
 class GenerateContractTicketDialog extends StatefulWidget {
-  const GenerateContractTicketDialog({super.key});
+  final ContractModel contract;
+  final generateFunc;
+  const GenerateContractTicketDialog({
+    super.key,
+    required this.contract,
+    required this.generateFunc,
+  });
 
   @override
   State<GenerateContractTicketDialog> createState() =>
@@ -17,9 +24,10 @@ class GenerateContractTicketDialog extends StatefulWidget {
 
 class _GenerateContractTicketDialogState
     extends State<GenerateContractTicketDialog> {
-  TextEditingController volumeControlller = TextEditingController();
+  late TextEditingController volumeController;
+
   void validateVolume() {
-    if (volumeControlller.text.isEmpty) {
+    if (volumeController.text.isEmpty) {
       setState(() {
         colorCodes.white.withOpacity(0.5);
       });
@@ -32,13 +40,16 @@ class _GenerateContractTicketDialogState
 
   @override
   void initState() {
-    volumeControlller.addListener(validateVolume);
+    volumeController = TextEditingController(
+      text: "${widget.contract.totalQuantity}",
+    );
+    volumeController.addListener(validateVolume);
     super.initState();
   }
 
   @override
   void dispose() {
-    volumeControlller.dispose();
+    volumeController.dispose();
     super.dispose();
   }
 
@@ -118,18 +129,18 @@ class _GenerateContractTicketDialogState
                   SizedBox(height: 16),
                   goodsVolumnFieldColumn(
                     "",
-                    volumeControlller,
+                    volumeController,
                     suffixIcon: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         InkWell(
                           onTap: () {
-                            if (volumeControlller.text.isNotEmpty) {
+                            if (volumeController.text.isNotEmpty) {
                               setState(() {
-                                volumeControlller.text =
-                                    (double.parse(volumeControlller.text) + 1.0)
+                                volumeController.text =
+                                    (double.parse(volumeController.text) + 1.0)
                                         .toString();
-                                print(volumeControlller.text);
+                                print(volumeController.text);
                               });
                             }
                           },
@@ -141,16 +152,16 @@ class _GenerateContractTicketDialogState
                         ),
                         InkWell(
                           onTap: () {
-                            if (volumeControlller.text.isNotEmpty) {
+                            if (volumeController.text.isNotEmpty) {
                               final volume = double.parse(
-                                volumeControlller.text,
+                                volumeController.text,
                               );
                               if (volume == 1.0) {
                               } else {
                                 setState(() {
                                   2 - 1;
-                                  volumeControlller.text =
-                                      (double.parse(volumeControlller.text) -
+                                  volumeController.text =
+                                      (double.parse(volumeController.text) -
                                               1.0)
                                           .toString();
                                 });
@@ -180,37 +191,22 @@ class _GenerateContractTicketDialogState
                         ),
                         children: [
                           TextSpan(text: " Available: "),
-                          TextSpan(text: "80 tons"),
+                          TextSpan(
+                            text: "${widget.contract.fulfilledQuantity} tons",
+                          ),
                         ],
                       ),
                     ),
                   ),
                   SizedBox(height: 24),
                   marketRateContainer(
-                    "₦12,000,000",
-                    "Total Cost (${volumeControlller.text} tons)",
-                    "₦246,000,000",
-                    volumeControlller.text,
+                    "${widget.contract.buyerSpecification?.buyerPricePerUnit}",
+                    "Total Cost (${volumeController.text} tons)",
+                    "₦${widget.contract.totalAmountSpent}",
+                    volumeController.text,
                   ),
                   SizedBox(height: 24),
-                  kwikbutton("Generate Ticket", () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder:
-                            (context) => KwikticketCreatedSuccessfully(
-                              kwikticketID: "#Kwk-8989-09",
-                              exporterName: "John  Gbenga",
-                              exportItem: "Cocoa bean",
-                              contractType: "FOB",
-                              stakedVolume: "20.5 tons",
-                              capitalCost: "₦246,000,000",
-                              destination: "Argentina",
-                            ),
-                      ),
-                    );
-                    currentIndex = 3;
-                  }),
+                  kwikbutton("Generate Ticket", (widget.generateFunc)),
                   SizedBox(height: 10),
                 ],
               ),

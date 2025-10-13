@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:kwik_port/colors/color.dart';
 import 'package:kwik_port/main.dart';
+import 'package:kwik_port/ui/home/kwikticket/all_kwik_ticket_screen.dart';
 import 'package:kwik_port/ui/home/contracts/contract_screen.dart';
 import 'package:kwik_port/ui/home/dashboard/dashboard.dart';
 import 'package:kwik_port/ui/home/exportfulfillment/KycVerification/kyc_verification_screen.dart';
 import 'package:kwik_port/ui/home/profile/profile_screen.dart';
+import 'package:kwik_port/ui/home/wallet/wallet_screen.dart';
 import 'package:kwik_port/utils/text/textstyle.dart';
 
 class Bottomnavigationbar extends StatefulWidget {
@@ -55,14 +57,14 @@ class _BottomnavigationbarState extends State<Bottomnavigationbar> {
                 'Contracts',
               ),
               btmNavCol(
-                const KycVerificationScreen(),
+                const AllKwikTicketScreen(),
                 3,
                 'ticket_enabled.png',
                 'ticket.png',
                 'Kwiktickets',
               ),
               btmNavCol(
-                const Dashboard(),
+                const WalletScreen(),
                 4,
                 'wallet_enabled.png',
                 'wallet.png',

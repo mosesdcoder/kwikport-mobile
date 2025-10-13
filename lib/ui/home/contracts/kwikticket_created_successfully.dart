@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:hexcolor/hexcolor.dart';
+import 'package:intl/intl.dart';
+import 'package:kwik_port/api/model/dashboard_model.dart';
 import 'package:kwik_port/colors/color.dart';
 import 'package:kwik_port/main.dart';
-import 'package:kwik_port/ui/home/contracts/kwikticket_screen.dart';
+import 'package:kwik_port/ui/home/kwikticket/kwikticket_screen.dart';
 import 'package:kwik_port/ui/home/dashboard/dashboard.dart';
 import 'package:kwik_port/utils/button/backNav_button.dart';
 import 'package:kwik_port/utils/button/bottom_navigatior_bar.dart';
@@ -11,23 +13,16 @@ import 'package:kwik_port/utils/text/contract_detail_heading_and_subtitle.dart';
 import 'package:kwik_port/utils/text/textstyle.dart';
 
 class KwikticketCreatedSuccessfully extends StatefulWidget {
-  final kwikticketID,
-      exporterName,
-      exportItem,
-      contractType,
-      stakedVolume,
-      capitalCost,
-      destination;
-  const KwikticketCreatedSuccessfully({
-    super.key,
-    required this.kwikticketID,
-    required this.exporterName,
-    required this.exportItem,
-    required this.contractType,
-    required this.stakedVolume,
-    required this.capitalCost,
-    required this.destination,
-  });
+  final KwikTicketModel kwikticket;
+
+  // final kwikticketID,
+  // exporterName,
+  // exportItem,
+  // contractType,
+  // stakedVolume,
+  // capitalCost,
+  // destination;
+  const KwikticketCreatedSuccessfully({super.key, required this.kwikticket});
 
   @override
   State<KwikticketCreatedSuccessfully> createState() =>
@@ -133,8 +128,8 @@ class _KwikticketCreatedSuccessfullyState
                     contractDetailHeadingAndSubtitletwo(
                       "Kwikticket ID",
                       "Exporter Name",
-                      widget.kwikticketID,
-                      widget.exporterName,
+                      widget.kwikticket.uniqueId,
+                      widget.kwikticket.exporter?.businessName,
                       // "#Kwk-8989-09",
                       // "John  Gbenga",
                     ),
@@ -142,8 +137,10 @@ class _KwikticketCreatedSuccessfullyState
                     contractDetailHeadingAndSubtitletwo(
                       "Export Item",
                       "Contract type",
-                      widget.exportItem,
-                      widget.contractType,
+                      widget.kwikticket.contract?.commodityName,
+                      widget.kwikticket.contract?.contractType == 1
+                          ? "International Buyer"
+                          : "Local Buyer",
 
                       // "Cocoa bean",
                       // "Agricultural Commodity",
@@ -152,8 +149,8 @@ class _KwikticketCreatedSuccessfullyState
                     contractDetailHeadingAndSubtitletwo(
                       "Selected Capacity",
                       "Commodity Cost",
-                      widget.stakedVolume,
-                      widget.capitalCost,
+                      widget.kwikticket.commodity?.unitOfMeasurement,
+                      "${widget.kwikticket.commodity?.price}",
                       // "20.5 tons",
                       // "₦246,000,000",
                       fontFamily: "",
@@ -184,7 +181,7 @@ class _KwikticketCreatedSuccessfullyState
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          "\$12,500",
+                          "${widget.kwikticket.contract?.buyerSpecification?.buyerPricePerUnit}",
                           style: kwikTextStlye(
                             14.0,
                             FontWeight.w600,
@@ -199,7 +196,7 @@ class _KwikticketCreatedSuccessfullyState
                               width: 16,
                             ),
                             Text(
-                              "15.5%",
+                              "${widget.kwikticket.contract?.projectedIncome}%",
                               style: kwikTextStlye(
                                 14.0,
                                 FontWeight.w600,
@@ -238,7 +235,7 @@ class _KwikticketCreatedSuccessfullyState
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          widget.destination,
+                          widget.kwikticket.contract!.destinationCountry,
                           style: kwikTextStlye(
                             14.0,
                             FontWeight.w600,
@@ -282,8 +279,10 @@ class _KwikticketCreatedSuccessfullyState
                     contractDetailHeadingAndSubtitle(
                       "Duration ",
                       "Time",
-                      "12 AUG 2025",
-                      "12.00 AM",
+                      "${widget.kwikticket.deadline?.day} Days",
+
+                      // "12 AUG 2025",
+                      DateFormat('h:mm a').format(widget.kwikticket.deadline!),
                     ),
                   ],
                 ),
@@ -294,15 +293,8 @@ class _KwikticketCreatedSuccessfullyState
                   context,
                   MaterialPageRoute(
                     builder:
-                        (context) => KwikticketScreen(
-                          kwikticketID: widget.kwikticketID,
-                          exporterName: widget.exporterName,
-                          exportItem: widget.exportItem,
-                          contractType: widget.contractType,
-                          stakedVolume: widget.stakedVolume,
-                          capitalCost: widget.capitalCost,
-                          destination: widget.destination,
-                        ),
+                        (context) =>
+                            KwikticketScreen(kwikticket: widget.kwikticket),
                   ),
                 );
                 currentIndex = 3;

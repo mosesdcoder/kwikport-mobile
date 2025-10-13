@@ -3,10 +3,10 @@ import 'package:kwik_port/colors/color.dart';
 import 'package:kwik_port/utils/text/textstyle.dart';
 
 Widget contractDetailHeadingAndSubtitle(
-  leftTitle,
-  rightTitle,
-  leftSubtitle,
-  rightSubtitle, {
+  String leftTitle,
+  String rightTitle,
+  String leftSubtitle,
+  String rightSubtitle, {
   fontFamily,
 }) {
   return Column(

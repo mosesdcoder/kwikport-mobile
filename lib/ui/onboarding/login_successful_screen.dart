@@ -22,6 +22,7 @@ class _LoginSuccessfulScreenState extends State<LoginSuccessfulScreen> {
         MaterialPageRoute(builder: (context) => Dashboard()),
       ),
     );
+
     super.initState();
   }
 
@@ -41,7 +42,7 @@ class _LoginSuccessfulScreenState extends State<LoginSuccessfulScreen> {
             ),
             SizedBox(height: 40),
             Text(
-              'Login Successfully!',
+              'Login Successful!',
               style: kwikTextStlye(24.0, FontWeight.w600, colorCodes.black),
             ),
           ],

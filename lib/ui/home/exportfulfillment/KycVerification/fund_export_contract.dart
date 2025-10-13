@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:intl/intl.dart';
+import 'package:kwik_port/api/model/dashboard_model.dart';
 import 'package:kwik_port/colors/color.dart';
 import 'package:kwik_port/ui/home/exportfulfillment/KycVerification/export_payment_confirmed.dart';
 import 'package:kwik_port/ui/home/exportfulfillment/KycVerification/export_payment_containers.dart';
@@ -13,7 +14,9 @@ import 'package:kwik_port/utils/textFields/nameField_column.dart';
 import 'package:kwik_port/utils/textFields/phoneNumber_field.dart';
 
 class FundExportContract extends StatefulWidget {
-  const FundExportContract({super.key});
+  final KwikTicketModel kwikticket;
+
+  const FundExportContract({super.key, required this.kwikticket});
 
   @override
   State<FundExportContract> createState() => _FundExportContractState();
@@ -271,7 +274,7 @@ class _FundExportContractState extends State<FundExportContract> {
                 height: 100,
                 width: 390,
                 alignment: Alignment.center,
-                padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                padding: EdgeInsets.symmetric(horizontal: 8, vertical: 10),
                 decoration: BoxDecoration(
                   color: colorCodes.mintCream,
                   borderRadius: BorderRadius.circular(16),
@@ -287,9 +290,9 @@ class _FundExportContractState extends State<FundExportContract> {
                       height: 20,
                       width: 20,
                     ),
-                    SizedBox(width: 12),
+                    SizedBox(width: 8),
                     SizedBox(
-                      width: 310,
+                      width: 270,
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -327,7 +330,7 @@ class _FundExportContractState extends State<FundExportContract> {
                     height: 100,
                     width: 390,
                     alignment: Alignment.center,
-                    padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                    padding: EdgeInsets.symmetric(horizontal: 8, vertical: 10),
                     decoration: BoxDecoration(
                       color: colorCodes.mintCream,
                       borderRadius: BorderRadius.circular(16),
@@ -344,9 +347,9 @@ class _FundExportContractState extends State<FundExportContract> {
                           height: 20,
                           width: 20,
                         ),
-                        SizedBox(width: 12),
+                        SizedBox(width: 8),
                         SizedBox(
-                          width: 310,
+                          width: 270,
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -382,7 +385,10 @@ class _FundExportContractState extends State<FundExportContract> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => ExportPaymentConfirmed(),
+                      builder:
+                          (context) => ExportPaymentConfirmed(
+                            kwikticket: widget.kwikticket,
+                          ),
                     ),
                   );
                 },
@@ -601,9 +607,9 @@ class _FundExportContractState extends State<FundExportContract> {
 
   Widget bankTransferWidget() {
     return Container(
-      height: 890,
+      height: 925,
       width: 391,
-      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+      padding: EdgeInsets.symmetric(horizontal: 15, vertical: 20),
       decoration: BoxDecoration(
         color: colorCodes.white,
         borderRadius: BorderRadius.circular(16),
@@ -627,10 +633,10 @@ class _FundExportContractState extends State<FundExportContract> {
           ),
           SizedBox(height: 24),
           Container(
-            height: 100,
+            height: 130,
             width: 376,
             alignment: Alignment.center,
-            padding: EdgeInsets.symmetric(horizontal: 8, vertical: 10),
+            padding: EdgeInsets.symmetric(horizontal: 6, vertical: 10),
             decoration: BoxDecoration(
               color: colorCodes.floralWhite,
               borderRadius: BorderRadius.circular(16),
@@ -644,9 +650,9 @@ class _FundExportContractState extends State<FundExportContract> {
                   height: 20,
                   width: 20,
                 ),
-                SizedBox(width: 8),
+                SizedBox(width: 5),
                 SizedBox(
-                  width: 277,
+                  width: 240,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -654,7 +660,7 @@ class _FundExportContractState extends State<FundExportContract> {
                         "Manual Verification Required",
                         style: kwikTextStlye(
                           14.0,
-                          FontWeight.w600,
+                          FontWeight.w500,
                           colorCodes.sinopia,
                         ),
                       ),
@@ -752,10 +758,10 @@ class _FundExportContractState extends State<FundExportContract> {
           ),
           SizedBox(height: 10),
           Container(
-            height: 119,
+            height: 125,
             width: 366,
             alignment: Alignment.center,
-            padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+            padding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
             decoration: BoxDecoration(
               color: HexColor("#D0E1FB").withOpacity(0.3),
               borderRadius: BorderRadius.circular(16),
@@ -773,9 +779,9 @@ class _FundExportContractState extends State<FundExportContract> {
                   height: 20,
                   width: 20,
                 ),
-                SizedBox(width: 6),
+                SizedBox(width: 5),
                 SizedBox(
-                  width: 280,
+                  width: 245,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -783,7 +789,7 @@ class _FundExportContractState extends State<FundExportContract> {
                         "Processing Time",
                         style: kwikTextStlye(
                           14.0,
-                          FontWeight.w600,
+                          FontWeight.w500,
                           colorCodes.azureBlue,
                         ),
                       ),
@@ -806,7 +812,7 @@ class _FundExportContractState extends State<FundExportContract> {
           Container(
             height: 155,
             width: 366,
-            padding: EdgeInsets.symmetric(horizontal: 10, vertical: 15),
+            padding: EdgeInsets.symmetric(horizontal: 8, vertical: 15),
             decoration: BoxDecoration(
               border: Border.all(color: colorCodes.antiFlashWhite, width: 1.2),
               color: colorCodes.white,
@@ -828,14 +834,18 @@ class _FundExportContractState extends State<FundExportContract> {
                       height: 20,
                       width: 20,
                     ),
-                    SizedBox(width: 12),
+                    SizedBox(width: 8),
 
-                    Text(
-                      "SMS confirmation when payment is received",
-                      style: kwikTextStlye(
-                        12.0,
-                        FontWeight.w300,
-                        colorCodes.graniteGrey,
+                    SizedBox(
+                      width: 240,
+                      child: Text(
+                        "SMS confirmation when payment is received",
+                        textAlign: TextAlign.start,
+                        style: kwikTextStlye(
+                          12.0,
+                          FontWeight.w300,
+                          colorCodes.graniteGrey,
+                        ),
                       ),
                     ),
                   ],
@@ -849,14 +859,17 @@ class _FundExportContractState extends State<FundExportContract> {
                       height: 20,
                       width: 20,
                     ),
-                    SizedBox(width: 12),
+                    SizedBox(width: 8),
 
-                    Text(
-                      "Email with payment verification status",
-                      style: kwikTextStlye(
-                        12.0,
-                        FontWeight.w300,
-                        colorCodes.graniteGrey,
+                    SizedBox(
+                      width: 240,
+                      child: Text(
+                        "Email with payment verification status",
+                        style: kwikTextStlye(
+                          12.0,
+                          FontWeight.w300,
+                          colorCodes.graniteGrey,
+                        ),
                       ),
                     ),
                   ],
@@ -870,14 +883,17 @@ class _FundExportContractState extends State<FundExportContract> {
                       height: 20,
                       width: 20,
                     ),
-                    SizedBox(width: 12),
+                    SizedBox(width: 8),
 
-                    Text(
-                      "Contract activation notification",
-                      style: kwikTextStlye(
-                        12.0,
-                        FontWeight.w300,
-                        colorCodes.graniteGrey,
+                    SizedBox(
+                      width: 240,
+                      child: Text(
+                        "Contract activation notification",
+                        style: kwikTextStlye(
+                          12.0,
+                          FontWeight.w300,
+                          colorCodes.graniteGrey,
+                        ),
                       ),
                     ),
                   ],

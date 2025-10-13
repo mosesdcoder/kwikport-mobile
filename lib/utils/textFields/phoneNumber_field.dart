@@ -1,17 +1,20 @@
+import 'package:country_flags/country_flags.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:kwik_port/colors/color.dart';
 
-var numberInputFormatters = [
-  new FilteringTextInputFormatter.allow(RegExp("[0-9]")),
-];
+// var numberInputFormatters = [
+// new FilteringTextInputFormatter.allow(RegExp("[0-9]+")),
+// ];
+
 TextField phoneTextfield(
   fNode,
   textControllerId,
   flag,
   dialCode,
   countryDialog,
-  maxLength,
+  // maxLength,
+  // ValueChanged<String>?
   onChanged,
   BuildContext context,
 ) {
@@ -21,9 +24,24 @@ TextField phoneTextfield(
     focusNode: fNode,
     // autofocus: true,
     enableSuggestions: true,
-    maxLength: maxLength,
-    inputFormatters: numberInputFormatters,
-    keyboardType: TextInputType.number,
+    // maxLength: maxLength,
+    inputFormatters: [
+      FilteringTextInputFormatter.allow(
+        RegExp(r'^\+?\d*'),
+      ), // only allow digits after +
+      TextInputFormatter.withFunction((oldValue, newValue) {
+        if (!newValue.text.startsWith('+')) {
+          return TextEditingValue(
+            text: '+' + newValue.text.replaceAll('+', ''),
+            selection: TextSelection.collapsed(
+              offset: newValue.selection.end + 1,
+            ),
+          );
+        }
+        return newValue;
+      }),
+    ],
+    keyboardType: TextInputType.phone,
     onChanged: onChanged,
     decoration: InputDecoration(
       filled: true,
@@ -39,26 +57,37 @@ TextField phoneTextfield(
             borderRadius: const BorderRadius.all(Radius.circular(5.0)),
           ),
           child: Container(
-            width: 90,
+            width: 50,
             child: FittedBox(
               child: Row(
                 children: [
                   // SvgPicture.network(flag, width: 20, height: 20),
-                  Image.asset(flag, width: 20, height: 20),
-                  const SizedBox(width: 2),
-                  Image.asset(
-                    'assets/images/icons/Arrowdown_Icon.png',
-                    width: 20,
-                    height: 20,
+                  // Container(
+                  //   width: 20,
+                  //   height: 20,
+                  //   decoration: BoxDecoration(
+                  //     // image: DecorationImage(
+                  //     //   image: AssetImage(flag),
+                  //     //   fit: BoxFit.cover,
+                  //     // ),
+                  //     borderRadius: BorderRadius.circular(3),
+                  //   ),
+                  //   child:
+                  CountryFlag.fromCountryCode(
+                    flag,
+                    theme: ImageTheme(
+                      shape: const Circle(),
+                      height: 20,
+                      width: 20,
+                    ),
                   ),
+
+                  // ),
+                  // Image.asset(flag, width: 20, height: 20),
                   const SizedBox(width: 3),
                   const Text(
                     "|",
                     style: TextStyle(color: Colors.black, fontSize: 16),
-                  ),
-                  Text(
-                    " +$dialCode",
-                    style: TextStyle(color: Colors.black.withOpacity(0.5)),
                   ),
                 ],
               ),

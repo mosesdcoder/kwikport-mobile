@@ -46,7 +46,7 @@ class _BussinessInformationState extends State<BussinessInformation> {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 970,
+      height: 1000,
       width: 391,
       child: Padding(
         padding: const EdgeInsets.only(bottom: 30.0),
@@ -55,7 +55,7 @@ class _BussinessInformationState extends State<BussinessInformation> {
             Container(
               height: 755,
               width: 391,
-              padding: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+              padding: EdgeInsets.symmetric(horizontal: 15, vertical: 20),
               decoration: BoxDecoration(
                 color: colorCodes.white,
                 borderRadius: BorderRadius.circular(16),
@@ -188,9 +188,9 @@ class _BussinessInformationState extends State<BussinessInformation> {
                   SizedBox(height: 15),
                   Container(
                     height: 119,
-                    width: 351,
+                    width: 355,
                     alignment: Alignment.center,
-                    padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                    padding: EdgeInsets.symmetric(horizontal: 8, vertical: 10),
                     decoration: BoxDecoration(
                       color: colorCodes.white,
                       borderRadius: BorderRadius.circular(16),
@@ -208,9 +208,9 @@ class _BussinessInformationState extends State<BussinessInformation> {
                           height: 20,
                           width: 20,
                         ),
-                        SizedBox(width: 6),
+                        SizedBox(width: 5),
                         SizedBox(
-                          width: 274,
+                          width: 245,
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -218,7 +218,7 @@ class _BussinessInformationState extends State<BussinessInformation> {
                                 "Why We Need This Information",
                                 style: kwikTextStlye(
                                   14.0,
-                                  FontWeight.w600,
+                                  FontWeight.w500,
                                   colorCodes.black,
                                 ),
                               ),
@@ -242,8 +242,8 @@ class _BussinessInformationState extends State<BussinessInformation> {
             ),
             SizedBox(height: 15),
             Container(
-              height: 85,
-              width: 391,
+              height: 100,
+              width: 395,
               alignment: Alignment.center,
               padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
               decoration: BoxDecoration(
@@ -265,7 +265,7 @@ class _BussinessInformationState extends State<BussinessInformation> {
                   ),
                   SizedBox(width: 6),
                   SizedBox(
-                    width: 314,
+                    width: 270,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
