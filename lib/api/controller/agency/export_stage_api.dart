@@ -17,7 +17,7 @@ class ExportStageApi extends ChangeNotifier {
   selectAgency({
     required String exporterContractId,
     required String agencyId,
-    required int stageType, // use if backend expects it
+    required int stageType,
   }) async {
     if (loading) return;
     loading = true;
@@ -31,7 +31,7 @@ class ExportStageApi extends ChangeNotifier {
       };
 
       final response = await HttpService.postRequest(
-        '/ExportStage/select-agency',
+        '/Agency/select-agency',
         body,
       );
 
@@ -42,7 +42,7 @@ class ExportStageApi extends ChangeNotifier {
         _message = data['message'] ?? '';
       } else {
         _success = false;
-        _message = 'Failed to select agency. (${response.statusCode})';
+        _message = 'Failed to select agency. ';
       }
     } catch (e) {
       _success = false;

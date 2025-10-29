@@ -82,8 +82,9 @@ class _ContractDetailsScreenState extends State<ContractDetailsScreen>
                   children: [
                     Stack(
                       children: [
-                        Image.asset(
-                          "assets/images/cocoa_square.png",
+                        Image.network(
+                          widget.contract.commodityImage ??
+                              "https://kwikport.s3.eu-west-3.amazonaws.com/commodity-images/cocoa.png",
                           height: 238,
                           width: 342,
                         ),
@@ -109,9 +110,9 @@ class _ContractDetailsScreenState extends State<ContractDetailsScreen>
                               color: colorCodes.pigmentGreen,
                             ),
                             child: Text(
-                              widget.contract.contractStatus == 0
-                                  ? "Active"
-                                  : "Closed",
+                              "${widget.contract.contractStatus}",
+                              // ? "Active"
+                              // : "Closed",
                               style: kwikTextStlye(
                                 10.0,
                                 FontWeight.w500,

@@ -8,6 +8,7 @@ Widget goodsVolumnFieldColumn(
   title,
   hintText,
   suffixIcon,
+  onchanged,
 }) {
   return Column(
     crossAxisAlignment: CrossAxisAlignment.start,
@@ -78,6 +79,7 @@ Widget goodsVolumnFieldColumn(
             ),
           ),
         ),
+        onChanged: onchanged,
       ),
     ],
   );

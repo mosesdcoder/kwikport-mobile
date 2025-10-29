@@ -103,7 +103,6 @@ class _ContractScreenState extends State<ContractScreen>
             SizedBox(
               height: MediaQuery.of(context).size.height,
               child: SwipeRefresh.adaptive(
-                // physics: NeverScrollableScrollPhysics(),
                 stateStream: _stream,
                 onRefresh: _refresh,
                 children: [
@@ -183,23 +182,6 @@ class _ContractScreenState extends State<ContractScreen>
                         ),
                         SizedBox(height: 16),
 
-                        // SizedBox(
-                        //   height: 45,
-                        //   width: MediaQuery.of(context).size.width,
-                        //   child: ListView.separated(
-                        //     separatorBuilder:
-                        //         (context, index) => SizedBox(width: 12),
-                        //     itemCount: category.length,
-                        //     scrollDirection: Axis.horizontal,
-                        //     itemBuilder: (context, index) {
-                        //       return contractCategoryContainer(
-                        //         categoryIcon[index],
-                        //         category[index],
-                        //         count[index],
-                        //       );
-                        //     },
-                        //   ),
-                        // ),
                         SizedBox(
                           height: 45,
                           width: MediaQuery.of(context).size.width,
@@ -228,7 +210,7 @@ class _ContractScreenState extends State<ContractScreen>
                                   //   context,
                                   //   MaterialPageRoute(
                                   //     builder:
-                                  //         (_) => FilterResultScreen(
+                                  // (_) => FilterResultScreen(
                                   //           title: category.name,
                                   //           contracts: contractsByCat,
                                   //         ),
@@ -320,33 +302,42 @@ class _ContractScreenState extends State<ContractScreen>
     GetContractApi contractProvider, {
     int? statusFilter,
   }) {
-    if (_tabController.index == 0 && selectedCategory != null) {
-      // If "All" tab is selected, clear category filter
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        setState(() {
-          selectedCategory = null;
-        });
-      });
-    }
     if (contractProvider.loading) {
       return Center(child: kwikportloader());
     } else if (contractProvider.contracts.isEmpty) {
       return const Center(child: Text("No contracts available"));
     } else {
-      // Filter contracts based on status if provided
-
-      // final filteredContracts =
-      //     statusFilter == null
-      //         ? contractProvider.contracts
-      //         : contractProvider.contracts
-      //             .where((c) => c.contractStatus == statusFilter)
-      //             .toList();
-
-      // if (filteredContracts.isEmpty) {
-      //   return const Center(
-      //     child: Text("No contracts found for this category"),
-      //   );
-      // }
+      // ✅ Handle empty state
+      if (contractProvider.contracts.isEmpty) {
+        return Center(
+          child: Padding(
+            padding: const EdgeInsets.only(top: 60),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Image.asset(
+                  "assets/images/icons/filter_result.png",
+                  height: 96,
+                  width: 113,
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  contractProvider.message.isNotEmpty
+                      ? contractProvider.message
+                      : "No active contracts found.",
+                  style: kwikTextStlye(
+                    14.0,
+                    FontWeight.w600,
+                    colorCodes.graniteGrey,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 20),
+              ],
+            ),
+          ),
+        );
+      }
       var filteredContracts =
           statusFilter == null
               ? contractProvider.contracts
@@ -372,7 +363,7 @@ class _ContractScreenState extends State<ContractScreen>
             contract.commodityImage ?? "assets/images/cocoa.png",
             contract.commodityName,
             "assets/images/icons/tick-circle.png",
-            contract.contractStatus == 0 ? "Active" : "Closed",
+            contract.contractStatus, //== 0 ? "Active" : "Closed",
             "100 tons",
             "assets/images/icons/Country.png",
             contract.destinationCountry,

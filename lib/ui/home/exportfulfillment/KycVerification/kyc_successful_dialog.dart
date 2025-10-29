@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:kwik_port/api/controller/home/dashboard_api.dart';
+import 'package:kwik_port/api/controller/kwikTickets/fund_ticket_api.dart';
 import 'package:kwik_port/api/model/dashboard_model.dart';
 import 'package:kwik_port/colors/color.dart';
 import 'package:kwik_port/main.dart';
@@ -6,6 +8,8 @@ import 'package:kwik_port/ui/home/dashboard/dashboard.dart';
 import 'package:kwik_port/ui/home/exportfulfillment/KycVerification/fund_export_contract.dart';
 import 'package:kwik_port/utils/button/kwik_button.dart';
 import 'package:kwik_port/utils/text/textstyle.dart';
+import 'package:kwik_port/utils/toast.dart';
+import 'package:provider/provider.dart';
 
 class KycSuccessfulDialog extends StatefulWidget {
   final KwikTicketModel kwikticket;
@@ -19,6 +23,12 @@ class KycSuccessfulDialog extends StatefulWidget {
 class _KycSuccessfulDialogState extends State<KycSuccessfulDialog> {
   @override
   Widget build(BuildContext context) {
+    final dashboardApi = Provider.of<DashboardApi>(context);
+
+    final fundTicketApi = Provider.of<FundKwikticketApi>(
+      context,
+      listen: false,
+    );
     return SizedBox(
       width: 390,
       child: Dialog(
@@ -160,15 +170,50 @@ class _KycSuccessfulDialogState extends State<KycSuccessfulDialog> {
                   ),
                   SizedBox(height: 12),
                   kwikbutton("Proceed to Kwikprocure", () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder:
-                            (context) => FundExportContract(
-                              kwikticket: widget.kwikticket,
-                            ),
-                      ),
+                    setState(() => fundTicketApi.loading = true);
+
+                    fundTicketApi.fundTicket(
+                      kwikTicketId: widget.kwikticket.id.toString(),
+                      exporterId: widget.kwikticket.exporter!.id.toString(),
+                      // dashboardApi.data!.e, //.toString(),
                     );
+
+                    setState(() => fundTicketApi.loading = false);
+
+                    if (fundTicketApi.isSuccessful == true &&
+                        fundTicketApi.authorizationUrl != null) {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder:
+                              (_) => FundExportContract(
+                                kwikticket: widget.kwikticket,
+                                url: fundTicketApi.authorizationUrl!,
+                                kwikTicketId: widget.kwikticket.id,
+                                referenceNumber:
+                                    fundTicketApi.paymentReference!,
+                                paymentMethod: fundTicketApi.provider!,
+                              ),
+                        ),
+                      );
+                    } else {
+                      showToastContainer(
+                        "Fund Ticket",
+                        fundTicketApi.message,
+                        colorCodes.mistyRose,
+                        colorCodes.portlandOrange,
+                        context,
+                      );
+                    }
+                    // Navigator.push(
+                    //   context,
+                    //   MaterialPageRoute(
+                    //     builder:
+                    //         (context) => FundExportContract(
+                    //           kwikticket: widget.kwikticket,
+                    //         ),
+                    //   ),
+                    // );
                     currentIndex = 3;
                   }),
                   SizedBox(height: 12),

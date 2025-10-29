@@ -187,38 +187,42 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    InkWell(
-                      onTap: () {
-                        if (currentPage == 0) {
-                        } else {
-                          _pageController.animateToPage(
-                            currentPage - 1,
-                            duration: const Duration(milliseconds: 500),
-                            curve: Curves.easeIn,
-                          );
-                        }
-                      },
-                      child: Image.asset(
-                        'assets/images/icons/button back.png',
-                        height: 48,
-                        width: 48,
-                      ),
-                    ),
-                    InkWell(
-                      onTap: () {
-                        final lastpage = 3;
-                        _pageController.animateToPage(
-                          lastpage,
-                          duration: const Duration(milliseconds: 500),
-                          curve: Curves.easeIn,
-                        );
-                      },
-                      child: Image.asset(
-                        "assets/images/icons/skipButton (1).png",
-                        height: 58,
-                        width: 82,
-                      ),
-                    ),
+                    currentPage == 0
+                        ? Container(height: 48, width: 48)
+                        : InkWell(
+                          onTap: () {
+                            if (currentPage == 0) {
+                            } else {
+                              _pageController.animateToPage(
+                                currentPage - 1,
+                                duration: const Duration(milliseconds: 500),
+                                curve: Curves.easeIn,
+                              );
+                            }
+                          },
+                          child: Image.asset(
+                            'assets/images/icons/button back.png',
+                            height: 48,
+                            width: 48,
+                          ),
+                        ),
+                    currentPage == 3
+                        ? Container(height: 48, width: 48)
+                        : InkWell(
+                          onTap: () {
+                            final lastpage = 3;
+                            _pageController.animateToPage(
+                              lastpage,
+                              duration: const Duration(milliseconds: 500),
+                              curve: Curves.easeIn,
+                            );
+                          },
+                          child: Image.asset(
+                            "assets/images/icons/skipButton (1).png",
+                            height: 58,
+                            width: 82,
+                          ),
+                        ),
                   ],
                 ),
               ),

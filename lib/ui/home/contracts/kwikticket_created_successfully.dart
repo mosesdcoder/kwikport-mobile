@@ -1,3 +1,6 @@
+import 'dart:io';
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:intl/intl.dart';
@@ -11,6 +14,8 @@ import 'package:kwik_port/utils/button/bottom_navigatior_bar.dart';
 import 'package:kwik_port/utils/button/kwik_button.dart';
 import 'package:kwik_port/utils/text/contract_detail_heading_and_subtitle.dart';
 import 'package:kwik_port/utils/text/textstyle.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:screenshot/screenshot.dart';
 
 class KwikticketCreatedSuccessfully extends StatefulWidget {
   final KwikTicketModel kwikticket;
@@ -31,6 +36,45 @@ class KwikticketCreatedSuccessfully extends StatefulWidget {
 
 class _KwikticketCreatedSuccessfullyState
     extends State<KwikticketCreatedSuccessfully> {
+  Uint8List? bytes;
+  final screenshotController = ScreenshotController();
+
+  Future<void> _downloadReceipt(context) async {
+    await screenshotController.capture(delay: Duration(milliseconds: 10)).then((
+      image,
+    ) async {
+      if (image != null) {
+        final directory = await getApplicationDocumentsDirectory();
+        final imagePath =
+            await File('${directory.path}/kwikTicket.png').create();
+        await imagePath.writeAsBytes(image);
+        // GallerySaver.saveImage(imagePath.path).then((path) {
+        //   showToast(
+        //       "Receipt downloaded successfully", colorCodes.greenBtn, context);
+        // });
+        // final bytes = await imagePath.readAsBytes();
+        // final result = await ImageGallerySaver.saveImage(
+        //   Uint8List.fromList(bytes),
+        //   quality: 100,
+        //   // name: "your_image_name",
+        // );
+        // if (result != null && result['isSuccess']) {
+        //   showToast(
+        //       "Receipt downloaded successfully", colorCodes.greenBtn, context);
+        //   ;
+        // } else {
+        //   showToast("Failed to save image", colorCodes.redAccent, context);
+        // }
+      }
+    });
+  }
+
+  Future saveImage(Uint8List bytes) async {
+    final appStorage = await getApplicationDocumentsDirectory();
+    File file = File('${appStorage.path}/xchangReceipt.png');
+    file.writeAsBytes(bytes);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -149,8 +193,8 @@ class _KwikticketCreatedSuccessfullyState
                     contractDetailHeadingAndSubtitletwo(
                       "Selected Capacity",
                       "Commodity Cost",
-                      widget.kwikticket.commodity?.unitOfMeasurement,
-                      "${widget.kwikticket.commodity?.price}",
+                      "${widget.kwikticket.contract?.totalQuantity}",
+                      "${widget.kwikticket.kwikTicketAmount}",
                       // "20.5 tons",
                       // "₦246,000,000",
                       fontFamily: "",
@@ -301,9 +345,9 @@ class _KwikticketCreatedSuccessfullyState
               }),
               SizedBox(height: 10),
               kwikbutton(
-                'Back to Home', //dud
+                '', //dud
                 () {
-                  // Navigator.pop(context);
+                  _downloadReceipt(context);
                 },
                 textColor: colorCodes.textBlack,
                 backgroundcolor: colorCodes.white,
@@ -312,7 +356,7 @@ class _KwikticketCreatedSuccessfullyState
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      "Share",
+                      "Download",
                       style: kwikTextStlye(
                         16.0,
                         FontWeight.w500,

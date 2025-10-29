@@ -5,13 +5,14 @@ import 'package:kwik_port/utils/button/kwik_button.dart';
 import 'package:kwik_port/utils/text/textstyle.dart';
 
 class ExportAccordion extends StatefulWidget {
-  final title, statusbtntxt, statusbtnFunc;
+  final title, statusbtntxt, statusbtnFunc, statusbackgroundColor;
   final child;
 
   const ExportAccordion({
     super.key,
     required this.title,
     required this.statusbtntxt,
+    required this.statusbackgroundColor,
     required this.statusbtnFunc,
     required this.child,
   });
@@ -122,12 +123,12 @@ class _ExportAccordionState extends State<ExportAccordion> {
                             onPressed: widget.statusbtnFunc,
 
                             style: ElevatedButton.styleFrom(
-                              backgroundColor:
-                                  widget.statusbtntxt == "Completed"
-                                      ? colorCodes.pigmentGreen
-                                      : widget.statusbtntxt == "Select Agency"
-                                      ? colorCodes.yellowOrange
-                                      : colorCodes.aluminium,
+                              backgroundColor: widget.statusbackgroundColor,
+                              // widget.statusbtntxt == "Completed"
+                              //     ? colorCodes.pigmentGreen
+                              //     : widget.statusbtntxt == "Select Agency"
+                              //     ? colorCodes.yellowOrange
+                              //     : colorCodes.aluminium,
                               padding: EdgeInsets.symmetric(
                                 horizontal: 8,
                                 vertical: 4,

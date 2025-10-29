@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:hexcolor/hexcolor.dart';
@@ -12,6 +13,7 @@ import 'package:kwik_port/ui/home/contracts/available_contract_screen.dart';
 import 'package:kwik_port/ui/home/contracts/contract_details_screen.dart';
 import 'package:kwik_port/ui/home/contracts/contract_screen.dart';
 import 'package:kwik_port/ui/home/contracts/request_contract_screen.dart';
+import 'package:kwik_port/ui/home/dashboard/exportJourney/export_journey_screen.dart';
 import 'package:kwik_port/ui/home/dashboard/name_and_notif_headng.dart';
 import 'package:kwik_port/ui/home/dashboard/notifcation/notification_screen.dart';
 import 'package:kwik_port/ui/home/dashboard/procurement%20Agency/select_procurement_agency_screen.dart';
@@ -22,6 +24,7 @@ import 'package:kwik_port/utils/button/loading_dialog.dart';
 import 'package:kwik_port/utils/containers/available_contract_container.dart';
 import 'package:kwik_port/utils/text/textstyle.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:swipe_refresh/swipe_refresh.dart';
 
 class Dashboard extends StatefulWidget {
@@ -34,6 +37,8 @@ class Dashboard extends StatefulWidget {
 
 class _DashboardState extends State<Dashboard> {
   bool notificationExist = true;
+  bool showProcurement = true; // <--- add this
+  DateTime? procurementShownTime;
   int itemCount = 3;
   final ScrollController _scrollController = ScrollController();
   bool isLoading = false;
@@ -62,7 +67,26 @@ class _DashboardState extends State<Dashboard> {
     super.initState();
     currentIndex = 1;
     notificationExist;
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      // 🔹 1️⃣ Load KwikTicket data from SharedPreferences
+      // final prefs = await SharedPreferences.getInstance();
+      // final data = prefs.getString('kwikTicketData');
+
+      // if (data != null && data.isNotEmpty) {
+      // final decoded = jsonDecode(data);
+      // final kwikTicket = KwikTicketModel.fromJson(decoded);
+      // debugPrint("✅ Loaded KwikTicket: ${kwikTicket.exportContractId}");
+      // }
+      if (widget.kwikticket != null) {
+        procurementShownTime = DateTime.now();
+        Timer(const Duration(hours: 24), () {
+          if (mounted) {
+            setState(() {
+              showProcurement = false;
+            });
+          }
+        });
+      }
       Provider.of<DashboardApi>(context, listen: false).fetchDashboard();
     });
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -78,9 +102,11 @@ class _DashboardState extends State<Dashboard> {
     final contractProvider = Provider.of<GetContractApi>(context);
     final dashboardApi = Provider.of<DashboardApi>(context);
     final isLoading = dashboardApi.loading;
-    final walletBalance = dashboardApi.data?.walletBalance ?? 0.0;
+    final walletBalance = dashboardApi.data?.kwikLCBalance ?? 0.0;
     final activeTickets = dashboardApi.activeKwikTicketsCount;
     final completed = dashboardApi.completedExportsCount;
+    bool showBalance = true;
+
     // final exports= dashboardApi.data?.exports ?? [];
     final user = dashboardApi.data?.userProfile;
     // final contractProvider = Provider.of<GetContractApi>(context);
@@ -93,13 +119,18 @@ class _DashboardState extends State<Dashboard> {
       child: Scaffold(
         extendBody: true,
         backgroundColor: colorCodes.whiteSmoke,
-        body: ListView(
-          shrinkWrap: true,
-          physics: RangeMaintainingScrollPhysics(),
-          padding: EdgeInsets.symmetric(horizontal: 10.0, vertical: 50.0),
+        body: Stack(
           children: [
-            SizedBox(
-              height: MediaQuery.of(context).size.height,
+            // ListView(
+            //   shrinkWrap: true,
+            //   physics: NeverScrollableScrollPhysics(),
+            //   padding: EdgeInsets.symmetric(horizontal: 10.0, vertical: 50.0),
+            //   children: [
+            //     SizedBox(
+            //       height: MediaQuery.of(context).size.height,
+            //       child:
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 10.0, vertical: 50.0),
               child: SwipeRefresh.adaptive(
                 // physics: NeverScrollableScrollPhysics(),
                 stateStream: _stream,
@@ -123,8 +154,15 @@ class _DashboardState extends State<Dashboard> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             dashboardBalanceContainer(
-                              walletBalance,
-                              () {},
+                              showBalance == true
+                                  ? "\$$walletBalance"
+                                  : "••••••••",
+                              showBalance,
+                              () {
+                                setState(() {
+                                  showBalance = !showBalance;
+                                });
+                              },
                               context,
                             ),
                             // SizedBox(width: 5),
@@ -152,9 +190,11 @@ class _DashboardState extends State<Dashboard> {
                         ),
                       ),
                       SizedBox(height: 18),
-                      if (widget.kwikticket != null) procurementContainer(),
+                      if (widget.kwikticket != null && showProcurement)
+                        procurementContainer(),
+                      if (widget.kwikticket != null && showProcurement)
+                        SizedBox(height: 25),
 
-                      if (widget.kwikticket != null) SizedBox(height: 25),
                       Align(
                         alignment: Alignment.centerLeft,
                         child: Text(
@@ -212,6 +252,15 @@ class _DashboardState extends State<Dashboard> {
                                   builder: (context) => ContractScreen(),
                                 ),
                               );
+                              // Navigator.push(
+                              //   context,
+                              //   MaterialPageRoute(
+                              //     builder:
+                              //         (context) => ExportJourneyScreen(
+                              //           kwikticket: widget.kwikticket,
+                              //         ),
+                              //   ),
+                              // );
                             },
                             child: Text(
                               "See All",
@@ -250,12 +299,13 @@ class _DashboardState extends State<Dashboard> {
                                 return Text("No contracts available");
                               } else {
                                 return avaiableontractContainerUpdated(
-                                  contract.commodityImage,
+                                  contract.commodityImage ??
+                                      "https://kwikport.s3.eu-west-3.amazonaws.com/commodity-images/cocoa.png",
                                   contract.commodityName,
                                   "assets/images/icons/tick-circle.png",
-                                  contract.contractStatus == 0
-                                      ? "Active"
-                                      : "Closed",
+                                  "${contract.contractStatus}", //== 0
+                                  // ? "Active"
+                                  // : "Closed",
                                   // "Open",
                                   "Grade A - Premium Quality",
                                   "assets/images/icons/Country.png",
@@ -287,6 +337,9 @@ class _DashboardState extends State<Dashboard> {
                 ],
               ),
             ),
+            //     ),
+            //   ],
+            // ),
           ],
         ),
         bottomNavigationBar: Bottomnavigationbar(1),

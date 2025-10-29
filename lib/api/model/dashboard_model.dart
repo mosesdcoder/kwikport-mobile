@@ -2,9 +2,56 @@
 import 'package:kwik_port/api/model/userModel.dart'; // for ExporterModel
 import 'package:kwik_port/api/model/contractModel.dart'; // for PublishedContractModel
 
+// class DashboardModel {
+//   final UserProfile? userProfile;
+//   final double walletBalance;
+//   final double kwikLCBalance;
+//   final List<KwikTicketModel> kwikTickets;
+//   final List<ContractModel> exports;
+
+//   DashboardModel({
+//     required this.userProfile,
+//     required this.walletBalance,
+//     required this.kwikLCBalance,
+//     required this.kwikTickets,
+//     required this.exports,
+//   });
+
+//   factory DashboardModel.fromJson(Map<String, dynamic> json) {
+//     return DashboardModel(
+//       userProfile:
+//           json['userProfile'] != null
+//               ? UserProfile.fromJson(json['userProfile'])
+//               : null,
+//       walletBalance: (json['walletBalance'] ?? 0).toDouble(),
+//       kwikLCBalance: (json['kwikLCBalance'] ?? 0).toDouble(),
+//       kwikTickets:
+//           (json['kwikTickets'] as List<dynamic>?)
+//               ?.map((e) => KwikTicketModel.fromJson(e as Map<String, dynamic>))
+//               .toList() ??
+//           [],
+//       exports:
+//           (json['exports'] as List<dynamic>?)
+//               ?.map((e) => ContractModel.fromJson(e as Map<String, dynamic>))
+//               .toList() ??
+//           [],
+//     );
+//   }
+//   Map<String, dynamic> toJson() {
+//     return {
+//       'userProfile': userProfile?.toJson(),
+//       'walletBalance': walletBalance,
+//       'kwikLCBalance': kwikLCBalance,
+//       'kwikTickets': kwikTickets.map((e) => e.toJson()).toList(),
+//       'exports': exports.map((e) => e.toJson()).toList(),
+//     };
+//   }
+// }
+
 class DashboardModel {
   final UserProfile? userProfile;
   final double walletBalance;
+  final bool canWithdraw;
   final double kwikLCBalance;
   final List<KwikTicketModel> kwikTickets;
   final List<ContractModel> exports;
@@ -12,18 +59,22 @@ class DashboardModel {
   DashboardModel({
     required this.userProfile,
     required this.walletBalance,
+    required this.canWithdraw,
     required this.kwikLCBalance,
     required this.kwikTickets,
     required this.exports,
   });
 
   factory DashboardModel.fromJson(Map<String, dynamic> json) {
+    final walletData = json['walletBalance'] ?? {};
+
     return DashboardModel(
       userProfile:
           json['userProfile'] != null
               ? UserProfile.fromJson(json['userProfile'])
               : null,
-      walletBalance: (json['walletBalance'] ?? 0).toDouble(),
+      walletBalance: (walletData['walletBalance'] ?? 0).toDouble(),
+      canWithdraw: walletData['canWithdraw'] ?? false,
       kwikLCBalance: (json['kwikLCBalance'] ?? 0).toDouble(),
       kwikTickets:
           (json['kwikTickets'] as List<dynamic>?)
@@ -36,6 +87,19 @@ class DashboardModel {
               .toList() ??
           [],
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'userProfile': userProfile?.toJson(),
+      'walletBalance': {
+        'walletBalance': walletBalance,
+        'canWithdraw': canWithdraw,
+      },
+      'kwikLCBalance': kwikLCBalance,
+      'kwikTickets': kwikTickets.map((e) => e.toJson()).toList(),
+      'exports': exports.map((e) => e.toJson()).toList(),
+    };
   }
 }
 
@@ -69,6 +133,17 @@ class UserProfile {
       businessName: json['businessName'] ?? '',
       createdAt: created != null ? DateTime.tryParse(created) : null,
     );
+  }
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'firstName': firstName,
+      'lastName': lastName,
+      'email': email,
+      'phoneNumber': phoneNumber,
+      'businessName': businessName,
+      'createdAt': createdAt?.toIso8601String(),
+    };
   }
 }
 
@@ -125,7 +200,7 @@ class KwikTicketModel {
 
   factory KwikTicketModel.fromJson(Map<String, dynamic> json) {
     final uniqueId =
-        json['kwickTicketUniqueId'] ?? json['kwikTicketUniqueId'] ?? '';
+        json['kwickTicketUniqueId'] ?? json['kwickTicketUniqueId'] ?? '';
 
     return KwikTicketModel(
       id: json['id'] ?? '',
@@ -176,129 +251,34 @@ class KwikTicketModel {
               : null,
     );
   }
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'createdBy': createdBy,
+      'createdByIp': createdByIp,
+      'createdDate': createdDate?.toIso8601String(),
+      'modifiedBy': modifiedBy,
+      'modifiedByIp': modifiedByIp,
+      'modifiedDate': modifiedDate?.toIso8601String(),
+      'isDeleted': isDeleted,
+      'exportContractId': exportContractId,
+      'peggedDollarValue': peggedDollarValue,
+      'badge': badge,
+      'isActive': isActive,
+      'deadline': deadline?.toIso8601String(),
+      'uniqueId': uniqueId,
+      'kwikTicketAmount': kwikTicketAmount,
+      'kwikTicketStatus': kwikTicketStatus,
+      'projectedIncomeInDollars': projectedIncomeInDollars,
+      'totalQuantity': totalQuantity,
+      'createdAt': createdAt?.toIso8601String(),
+      'exporter': exporter?.toJson(),
+      'contract': contract?.toJson(),
+      'commodity': commodity?.toJson(),
+      'buyerSpecification': buyerSpecification?.toJson(),
+    };
+  }
 }
-
-// class KwikTicketModel {
-//   final String id;
-//   final String? createdBy;
-//   final String? createdByIp;
-//   final DateTime? createdDate;
-//   final String? modifiedBy;
-//   final String? modifiedByIp;
-//   final DateTime? modifiedDate;
-//   final bool? isDeleted;
-//   final String? exportContractId;
-//   // final String? exporterId;
-//   final double? peggedDollarValue;
-//   final String? badge;
-//   final bool? isActive;
-//   final DateTime? deadline;
-//   final String uniqueId; // kwickTicketUniqueId or fallback
-//   final double kwikTicketAmount;
-//   final int? kwikTicketStatus;
-//   final double? projectedIncomeInDollars;
-//   final double? totalQuantity;
-//   final DateTime? createdAt;
-//   final ExporterModel? exporter; // reuse your ExporterModel
-//   final ContractModel? contract; // reuse your PublishedContractModel
-//   final Commodity? commodity;
-//   final BuyerSpecification? buyerSpecification;
-
-//   KwikTicketModel({
-//     required this.id,
-//     this.createdBy,
-//     this.createdByIp,
-//     this.createdDate,
-//     this.modifiedBy,
-//     this.modifiedByIp,
-//     this.modifiedDate,
-//     this.isDeleted,
-//     this.exportContractId,
-//     // this.exporterId,
-//     this.peggedDollarValue,
-//     this.badge,
-//     this.isActive,
-//     this.deadline,
-//     required this.uniqueId,
-//     required this.kwikTicketAmount,
-//     this.kwikTicketStatus,
-//     this.projectedIncomeInDollars,
-//     this.totalQuantity,
-//     this.createdAt,
-//     this.exporter,
-//     this.contract,
-//     this.commodity,
-//     this.buyerSpecification,
-//   });
-
-//   factory KwikTicketModel.fromJson(Map<String, dynamic> json) {
-//     final createdDateRaw = json['createdDate'] ?? json['createdAt'];
-//     final modifiedDateRaw = json['modifiedDate'];
-//     final deadlineRaw = json['deadline'];
-
-//     // handle both spellings if backend has inconsistent naming
-//     final uniqueId =
-//         json['kwickTicketUniqueId'] ?? json['kwikTicketUniqueId'] ?? '';
-
-//     return KwikTicketModel(
-//       id: json['id'] ?? '',
-//       createdBy: json['createdBy'],
-//       createdByIp: json['createdByIp'],
-//       createdDate:
-//           createdDateRaw != null ? DateTime.tryParse(createdDateRaw) : null,
-//       modifiedBy: json['modifiedBy'],
-//       modifiedByIp: json['modifiedByIp'],
-//       modifiedDate:
-//           modifiedDateRaw != null ? DateTime.tryParse(modifiedDateRaw) : null,
-//       isDeleted: json['isDeleted'],
-//       exportContractId: json['exportContractId'],
-//       // exporterId: json['exporterId'],
-//       peggedDollarValue:
-//           (json['peggedDollarValue'] is num)
-//               ? (json['peggedDollarValue'] as num).toDouble()
-//               : (json['peggedDollarValue'] != null
-//                   ? double.tryParse('${json['peggedDollarValue']}')
-//                   : null),
-//       badge: json['badge'],
-//       isActive: json['isActive'],
-//       deadline: deadlineRaw != null ? DateTime.tryParse(deadlineRaw) : null,
-//       uniqueId: uniqueId ?? '',
-//       kwikTicketAmount:
-//           (json['kwikTicketAmount'] is num)
-//               ? (json['kwikTicketAmount'] as num).toDouble()
-//               : 0.0,
-//       kwikTicketStatus: json['kwikTicketStatus'],
-//       projectedIncomeInDollars:
-//           (json['projectedIncomeInDollars'] is num)
-//               ? (json['projectedIncomeInDollars'] as num).toDouble()
-//               : null,
-//       totalQuantity:
-//           (json['totalQuantity'] is num)
-//               ? (json['totalQuantity'] as num).toDouble()
-//               : null,
-//       createdAt:
-//           json['createdAt'] != null
-//               ? DateTime.tryParse(json['createdAt'])
-//               : null,
-//       exporter:
-//           json['exporter'] != null
-//               ? ExporterModel.fromJson(json['exporter'])
-//               : null,
-//       contract:
-//           json['contract'] != null
-//               ? ContractModel.fromJson(json['contract'])
-//               : null,
-//       commodity:
-//           json['commodity'] != null
-//               ? Commodity.fromJson(json['commodity'])
-//               : null,
-//       buyerSpecification:
-//           json['buyerSpecification'] != null
-//               ? BuyerSpecification.fromJson(json['buyerSpecification'])
-//               : null,
-//     );
-//   }
-// }
 
 class Commodity {
   final String id;
@@ -351,6 +331,20 @@ class Commodity {
       isActive: json['isActive'],
     );
   }
+  Map<String, dynamic> toJson() => {
+    'id': id,
+    'name': name,
+    'description': description,
+    'unitOfMeasurement': unitOfMeasurement,
+    'isAvailable': isAvailable,
+    'price': price,
+    'hsCode': hsCode,
+    'unit': unit,
+    'averageMarketPricePerUnit': averageMarketPricePerUnit,
+    'marketPriceInTonOrKg': marketPriceInTonOrKg,
+    'imageUrl': imageUrl,
+    'isActive': isActive,
+  };
 }
 
 class BuyerSpecification {
@@ -415,7 +409,7 @@ class ContractModel {
   final double? projectedIncome;
   final double? pricePerUnitInUSD;
   final double? fulfilledQuantity;
-  final int? contractStatus;
+  final String? contractStatus;
   final int? exportStage;
   final String? referredBy;
   final bool? isReferred;
@@ -471,8 +465,8 @@ class ContractModel {
       projectedIncome: (json['projectedIncome'] as num?)?.toDouble(),
       pricePerUnitInUSD: (json['pricePerUnitInUSD'] as num?)?.toDouble(),
       fulfilledQuantity: (json['fulfilledQuantity'] as num?)?.toDouble(),
-      contractStatus: json['contractStatus'],
-      exportStage: json['exportStage'],
+      contractStatus: (json['contractStatus']?.toString() ?? ''),
+      exportStage: int.tryParse(json['exportStage']?.toString() ?? ''),
       referredBy: json['referredBy'],
       isReferred: json['isReferred'],
       isActive: json['isActive'],
@@ -480,11 +474,19 @@ class ContractModel {
       commodityId: json['commodityId'] ?? '',
       commodityName: json['commodityName'] ?? '',
       commodityImage: json['commodityImage'], // ✅ null-safe
-      exportContractStageEnum: json['exportContractStageEnum'],
-      contractFulfilmentMethod: json['contractFulfilmentMethod'],
-      contractType: json['contractType'],
-      contractCategory: json['contractCategory'],
-      contractDuration: json['contractDuration'],
+      exportContractStageEnum: int.tryParse(
+        json['exportContractStageEnum']?.toString() ?? '',
+      ),
+      contractFulfilmentMethod: int.tryParse(
+        json['contractFulfilmentMethod']?.toString() ?? '',
+      ),
+      contractType: int.tryParse(json['contractType']?.toString() ?? ''),
+      contractCategory: int.tryParse(
+        json['contractCategory']?.toString() ?? '',
+      ),
+      contractDuration: int.tryParse(
+        json['contractDuration']?.toString() ?? '',
+      ),
       buyerSpecification:
           json['buyerSpecification'] != null
               ? BuyerSpecification.fromJson(json['buyerSpecification'])
@@ -521,4 +523,30 @@ class ContractModel {
     'buyerSpecification': buyerSpecification?.toJson(),
     'fulfillmentPercentage': fulfillmentPercentage,
   };
+}
+
+class CommodityCostModel {
+  final String commodityId;
+  final String commodityName;
+  final int units;
+  final double unitPrice;
+  final double totalCost;
+
+  CommodityCostModel({
+    required this.commodityId,
+    required this.commodityName,
+    required this.units,
+    required this.unitPrice,
+    required this.totalCost,
+  });
+
+  factory CommodityCostModel.fromJson(Map<String, dynamic> json) {
+    return CommodityCostModel(
+      commodityId: json['commodityId'] ?? '',
+      commodityName: json['commodityName'] ?? '',
+      units: json['units'] ?? 0,
+      unitPrice: (json['unitPrice'] ?? 0).toDouble(),
+      totalCost: (json['totalCost'] ?? 0).toDouble(),
+    );
+  }
 }

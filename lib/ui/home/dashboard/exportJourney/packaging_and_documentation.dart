@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:kwik_port/api/controller/agency/export_stage_api.dart';
 import 'package:kwik_port/api/controller/agency/get_agency_api.dart';
+import 'package:kwik_port/api/model/dashboard_model.dart';
 import 'package:kwik_port/colors/color.dart';
 import 'package:kwik_port/ui/home/dashboard/exportJourney/export_journey_screen.dart';
 import 'package:kwik_port/ui/home/dashboard/procurement%20Agency/agency_selection_confirmed_dialog.dart';
@@ -8,11 +9,20 @@ import 'package:kwik_port/ui/home/dashboard/procurement%20Agency/confirm_agency_
 import 'package:kwik_port/utils/button/back_nav_header.dart';
 import 'package:kwik_port/utils/button/bottom_navigatior_bar.dart';
 import 'package:kwik_port/utils/button/kwik_button.dart';
+import 'package:kwik_port/utils/button/loading_dialog.dart';
 import 'package:kwik_port/utils/text/textstyle.dart';
+import 'package:kwik_port/utils/toast.dart';
 import 'package:provider/provider.dart';
 
 class PackagingAndDocumentation extends StatefulWidget {
-  const PackagingAndDocumentation({super.key});
+  final KwikTicketModel? kwikticket;
+  final int stageType;
+
+  const PackagingAndDocumentation({
+    super.key,
+    required this.kwikticket,
+    required this.stageType,
+  });
 
   @override
   State<PackagingAndDocumentation> createState() =>
@@ -27,12 +37,11 @@ class _PackagingAndDocumentationState extends State<PackagingAndDocumentation> {
   @override
   void initState() {
     super.initState();
-    // stageType for packaging & documentation (as you noted earlier) -> use 2
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Provider.of<GetAgencyApi>(
         context,
         listen: false,
-      ).fetchAgenciesByStageType(2);
+      ).fetchAgenciesByStageType(widget.stageType);
     });
   }
 
@@ -130,77 +139,235 @@ class _PackagingAndDocumentationState extends State<PackagingAndDocumentation> {
               if (!agencyApi.loading && agencyApi.agencies.isEmpty)
                 const Text('No agencies found'),
               if (!agencyApi.loading && agencyApi.agencies.isNotEmpty)
-                Expanded(
-                  child: ListView.separated(
-                    itemCount: agencyApi.agencies.length,
-                    separatorBuilder: (_, __) => const SizedBox(height: 12),
-                    itemBuilder: (ctx, index) {
-                      final agency =
-                          agencyApi.agencies[index] as Map<String, dynamic>;
-                      final id = agency['id']?.toString() ?? '';
-                      final name = agency['name']?.toString() ?? 'Unnamed';
-                      final fee = agency['serviceFee']?.toString() ?? '0';
-                      final days =
-                          agency['numberOfDaysToDeliver']?.toString() ?? '-';
-                      return selectPakagingAgency(
-                        "assets/images/icons/dashboard/procurement_agency_logo.png",
-                        name,
-                        "₦$fee",
-                        "\$$fee",
-                        "4.8",
-                        "145 reviews",
-                        "$days days",
-                        // "${daysToHours(int.tryParse(days) ?? 0)}hours",
-                        "Phytosanitary Cert", //Not done
-                        2,
-                        false,
-                      );
-                    },
-                  ),
+                ListView.separated(
+                  itemCount: agencyApi.agencies.length,
+                  physics: const NeverScrollableScrollPhysics(),
+                  shrinkWrap: true,
+                  separatorBuilder: (_, __) => const SizedBox(height: 12),
+                  itemBuilder: (ctx, index) {
+                    final agency = agencyApi.agencies[index];
+                    final id = agency.id ?? '';
+                    final name = agency.name ?? 'Unnamed';
+                    final fee = agency.serviceFee?.toString() ?? '0';
+                    final days =
+                        agency.numberOfDaysToDeliver?.toString() ?? '-';
+                    final rating = (agency.rating?.toDouble());
+
+                    return selectPakagingAgency(
+                      "assets/images/icons/dashboard/procurement_agency_logo.png",
+                      name,
+                      "₦$fee",
+                      "\$$fee",
+                      rating,
+                      "145 reviews",
+                      "$days days",
+                      // "${daysToHours(int.tryParse(days) ?? 0)}hours",
+                      "Phytosanitary Cert", //Not done
+                      2,
+                      false,
+
+                      () async {
+                        // if (selectedAgencyId == null) {
+                        //   showToastContainer(
+                        //     "Agency",
+                        //     "Please select an agency first",
+                        //     colorCodes.mistyRose,
+                        //     colorCodes.portlandOrange,
+                        //     context,
+                        //   );
+
+                        //   return;
+                        // }
+                        showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return LoadingDialog();
+                          },
+                        );
+                        await exportStageApi.selectAgency(
+                          exporterContractId:
+                              widget.kwikticket?.exporter?.id ?? '',
+                          agencyId: agency.id!,
+                          stageType: widget.stageType,
+                        );
+
+                        Navigator.pop(context);
+                        if (exportStageApi.success) {
+                          // ✅ On success — show confirmation flow
+                          showDialog(
+                            barrierDismissible: false,
+                            context: context,
+                            builder: (BuildContext context) {
+                              return ConfirmAgencySelectionDialog(
+                                serviceFee: "\$50",
+                                totalcostTons: "20.5",
+                                totalCost: "₦246,000,000",
+                                agencyName: selectedAgencyName ?? "",
+                                kwikticket: widget.kwikticket,
+                                // confirmFunc: () {
+                                // Navigator.pop(context); // close confirmation dialog
+
+                                // showDialog(
+                                //   barrierDismissible: false,
+                                //   context: context,
+                                //   builder: (BuildContext context) {
+                                //     return AgencySelectionConfirmedDialog(
+                                //       serviceFee: "\$50",
+                                //       totalcostTons: "20.5",
+                                //       totalCost: "₦246,000,000",
+                                //       continueFunc: () {
+                                //         Navigator.pop(
+                                //           context,
+                                //         ); // close success dialog
+
+                                // // ✅ Go to ExportJourneyScreen and make it UNPOPABLE
+                                // Navigator.pushAndRemoveUntil(
+                                //   context,
+                                //   MaterialPageRoute(
+                                //     builder:
+                                //         (_) => ExportJourneyScreen(
+                                //           kwikticket: widget.kwikticket,
+                                //           // ?.exporterContractId ??
+                                //           // '',
+                                //         ),
+                                //             ),
+                                //             (Route<dynamic> route) => false,
+                                //           );
+                                //         },
+                                //       );
+                                //     },
+                                //   );
+                                // },
+                                agencyId: selectedAgencyId!,
+                              );
+                            },
+                          );
+                        }
+                      },
+                    );
+                  },
                 ),
 
               kwikbutton(
                 "Confirm Agency Selection",
-                () {
-                  showDialog(
-                    barrierDismissible: false,
-                    context: context,
+                () {},
+                // () async {
+                //   if (selectedAgencyId == null) {
+                //     showToastContainer(
+                //       "Agency",
+                //       "Please select an agency first",
+                //       colorCodes.mistyRose,
+                //       colorCodes.portlandOrange,
+                //       context,
+                //     );
 
-                    builder: (BuildContext context) {
-                      return ConfirmAgencySelectionDialog(
-                        serviceFee: "\$50",
-                        totalcostTons: "20.5",
-                        totalCost: "₦246,000,000",
-                        confirmFunc: () {
-                          Navigator.pop(context);
-                          showDialog(
-                            barrierDismissible: false,
-                            context: context,
+                //     return;
+                //   }
+                //   showDialog(
+                //     context: context,
+                //     builder: (BuildContext context) {
+                //       return LoadingDialog();
+                //     },
+                //   );
+                //   await exportStageApi.selectAgency(
+                //     exporterContractId: widget.kwikticket?.exporter?.id ?? '',
+                //     agencyId: selectedAgencyId!,
+                //     stageType: widget.stageType,
+                //   );
 
-                            builder: (BuildContext context) {
-                              return AgencySelectionConfirmedDialog(
-                                serviceFee: "\$50",
-                                totalcostTons: "20.5",
-                                totalCost: "₦246,000,000",
-                                continueFunc: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder:
-                                          (context) => ExportJourneyScreen(
-                                            exporterContractId: '',
-                                          ),
-                                    ),
-                                  );
-                                },
-                              );
-                            },
-                          );
-                        },
-                      );
-                    },
-                  );
-                },
+                //   Navigator.pop(context);
+                //   if (exportStageApi.success) {
+                //     // ✅ On success — show confirmation flow
+                //     showDialog(
+                //       barrierDismissible: false,
+                //       context: context,
+                //       builder: (BuildContext context) {
+                //         return ConfirmAgencySelectionDialog(
+                //           serviceFee: "\$50",
+                //           totalcostTons: "20.5",
+                //           totalCost: "₦246,000,000",
+                //           agencyName: selectedAgencyName ?? "",
+                //           kwikticket: widget.kwikticket,
+                //           // confirmFunc: () {
+                //           // Navigator.pop(context); // close confirmation dialog
+
+                //           // showDialog(
+                //           //   barrierDismissible: false,
+                //           //   context: context,
+                //           //   builder: (BuildContext context) {
+                //           //     return AgencySelectionConfirmedDialog(
+                //           //       serviceFee: "\$50",
+                //           //       totalcostTons: "20.5",
+                //           //       totalCost: "₦246,000,000",
+                //           //       continueFunc: () {
+                //           //         Navigator.pop(
+                //           //           context,
+                //           //         ); // close success dialog
+
+                //           // // ✅ Go to ExportJourneyScreen and make it UNPOPABLE
+                //           // Navigator.pushAndRemoveUntil(
+                //           //   context,
+                //           //   MaterialPageRoute(
+                //           //     builder:
+                //           //         (_) => ExportJourneyScreen(
+                //           //           kwikticket: widget.kwikticket,
+                //           //           // ?.exporterContractId ??
+                //           //           // '',
+                //           //         ),
+                //           //             ),
+                //           //             (Route<dynamic> route) => false,
+                //           //           );
+                //           //         },
+                //           //       );
+                //           //     },
+                //           //   );
+                //           // },
+                //           agencyId: selectedAgencyId!,
+                //         );
+                //       },
+                //     );
+                //   }
+                //   // showDialog(
+                //   //   barrierDismissible: false,
+                //   //   context: context,
+
+                //   //   builder: (BuildContext context) {
+                //   //     return ConfirmAgencySelectionDialog(
+                //   //       serviceFee: "\$50",
+                //   //       totalcostTons: "20.5",
+                //   //       totalCost: "₦246,000,000",
+                //   // confirmFunc: () {
+                //   //   Navigator.pop(context);
+                //   //   showDialog(
+                //   //     barrierDismissible: false,
+                //   //     context: context,
+
+                //   //     builder: (BuildContext context) {
+                //   //       return AgencySelectionConfirmedDialog(
+                //   //         serviceFee: "\$50",
+                //   //         totalcostTons: "20.5",
+                //   //         totalCost: "₦246,000,000",
+                //   //         continueFunc: () {
+                //   //           Navigator.push(
+                //   //             context,
+                //   //             MaterialPageRoute(
+                //   //               builder:
+                //   //                   (context) => ExportJourneyScreen(
+                //   //                     exporterContractId: '',
+                //   //                   ),
+                //   //             ),
+                //   //           );
+                //   //         },
+                //   //       );
+                //   //     },
+                //   //   );
+                //   // },
+                //   // agencyName: "",
+                //   // kwikticket: widget.kwikticket,
+                //   //   );
+                //   // },
+                //   // );
+                // },
                 buttonChild: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -245,6 +412,7 @@ class _PackagingAndDocumentationState extends State<PackagingAndDocumentation> {
     agencydetail,
     agencydetailindex,
     enabled,
+    selectFunc,
   ) {
     return Column(
       children: [
@@ -404,7 +572,7 @@ class _PackagingAndDocumentationState extends State<PackagingAndDocumentation> {
           ),
         ),
         SizedBox(height: 10),
-        kwikbutton("Select", () {}, enabled: enabled),
+        kwikbutton("Select", selectFunc, enabled: enabled),
       ],
     );
   }

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:kwik_port/api/controller/home/dashboard_api.dart';
+import 'package:kwik_port/api/controller/kwikTickets/fund_ticket_api.dart';
 import 'package:kwik_port/api/model/dashboard_model.dart';
 import 'package:kwik_port/colors/color.dart';
 import 'package:kwik_port/main.dart';
@@ -7,7 +9,10 @@ import 'package:kwik_port/ui/home/exportfulfillment/KycVerification/kyc_verifica
 import 'package:kwik_port/utils/button/back_nav_header.dart';
 import 'package:kwik_port/utils/button/bottom_navigatior_bar.dart';
 import 'package:kwik_port/utils/button/kwik_button.dart';
+import 'package:kwik_port/utils/button/loading_dialog.dart';
 import 'package:kwik_port/utils/text/textstyle.dart';
+import 'package:kwik_port/utils/toast.dart';
+import 'package:provider/provider.dart';
 
 class ExportFulfillmentScreen extends StatefulWidget {
   final KwikTicketModel kwikticket;
@@ -22,6 +27,13 @@ class ExportFulfillmentScreen extends StatefulWidget {
 class _ExportFulfillmentScreenState extends State<ExportFulfillmentScreen> {
   @override
   Widget build(BuildContext context) {
+    final dashboardApi = Provider.of<DashboardApi>(context);
+
+    final fundTicketApi = Provider.of<FundKwikticketApi>(
+      context,
+      listen: false,
+    );
+
     return Scaffold(
       extendBody: true,
       appBar: PreferredSize(
@@ -75,6 +87,8 @@ class _ExportFulfillmentScreenState extends State<ExportFulfillmentScreen> {
                 "Select from verified procurement agencies on KwikPort",
                 "Agencies handle sourcing, quality, and delivery on your behalf.",
                 "Your KwikTicket is activated once procurement is confirmed",
+                fundTicketApi,
+                dashboardApi,
               ),
               SizedBox(height: 10),
               fulfilproductContainer(
@@ -146,7 +160,15 @@ class _ExportFulfillmentScreenState extends State<ExportFulfillmentScreen> {
     );
   }
 
-  Widget fulfildataContainer(title, subtitle, dataOne, dataTwo, dataThree) {
+  Widget fulfildataContainer(
+    title,
+    subtitle,
+    dataOne,
+    dataTwo,
+    dataThree,
+    FundKwikticketApi fundTicketApi,
+    DashboardApi dashboardApi,
+  ) {
     return Container(
       height: 277,
       width: 390,
@@ -263,15 +285,47 @@ class _ExportFulfillmentScreenState extends State<ExportFulfillmentScreen> {
             height: 38,
             child: kwikbutton(
               "",
-              () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder:
-                        (context) =>
-                            FundExportContract(kwikticket: widget.kwikticket),
-                  ),
+              () async {
+                // setState(() => fundTicketApi.loading = true);
+                showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return LoadingDialog();
+                  },
                 );
+                await fundTicketApi.fundTicket(
+                  kwikTicketId: widget.kwikticket.id, //.toString(),
+                  exporterId: widget.kwikticket.exporter!.id, //.toString(),
+                );
+                Navigator.pop(context);
+                // setState(() => fundTicketApi.loading = false);
+
+                if (fundTicketApi.isSuccessful == true &&
+                    fundTicketApi.authorizationUrl != null) {
+                  debugPrint("Fund Ticket id: ${widget.kwikticket.id}");
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder:
+                          (_) => FundExportContract(
+                            kwikticket: widget.kwikticket,
+                            url: fundTicketApi.authorizationUrl!,
+                            kwikTicketId: widget.kwikticket.id,
+                            referenceNumber: fundTicketApi.paymentReference!,
+                            paymentMethod: fundTicketApi.provider!,
+                          ),
+                    ),
+                  );
+                } else {
+                  showToastContainer(
+                    "Fund Ticket",
+                    fundTicketApi.message,
+                    colorCodes.mistyRose,
+                    colorCodes.portlandOrange,
+                    context,
+                  );
+                }
+
                 currentIndex = 3;
               },
               buttonChild: Row(

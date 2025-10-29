@@ -1,20 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:hexcolor/hexcolor.dart';
+import 'package:kwik_port/api/controller/contractsApi/calculate_commodity_cost.dart';
+import 'package:kwik_port/api/controller/kwikTickets/create_kwikticket_api.dart';
 import 'package:kwik_port/api/model/dashboard_model.dart';
+import 'package:kwik_port/api/model/userModel.dart';
 import 'package:kwik_port/colors/color.dart';
 import 'package:kwik_port/main.dart';
 import 'package:kwik_port/ui/home/contracts/kwikticket_created_successfully.dart';
 import 'package:kwik_port/utils/button/kwik_button.dart';
 import 'package:kwik_port/utils/text/textstyle.dart';
 import 'package:kwik_port/utils/textFields/goods_volume_field.dart';
+import 'package:kwik_port/utils/toast.dart';
+import 'package:provider/provider.dart';
 
 class GenerateContractTicketDialog extends StatefulWidget {
   final ContractModel contract;
-  final generateFunc;
+  // final generateFunc;
   const GenerateContractTicketDialog({
     super.key,
     required this.contract,
-    required this.generateFunc,
+    // required this.generateFunc,
   });
 
   @override
@@ -26,24 +31,64 @@ class _GenerateContractTicketDialogState
     extends State<GenerateContractTicketDialog> {
   late TextEditingController volumeController;
 
-  void validateVolume() {
-    if (volumeController.text.isEmpty) {
-      setState(() {
-        colorCodes.white.withOpacity(0.5);
-      });
-    } else {
-      setState(() {
-        Colors.transparent;
-      });
-    }
+  double? totalCost;
+  // void _onVolumeChanged() async {
+  //   final text = volumeController.text;
+  //   if (text.isEmpty) return;
+
+  //   final units = int.tryParse(text);
+  //   if (units == null || units <= 0) return;
+
+  //   // 👇 bring the provider inside here
+  //   final costApi = Provider.of<CalculateCommodityCostApi>(
+  //     context,
+  //     listen: false,
+  //   );
+
+  //   await costApi.calculateCost(
+  //     commodityId: widget.contract.commodityId ?? "",
+  //     units: units,
+  //   );
+
+  //   setState(() {
+  //     if (costApi.commodityCost != null) {
+  //       totalCost = (costApi.commodityCost!.totalCost ?? 0).toDouble();
+  //     }
+  //   });
+  // }
+  void _onVolumeChanged() async {
+    final text = volumeController.text.trim();
+    if (text.isEmpty) return;
+
+    final units = int.tryParse(text);
+    if (units == null || units <= 0) return;
+
+    final costApi = Provider.of<CalculateCommodityCostApi>(
+      context,
+      listen: false,
+    );
+
+    await costApi.calculateCost(
+      commodityId: widget.contract.commodityId ?? "",
+      units: units,
+    );
+
+    if (!mounted) return;
+
+    setState(() {
+      totalCost = costApi.commodityCost?.totalCost?.toDouble() ?? 0.0;
+    });
+
+    debugPrint("🧮 Units: $units → Total Cost: ₦$totalCost");
   }
 
   @override
   void initState() {
     volumeController = TextEditingController(
-      text: "${widget.contract.totalQuantity}",
+      // text: "${widget.contract.totalQuantity}",
     );
-    volumeController.addListener(validateVolume);
+    volumeController.addListener(_onVolumeChanged);
+    // volumeController.addListener(validateVolume);
     super.initState();
   }
 
@@ -55,6 +100,14 @@ class _GenerateContractTicketDialogState
 
   @override
   Widget build(BuildContext context) {
+    final costApi = Provider.of<CalculateCommodityCostApi>(
+      context,
+      listen: false,
+    );
+    final createTicketApi = Provider.of<CreateKwikticketApi>(
+      context,
+      listen: false,
+    );
     return SizedBox(
       width: 390,
       child: Dialog(
@@ -176,6 +229,9 @@ class _GenerateContractTicketDialogState
                         ),
                       ],
                     ),
+                    onchanged: (value) {
+                      _onVolumeChanged();
+                    },
                   ),
                   SizedBox(height: 8),
                   Align(
@@ -192,21 +248,66 @@ class _GenerateContractTicketDialogState
                         children: [
                           TextSpan(text: " Available: "),
                           TextSpan(
-                            text: "${widget.contract.fulfilledQuantity} tons",
+                            text: "${widget.contract.totalQuantity} tons",
                           ),
                         ],
                       ),
                     ),
                   ),
                   SizedBox(height: 24),
+
                   marketRateContainer(
                     "${widget.contract.buyerSpecification?.buyerPricePerUnit}",
                     "Total Cost (${volumeController.text} tons)",
-                    "₦${widget.contract.totalAmountSpent}",
+                    "₦${totalCost ?? 0}",
                     volumeController.text,
                   ),
                   SizedBox(height: 24),
-                  kwikbutton("Generate Ticket", (widget.generateFunc)),
+                  kwikbutton("Generate Ticket", () async {
+                    if (volumeController.text.isNotEmpty) {
+                      await createTicketApi
+                          .createKwikTicket(
+                            exportContractId: widget.contract.id,
+                            exporterId: userDataVar?.exporter?.id ?? "",
+                            // peggedDollarValue:
+                            //     widget.contract.projectedIncome ?? 0.0,
+                            // badge: "Gold",
+                            // deadline: DateTime.now().add(
+                            //   Duration(
+                            //     days: widget.contract.contractDuration ?? 0,
+                            //   ),
+                            // ),
+                            kwikTicketAmount: totalCost ?? 0.0,
+                            projectedIncomeInDollars:
+                                widget.contract.projectedIncome ?? 0.0,
+                            // exporterId: widget.contract.exporterId ?? "N/A",
+                          )
+                          .then((newTicket) {
+                            if (createTicketApi.isSuccessful == true &&
+                                newTicket != null) {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder:
+                                      (_) => KwikticketCreatedSuccessfully(
+                                        kwikticket: newTicket,
+                                      ),
+                                ),
+                              );
+                            } else {
+                              showToastContainer(
+                                "Error",
+                                createTicketApi.message,
+                                colorCodes.mistyRose,
+                                colorCodes.portlandOrange,
+                                context,
+                              );
+                            }
+                          });
+                    }
+
+                    currentIndex = 3;
+                  }),
                   SizedBox(height: 10),
                 ],
               ),

@@ -56,18 +56,17 @@ class GetKwikTicketApi extends ChangeNotifier {
           final data = json.decode(response.body);
 
           final apiResponse = ApiResponse.fromJson(
-            Map<String, dynamic>.from(data),
+            data,
+            // Map<String, dynamic>.from(data),
             (data) => Map<String, dynamic>.from(data),
           );
-          if (apiResponse.isSuccessful && apiResponse.data != null) {
-            final ticketData = apiResponse.data;
 
-            // Some APIs may return a list or a single object
-            if (ticketData is List) {
-              // final List<KwikTicketModel> fetched =
-              //     ticketData.map((e) => KwikTicketModel.fromJson(e)).toList();
-              final fetched =
-                  data
+          if (apiResponse.isSuccessful && apiResponse.data != null) {
+            final results = apiResponse.data?["results"];
+
+            if (results is List && results.isNotEmpty) {
+              final List<KwikTicketModel> fetched =
+                  results
                       .map(
                         (e) => KwikTicketModel.fromJson(
                           Map<String, dynamic>.from(e),
@@ -75,24 +74,27 @@ class GetKwikTicketApi extends ChangeNotifier {
                       )
                       .toList();
 
-              if (fetched.isNotEmpty) {
-                _tickets.addAll(fetched);
-                pageIndex++;
-                // _hasMore = fetched.length == _pageSize;
-                _message =
-                    apiResponse.message.isNotEmpty
-                        ? apiResponse.message
-                        : 'Tickets fetched successfully';
-              } else {
-                hasMore = false;
-                _message = 'No tickets found';
-              }
+              _tickets.addAll(fetched);
+              pageIndex++;
+
+              _message =
+                  apiResponse.message.isNotEmpty
+                      ? apiResponse.message
+                      : 'Tickets fetched successfully';
+
+              // if (fetched.isNotEmpty) {
+              //   _tickets.addAll(fetched);
+              //   pageIndex++;
+              //   // _hasMore = fetched.length == _pageSize;
+              //   _message =
+              //       apiResponse.message.isNotEmpty
+              //           ? apiResponse.message
+              //           : 'Tickets fetched successfully';
+              // } else {
+              //   hasMore = false;
+              //   _message = 'No tickets found';
+              // }
             }
-            // else if (ticketData is Map) {
-            //   // If backend sends a single ticket instead of a list
-            //   _tickets.add(KwikTicketModel.fromJson(ticketData));
-            //   hasMore = false;
-            // }
           } else {
             debugPrint("⚠️ No data found or request unsuccessful.");
             hasMore = false;

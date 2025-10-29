@@ -51,6 +51,7 @@ class GetContractApi extends ChangeNotifier {
             _message = data['message'] ?? 'Contracts fetched successfully';
           } else {
             _hasMore = false;
+            _message = 'No active contracts found.';
           }
         } else {
           //  _hasMore = false;

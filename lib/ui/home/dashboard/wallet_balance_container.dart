@@ -3,7 +3,12 @@ import 'package:hexcolor/hexcolor.dart';
 import 'package:kwik_port/colors/color.dart';
 import 'package:kwik_port/utils/text/textstyle.dart';
 
-Widget dashboardBalanceContainer(walletBalance, visibilityFunc, context) {
+Widget dashboardBalanceContainer(
+  walletBalance,
+  showBalance,
+  visibilityFunc,
+  context,
+) {
   double width = MediaQuery.of(context).size.width / 2;
   return Container(
     height: 160,
@@ -29,7 +34,9 @@ Widget dashboardBalanceContainer(walletBalance, visibilityFunc, context) {
               child: Padding(
                 padding: const EdgeInsets.all(10),
                 child: Image.asset(
-                  'assets/images/icons/eye.png',
+                  showBalance == true
+                      ? 'assets/images/icons/eye.png'
+                      : "assets/images/icons/eye-slash.png",
                   color: colorCodes.white,
                   width: 19,
                   height: 19,
@@ -44,7 +51,7 @@ Widget dashboardBalanceContainer(walletBalance, visibilityFunc, context) {
           style: kwikTextStlye(14.0, FontWeight.w300, colorCodes.whiteSmoke),
         ),
         Text(
-          "\$$walletBalance",
+          "$walletBalance",
           style: TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.w600,

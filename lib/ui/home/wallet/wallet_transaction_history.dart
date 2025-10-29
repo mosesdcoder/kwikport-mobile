@@ -91,7 +91,13 @@ class _WalletTransactionHistoryState extends State<WalletTransactionHistory> {
                     color: colorCodes.whiteSmoke,
                     borderRadius: BorderRadius.circular(100),
                   ),
-                  child: Center(child: Image.asset("", height: 18, width: 18)),
+                  child: Center(
+                    child: Image.asset(
+                      "assets/images/icons/Group 6341.png",
+                      height: 18,
+                      width: 18,
+                    ),
+                  ),
                 ),
                 SizedBox(width: 12),
                 Column(

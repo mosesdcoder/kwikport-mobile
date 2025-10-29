@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:kwik_port/api/model/dashboard_model.dart';
@@ -7,6 +9,7 @@ import 'package:kwik_port/ui/home/dashboard/procurement%20Agency/select_procurem
 import 'package:kwik_port/utils/button/kwik_button.dart';
 import 'package:kwik_port/utils/text/textstyle.dart';
 import 'package:kwik_port/ui/home/exportfulfillment/KycVerification/export_payment_confirmed.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ExportPaymentSucessfulDialog extends StatefulWidget {
   final KwikTicketModel kwikticket;
@@ -19,6 +22,15 @@ class ExportPaymentSucessfulDialog extends StatefulWidget {
 
 class _ExportPaymentSucessfulDialogState
     extends State<ExportPaymentSucessfulDialog> {
+  Future<void> _saveKwikTicket(KwikTicketModel kwikticket) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(
+      'kwikTicketData',
+      jsonEncode(widget.kwikticket.toJson()),
+    );
+    await prefs.setString('kwikTicketTime', DateTime.now().toIso8601String());
+  }
+
   @override
   Widget build(BuildContext context) {
     return Dialog(
@@ -49,13 +61,19 @@ class _ExportPaymentSucessfulDialogState
                 ),
                 InkWell(
                   onTap: () {
-                    Navigator.push(
+                    _saveKwikTicket(widget.kwikticket);
+                    debugPrint(
+                      "💾 Saving KwikTicket: ${jsonEncode(widget.kwikticket.toJson())}",
+                    );
+
+                    Navigator.pushAndRemoveUntil(
                       context,
                       MaterialPageRoute(
                         builder:
                             (context) =>
                                 Dashboard(kwikticket: widget.kwikticket),
                       ),
+                      (route) => false,
                     );
                   },
                   child: Image.asset(
@@ -169,12 +187,16 @@ class _ExportPaymentSucessfulDialogState
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Text(
-                              "${widget.kwikticket.contract?.contractId}",
-                              style: kwikTextStlye(
-                                10.0,
-                                FontWeight.w500,
-                                colorCodes.black,
+                            SizedBox(
+                              width: 100,
+                              child: Text(
+                                "${widget.kwikticket.exportContractId}",
+                                style: kwikTextStlye(
+                                  10.0,
+                                  FontWeight.w500,
+                                  colorCodes.black,
+                                  textOverflow: TextOverflow.ellipsis,
+                                ),
                               ),
                             ),
                             // SizedBox(width: 3),

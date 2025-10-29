@@ -56,21 +56,46 @@ class VerifyEmailApi extends ChangeNotifier {
             final auth = apiResponse.data!;
 
             // ✅ Save tokens
-            await prefs.setString('accessToken', auth.accessToken);
-            await prefs.setString('refreshToken', auth.refreshToken);
-            await prefs.setString(
-              'accessTokenExpiresAt',
-              auth.accessTokenExpiresAt!.toIso8601String(),
-            );
+            // await prefs.setString('accessToken', auth.accessToken);
+            // await prefs.setString('refreshToken', auth.refreshToken);
+            // await prefs.setString(
+            //   'accessTokenExpiresAt',
+            //   auth.accessTokenExpiresAt!.toIso8601String(),
+            // );
 
-            await prefs.setString(
-              'refreshTokenExpiresAt',
-              auth.refreshTokenExpiresAt!.toIso8601String(),
-            );
+            // await prefs.setString(
+            //   'refreshTokenExpiresAt',
+            //   auth.refreshTokenExpiresAt!.toIso8601String(),
+            // );
+            // ✅ Save tokens
+            if (auth.accessToken != null) {
+              await prefs.setString('accessToken', auth.accessToken!);
+            }
+            if (auth.refreshToken != null) {
+              await prefs.setString('refreshToken', auth.refreshToken!);
+            }
+            if (auth.accessTokenExpiresAt != null) {
+              await prefs.setString(
+                'accessTokenExpiresAt',
+                auth.accessTokenExpiresAt!.toIso8601String(),
+              );
+            }
+            if (auth.refreshTokenExpiresAt != null) {
+              await prefs.setString(
+                'refreshTokenExpiresAt',
+                auth.refreshTokenExpiresAt!.toIso8601String(),
+              );
+            }
+            if (auth.username != null) {
+              await prefs.setString('username', auth.username!);
+            }
+            if (auth.identifier != null) {
+              await prefs.setString('identifier', auth.identifier!);
+            }
 
             // ✅ Save user info
-            await prefs.setString('username', auth.username!);
-            await prefs.setString('identifier', auth.identifier!);
+            // await prefs.setString('username', auth.username!);
+            // await prefs.setString('identifier', auth.identifier!);
 
             // ✅ Save AuthData + Session
             // final auth = AuthData.fromJson(data['data']);

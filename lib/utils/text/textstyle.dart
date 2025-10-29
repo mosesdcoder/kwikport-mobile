@@ -7,6 +7,7 @@ TextStyle kwikTextStlye(
   decoration,
   fontStyle,
   fontFamily,
+  textOverflow,
 }) {
   return TextStyle(
     fontFamily: fontFamily ?? 'Poppins',
@@ -16,5 +17,6 @@ TextStyle kwikTextStlye(
     decoration: decoration,
     decorationColor: color,
     fontStyle: fontStyle ?? FontStyle.normal,
+    overflow: textOverflow,
   );
 }

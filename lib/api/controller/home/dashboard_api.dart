@@ -17,6 +17,7 @@ class DashboardApi extends ChangeNotifier {
   bool get loading => _loading;
   String get message => _message;
   DashboardModel? get data => _data;
+  
 
   Future<void> fetchDashboard({bool refresh = false}) async {
     if (_loading) return;

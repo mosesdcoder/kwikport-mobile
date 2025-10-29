@@ -39,7 +39,7 @@ Widget avaiableontractContainer(
           children: [
             Row(
               children: [
-                Image.asset(goodsImg, height: 72, width: 72),
+                Image.network(goodsImg, height: 72, width: 72),
                 SizedBox(width: 16),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -257,11 +257,7 @@ Widget avaiableontractContainerUpdated(
       children: [
         InkWell(
           onTap: viewContractFunc,
-          child: Image.asset(
-            "assets/images/Group 2367.png",
-            height: 86,
-            width: 342,
-          ),
+          child: Image.network(goodsImg, height: 86, width: 342),
         ),
         Padding(
           padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),

@@ -17,9 +17,9 @@ class CreateKwikticketApi extends ChangeNotifier {
   createKwikTicket({
     required String exportContractId,
     required String exporterId,
-    required double peggedDollarValue,
-    required String badge,
-    required DateTime deadline,
+    // required double peggedDollarValue,
+    // required String badge,
+    // required DateTime deadline,
     required double kwikTicketAmount,
     required double projectedIncomeInDollars,
   }) async {
@@ -44,9 +44,9 @@ class CreateKwikticketApi extends ChangeNotifier {
         var body = {
           "exportContractId": exportContractId,
           "exporterId": exporterId,
-          "peggedDollarValue": peggedDollarValue,
-          "badge": badge,
-          "deadline": deadline.toIso8601String(),
+          // "peggedDollarValue": peggedDollarValue,
+          // "badge": badge,
+          // "deadline": deadline.toIso8601String(),
           "kwikTicketAmount": kwikTicketAmount,
           "projectedIncomeInDollars": projectedIncomeInDollars,
         };
@@ -56,9 +56,9 @@ class CreateKwikticketApi extends ChangeNotifier {
           '/KwikTicket/create',
           body,
         );
-
-        response.headers['Authorization'] = "Bearer $token";
-        response.headers['Accept'] = "application/json";
+        print("KwikTicket Create Response: ${response.body}");
+        // response.headers['Authorization'] = "Bearer $token";
+        // response.headers['Accept'] = "application/json";
         final data = json.decode(response.body);
         debugPrint("🎫 KwikTicket Response: $data");
 
@@ -81,20 +81,12 @@ class CreateKwikticketApi extends ChangeNotifier {
 
           // _ticket = apiResponse.data;
           if (_ticket != null) {
-            // ✅ Save exporter data to SharedPreferences
-            // await prefs.setString('exporter', json.encode(_ticket!.toJson()));
-            // await saveUserSession(
-            //   UserSession(
-            //     auth: userDataVar?.auth, // keep existing token
-            //     exporter: _ticket, // add exporter info
-            //   ),
-            // );
-
-            // ✅ Add to user session
-            // await saveUserSessionToPrefs(UserSession(exporter: _ticket));
-            // await updateUserSession(exporter: exporter);
-
-            print("✅  created: ${_ticket!.exportContractId}");
+            // print("✅  created: ${_ticket!.exportContractId}");
+            print("Ticket ID: ${_ticket!.id}");
+            print("Ticket uniqueId: ${_ticket!.uniqueId}");
+            print(
+              "✅  Created KwikTicket (Server ID): ${_ticket!.id} ${_ticket!.id}",
+            );
           } else {
             print("⚠️ No kwikticket data returned.");
           }

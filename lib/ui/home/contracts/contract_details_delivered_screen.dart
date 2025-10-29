@@ -126,8 +126,9 @@ class _ContractDetailsDeliveredScreenState
               children: [
                 Stack(
                   children: [
-                    Image.asset(
-                      "assets/images/cocoa_square.png",
+                    Image.network(
+                      widget.contract.commodityImage ??
+                          "https://kwikport.s3.eu-west-3.amazonaws.com/commodity-images/cocoa.png",
                       height: 238,
                       width: 342,
                     ),
@@ -153,9 +154,9 @@ class _ContractDetailsDeliveredScreenState
                           color: colorCodes.pigmentGreen,
                         ),
                         child: Text(
-                          widget.contract.contractStatus == 0
-                              ? "Active"
-                              : "Closed",
+                          "${widget.contract.contractStatus}", // == 0
+                          // ? "Active"
+                          // : "Closed",
                           style: kwikTextStlye(
                             10.0,
                             FontWeight.w500,
@@ -168,7 +169,7 @@ class _ContractDetailsDeliveredScreenState
                 ),
                 SizedBox(height: 19),
                 Text(
-                  "Cocoa Beans",
+                  widget.contract.commodityName,
                   style: kwikTextStlye(24.0, FontWeight.w600, colorCodes.black),
                 ),
                 SizedBox(height: 5),
@@ -755,7 +756,7 @@ class _ContractDetailsDeliveredScreenState
             ),
           ),
           SizedBox(height: 35),
-          kwikbutton("Generate Contract", () {
+          kwikbutton("Generate KwikTicket", () {
             if (checkterms == true) {
               showDialog(
                 barrierDismissible: false,
@@ -764,66 +765,51 @@ class _ContractDetailsDeliveredScreenState
                 builder: (BuildContext context) {
                   return GenerateContractTicketDialog(
                     contract: widget.contract,
-                    generateFunc: () async {
-                      final newTicket = await createTicketApi
-                          .createKwikTicket(
-                            exportContractId: widget.contract.id,
-                            exporterId: userDataVar?.exporter?.id ?? "",
-                            peggedDollarValue:
-                                widget.contract.projectedIncome ?? 0.0,
-                            badge: "Gold",
-                            deadline: DateTime.now().add(
-                              Duration(
-                                days: widget.contract.contractDuration ?? 0,
-                              ),
-                            ),
-                            kwikTicketAmount:
-                                widget.contract.totalAmount ?? 0.0,
-                            projectedIncomeInDollars:
-                                widget.contract.projectedIncome ?? 0.0,
-                            // exporterId: widget.contract.exporterId ?? "N/A",
-                          )
-                          .then((newTicket) {
-                            if (createTicketApi.isSuccessful == true &&
-                                newTicket != null) {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder:
-                                      (_) => KwikticketCreatedSuccessfully(
-                                        // kwikticketID: "#${newTicket.uniqueId}",
-                                        // exporterName:
-                                        //     newTicket.exporter?.businessName ??
-                                        //     "",
-                                        // exportItem:
-                                        //     newTicket.commodity?.name ?? "",
-                                        // contractType: "FOB",
-                                        // stakedVolume:
-                                        //     "${newTicket.totalQuantity} tons",
-                                        // capitalCost:
-                                        //     "₦${newTicket.kwikTicketAmount}",
-                                        // destination:
-                                        //     newTicket
-                                        //         .contract
-                                        //         ?.destinationCountry ??
-                                        //     "",
-                                        kwikticket: newTicket,
-                                      ),
-                                ),
-                              );
-                            } else {
-                              showToastContainer(
-                                "Error",
-                                createTicketApi.message,
-                                colorCodes.mistyRose,
-                                colorCodes.portlandOrange,
-                                context,
-                              );
-                            }
-                          });
+                    // generateFunc: () async {
+                    //   final newTicket = await createTicketApi
+                    //       .createKwikTicket(
+                    //         exportContractId: widget.contract.id,
+                    //         exporterId: userDataVar?.exporter?.id ?? "",
+                    //         peggedDollarValue:
+                    //             widget.contract.projectedIncome ?? 0.0,
+                    //         badge: "Gold",
+                    //         deadline: DateTime.now().add(
+                    //           Duration(
+                    //             days: widget.contract.contractDuration ?? 0,
+                    //           ),
+                    //         ),
+                    //         kwikTicketAmount:
+                    //             widget.contract.totalAmount ?? 0.0,
+                    //         projectedIncomeInDollars:
+                    //             widget.contract.projectedIncome ?? 0.0,
+                    //         // exporterId: widget.contract.exporterId ?? "N/A",
+                    //       )
+                    //       .then((newTicket) {
+                    //         if (createTicketApi.isSuccessful == true &&
+                    //             newTicket != null) {
+                    //           Navigator.push(
+                    //             context,
+                    //             MaterialPageRoute(
+                    //               builder:
+                    //                   (_) => KwikticketCreatedSuccessfully(
 
-                      currentIndex = 3;
-                    },
+                    //                     kwikticket: newTicket,
+                    //                   ),
+                    //             ),
+                    //           );
+                    //         } else {
+                    //           showToastContainer(
+                    //             "Error",
+                    //             createTicketApi.message,
+                    //             colorCodes.mistyRose,
+                    //             colorCodes.portlandOrange,
+                    //             context,
+                    //           );
+                    //         }
+                    //       });
+
+                    //   currentIndex = 3;
+                    // },
                   );
                 },
               );

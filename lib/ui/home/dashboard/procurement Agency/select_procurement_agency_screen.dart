@@ -6,9 +6,7 @@ import 'package:hexcolor/hexcolor.dart';
 import 'package:kwik_port/api/controller/agency/get_agency_api.dart';
 import 'package:kwik_port/api/model/dashboard_model.dart';
 import 'package:kwik_port/colors/color.dart';
-import 'package:kwik_port/ui/home/dashboard/exportJourney/export_journey_screen.dart';
 import 'package:kwik_port/ui/home/dashboard/procurement%20Agency/agency_container.dart';
-import 'package:kwik_port/ui/home/dashboard/procurement%20Agency/agency_selection_confirmed_dialog.dart';
 import 'package:kwik_port/ui/home/dashboard/procurement%20Agency/confirm_agency_selection_dialog.dart';
 import 'package:kwik_port/utils/button/back_nav_header.dart';
 import 'package:kwik_port/utils/button/bottom_navigatior_bar.dart';
@@ -33,16 +31,16 @@ class _SelectProcurementAgencyScreenState
   int endTime = DateTime.now().millisecondsSinceEpoch + 86400000; // 24 hours
 
   int itemCount = 5;
-  List agencyName = [
-    "AgriSource Hub Ltd.",
-    "FarmLink Aggregators",
-    "GreenGate Procurement",
-    "AgroTrust Services",
-    "HarvestPoint Aggregators",
-  ];
+  // List agencyName = [
+  //   "AgriSource Hub Ltd.",
+  //   "FarmLink Aggregators",
+  //   "GreenGate Procurement",
+  //   "AgroTrust Services",
+  //   "HarvestPoint Aggregators",
+  // ];
   // String reviewStar = '4.8';
   // String ratingStr = reviewStar.split('/')[0].replaceAll('(', '').trim();
-  double agencyrating = double.tryParse('4.8') ?? 0.0; // Safely parse rating
+  // double agencyrating = double.tryParse('4.8') ?? 0.0; // Safely parse rating
   final _controller = StreamController<SwipeRefreshState>.broadcast();
   Stream<SwipeRefreshState> get _stream => _controller.stream;
   void _scrollListener() {
@@ -70,12 +68,12 @@ class _SelectProcurementAgencyScreenState
 
   Future<void> _fetchInitialAgency() async {
     final agencyApi = Provider.of<GetAgencyApi>(context, listen: false);
-    agencyApi.fetchAgencies();
+    agencyApi.fetchAgenciesByStageType(2);
   }
 
   Future<void> _refresh() async {
     final api = Provider.of<GetAgencyApi>(context, listen: false);
-    await api.fetchAgencies();
+    await api.fetchAgenciesByStageType(2);
     _controller.sink.add(SwipeRefreshState.hidden);
     // _controller.sink.add(SwipeRefreshState.hidden);
   }
@@ -90,6 +88,8 @@ class _SelectProcurementAgencyScreenState
   @override
   Widget build(BuildContext context) {
     final agencyProvider = Provider.of<GetAgencyApi>(context);
+    // final selectagencyPRovider = Provider.of<ExportStageApi>(context);
+
     return Scaffold(
       extendBody: true,
       backgroundColor: colorCodes.whiteSmoke,
@@ -154,7 +154,10 @@ class _SelectProcurementAgencyScreenState
                       const SizedBox(height: 20),
                       agencyProvider.loading
                           ? Center(child: kwikportloader())
-                          : _buildAgencyList(agencyProvider),
+                          : _buildAgencyList(
+                            agencyProvider,
+                            // selectagencyPRovider,
+                          ),
                     ],
                   ),
                   // ),
@@ -173,7 +176,10 @@ class _SelectProcurementAgencyScreenState
     return days * 24;
   }
 
-  Widget _buildAgencyList(GetAgencyApi agencyProvider) {
+  Widget _buildAgencyList(
+    GetAgencyApi agencyProvider,
+    // ExportStageApi selectagencyPRovider,
+  ) {
     if (agencyProvider.agencies.isEmpty) {
       return Center(
         child: Text(
@@ -184,7 +190,7 @@ class _SelectProcurementAgencyScreenState
     }
 
     return SizedBox(
-      height: 250 * agencyProvider.agencies.length.toDouble(),
+      height: 250 * 3.toDouble(),
       child: ListView.separated(
         physics: const NeverScrollableScrollPhysics(),
         shrinkWrap: true,
@@ -192,10 +198,10 @@ class _SelectProcurementAgencyScreenState
         itemCount: agencyProvider.agencies.length,
         itemBuilder: (ctx, index) {
           final agency = agencyProvider.agencies[index];
-          final name = agency['name'] ?? 'Unnamed Agency';
-          final rating = (agency['rating'] ?? 0).toDouble();
-          final fee = agency['serviceFee']?.toString() ?? '0';
-          final days = agency['numberOfDaysToDeliver']?.toString() ?? '-';
+          final name = agency.name;
+          final rating = (agency.rating?.toDouble());
+          final fee = agency.serviceFee.toString() ?? '0';
+          final days = agency.numberOfDaysToDeliver.toString() ?? '-';
 
           return procurementAgencyContainer(
             "assets/images/icons/dashboard/procurement_agency_logo.png",
@@ -214,36 +220,17 @@ class _SelectProcurementAgencyScreenState
                 builder: (BuildContext context) {
                   return ConfirmAgencySelectionDialog(
                     serviceFee: "\$$fee",
-                    totalcostTons: "20.5",
-                    totalCost: "₦246,000,000",
-                    confirmFunc: () {
-                      Navigator.pop(context);
-                      showDialog(
-                        barrierDismissible: false,
-                        context: context,
-                        builder: (BuildContext context) {
-                          return AgencySelectionConfirmedDialog(
-                            serviceFee: "\$$fee",
-                            totalcostTons: "20.5",
-                            totalCost: "₦246,000,000",
-                            continueFunc: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder:
-                                      (context) => ExportJourneyScreen(
-                                        exporterContractId: '',
-                                      ),
-                                ),
-                              );
-                            },
-                          );
-                        },
-                      );
-                    },
+                    totalcostTons: widget.kwikticket?.totalQuantity, // "20.5",
+                    totalCost:
+                        "${widget.kwikticket?.kwikTicketAmount}", // "₦246,000,000",
+
+                    agencyName: agency.name,
+                    kwikticket: widget.kwikticket,
+                    agencyId: agency.id,
                   );
                 },
               );
+              // Navigator.pop(context);
             },
           );
         },

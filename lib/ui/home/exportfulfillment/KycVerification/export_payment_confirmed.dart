@@ -8,12 +8,24 @@ import 'package:kwik_port/colors/color.dart';
 import 'package:kwik_port/ui/home/exportfulfillment/KycVerification/export_payment_success_dialog.dart';
 import 'package:kwik_port/utils/button/back_nav_header.dart';
 import 'package:kwik_port/utils/text/textstyle.dart';
+import 'package:kwik_port/utils/toast.dart';
 import 'package:provider/provider.dart';
 
 class ExportPaymentConfirmed extends StatefulWidget {
   final KwikTicketModel kwikticket;
+  final String referenceNumber;
+  final String dateTime;
+  // final String amountPaid;
+  final String paymentMethod;
 
-  const ExportPaymentConfirmed({super.key, required this.kwikticket});
+  const ExportPaymentConfirmed({
+    super.key,
+    required this.kwikticket,
+    required this.referenceNumber,
+    required this.dateTime,
+    // required this.amountPaid,
+    required this.paymentMethod,
+  });
 
   @override
   State<ExportPaymentConfirmed> createState() => _ExportPaymentConfirmedState();
@@ -23,29 +35,6 @@ class _ExportPaymentConfirmedState extends State<ExportPaymentConfirmed> {
   @override
   void initState() {
     Timer(Duration(seconds: 2), () async {
-      final updateApi = Provider.of<UpdateKwikTicketStatusApi>(
-        context,
-        listen: false,
-      );
-
-      // Example: toggle the ticket’s active state
-      await updateApi
-          .updateKwikTicketStatus(
-            kwikTicketId: widget.kwikticket.id.toString(), // or ticket["_id"]
-            isActive: true, // toggle state
-            context: context,
-          )
-          .then((result) {
-            if (result == true) {
-              // Refresh dashboard automatically
-              final dashboardApi = Provider.of<DashboardApi>(
-                context,
-                listen: false,
-              );
-              dashboardApi.fetchDashboard();
-              debugPrint("🔁 Dashboard refreshed after ticket update");
-            }
-          });
       showDialog(
         barrierDismissible: false,
         context: context,
@@ -54,6 +43,15 @@ class _ExportPaymentConfirmedState extends State<ExportPaymentConfirmed> {
           return ExportPaymentSucessfulDialog(kwikticket: widget.kwikticket);
         },
       );
+      // } else {
+      //   showToastContainer(
+      //     "Ticket Status",
+      //     updateApi.message,
+      //     colorCodes.mistyRose,
+      //     colorCodes.portlandOrange,
+      //     context,
+      //   );
+      // }
     });
     super.initState();
   }
@@ -112,22 +110,19 @@ class _ExportPaymentConfirmedState extends State<ExportPaymentConfirmed> {
                     SizedBox(height: 11),
                     confirmeddetailRow(
                       "Reference Number",
-                      "TXN-2024-EX7B9C2A5",
+                      widget.referenceNumber, // "TXN-2024-EX7B9C2A5",
                     ),
                     SizedBox(height: 11),
-                    confirmeddetailRow(
-                      "Date & Time",
-                      "Friday, August 22, 2025",
-                    ),
+                    confirmeddetailRow("Date & Time", widget.dateTime),
                     SizedBox(height: 11),
                     confirmeddetailRow(
                       "Amount Paid",
-                      "#2,499,000.00",
+                      "${widget.kwikticket.kwikTicketAmount}", // "#2,499,000.00",
                       detailColor: colorCodes.azureBlue,
                       fontFamily: "",
                     ),
                     SizedBox(height: 11),
-                    confirmeddetailRow("Payment method", "Bank Transfer"),
+                    confirmeddetailRow("Payment method", widget.paymentMethod),
                   ],
                 ),
               ),

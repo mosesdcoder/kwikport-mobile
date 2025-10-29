@@ -1,13 +1,14 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:kwik_port/api/model/agency_model.dart';
 import 'package:kwik_port/api/utils/utils.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class GetAgencyApi extends ChangeNotifier {
   bool loading = false;
   bool hasMore = true;
-  List<dynamic> agencies = [];
+  List<AgencyModel> agencies = [];
   int pageIndex = 1;
   final int pageSize = 10;
 
@@ -29,7 +30,6 @@ class GetAgencyApi extends ChangeNotifier {
         }
         final response = await HttpService.getRequest(
           '/Agency/get-agencies?PageIndex=$pageIndex&PageSize=$pageSize',
-          
         );
         final data = json.decode(response.body);
         print('📦 Fetching agencies page $pageIndex');
@@ -43,16 +43,8 @@ class GetAgencyApi extends ChangeNotifier {
             final responseData = data["data"];
             final List<dynamic> newAgencies = data["data"]["results"];
 
-            // ✅ This is the key fix
-            // if (responseData["results"] != null &&
-            //     responseData["results"] is List) {
-            //   agencies = responseData["results"];
-            // } else {
-            //   agencies = [];
-            // }
             if (newAgencies.isNotEmpty) {
-              // ✅ Add new items to the list (pagination)
-              agencies.addAll(newAgencies);
+              agencies.addAll(newAgencies.map((e) => AgencyModel.fromJson(e)));
               pageIndex++;
             } else {
               // ✅ No more pages
@@ -93,7 +85,15 @@ class GetAgencyApi extends ChangeNotifier {
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         if (data['isSuccessful'] == true) {
-          agencies = List<Map<String, dynamic>>.from(data['data']);
+          // agencies = List<Map<String, dynamic>>.from(data['data']);
+          // final data = decoded['data'];
+
+          if (data['data'] is List) {
+            final List<dynamic> agencyList = data['data'];
+            agencies = agencyList.map((e) => AgencyModel.fromJson(e)).toList();
+            hasMore =
+                false; // endpoint returns list for that stage — not paginated
+          }
         } else {
           agencies = [];
         }
@@ -109,6 +109,40 @@ class GetAgencyApi extends ChangeNotifier {
     }
   }
 
+  /// GET /Agency/agencies/{stageType}
+  // Future<void> fetchAgenciesByStageType(int stageType) async {
+  //   if (loading) return;
+  //   loading = true;
+  //   notifyListeners();
+
+  //   try {
+  //     final response = await HttpService.getRequest('/Agency/agencies/$stageType');
+  //     final decoded = json.decode(response.body);
+  //     print('GET agencies by stageType $stageType status ${response.statusCode} body $decoded');
+
+  //     final apiResp = ApiResponse.fromJson(decoded, (json) => json);
+  //     if (response.statusCode == 200 && apiResp.isSuccessful) {
+  //       final data = decoded['data'];
+  //       if (data is List) {
+  //         agencies = data.map((e) => AgencyModel.fromJson(e)).toList();
+  //         hasMore = false; // endpoint returns list for that stage — not paginated
+  //       } else {
+  //         agencies = [];
+  //       }
+  //       message = apiResp.message;
+  //     } else {
+  //       agencies = [];
+  //       message = apiResp.message.isNotEmpty ? apiResp.message : 'Failed to fetch agencies by stage';
+  //     }
+  //   } catch (e, st) {
+  //     print('Error fetching agencies by stageType: $e\n$st');
+  //     agencies = [];
+  //     message = 'Error fetching agencies';
+  //   } finally {
+  //     loading = false;
+  //     notifyListeners();
+  //   }
+  // }
   /// Optional: Reset pagination manually
   void resetPagination() {
     pageIndex = 1;

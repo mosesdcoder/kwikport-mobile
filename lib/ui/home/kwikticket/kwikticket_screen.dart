@@ -124,8 +124,8 @@ class _KwikticketScreenState extends State<KwikticketScreen> {
                       "Contract type",
                       widget.kwikticket.contract?.commodityName,
                       widget.kwikticket.contract?.contractType == 1
-                                    ? "International Buyer"
-                                    : "Local Buyer",
+                          ? "International Buyer"
+                          : "Local Buyer",
 
                       // "Cocoa bean",
                       // "Agricultural Commodity",
@@ -135,7 +135,7 @@ class _KwikticketScreenState extends State<KwikticketScreen> {
                       "Selected Capacity",
                       "Commodity Cost",
                       "${widget.kwikticket.contract?.totalQuantity} Tons",
-                      "${widget.kwikticket.contract?.totalAmount}",
+                      "${widget.kwikticket.kwikTicketAmount}",
                       // "20.5 tons",
                       // "₦246,000,000",
                       fontFamily: "",

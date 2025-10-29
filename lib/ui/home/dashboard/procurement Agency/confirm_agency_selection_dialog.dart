@@ -1,17 +1,29 @@
 import 'package:flutter/material.dart';
 import 'package:hexcolor/hexcolor.dart';
+import 'package:kwik_port/api/controller/agency/export_stage_api.dart';
+import 'package:kwik_port/api/controller/home/dashboard_api.dart';
+import 'package:kwik_port/api/model/dashboard_model.dart';
 import 'package:kwik_port/colors/color.dart';
+import 'package:kwik_port/ui/home/dashboard/exportJourney/export_journey_screen.dart';
 import 'package:kwik_port/ui/home/dashboard/procurement%20Agency/agency_selection_confirmed_dialog.dart';
 import 'package:kwik_port/utils/button/kwik_button.dart';
+import 'package:kwik_port/utils/button/loading_dialog.dart';
 import 'package:kwik_port/utils/text/textstyle.dart';
+import 'package:kwik_port/utils/toast.dart';
+import 'package:provider/provider.dart';
 
 class ConfirmAgencySelectionDialog extends StatefulWidget {
-  final serviceFee, totalcostTons, totalCost,confirmFunc;
+  final KwikTicketModel? kwikticket;
+
+  final agencyName, serviceFee, totalcostTons, totalCost, agencyId;
   const ConfirmAgencySelectionDialog({
     super.key,
     required this.serviceFee,
     required this.totalcostTons,
-    required this.totalCost,required this.confirmFunc,
+    required this.totalCost,
+    required this.agencyName,
+    required this.kwikticket,
+    required this.agencyId,
   });
 
   @override
@@ -23,6 +35,9 @@ class _ConfirmAgencySelectionDialogState
     extends State<ConfirmAgencySelectionDialog> {
   @override
   Widget build(BuildContext context) {
+    final selectagencyProvider = Provider.of<ExportStageApi>(context);
+    final dashboardApi = Provider.of<DashboardApi>(context);
+
     return SizedBox(
       width: 390,
       child: Dialog(
@@ -84,13 +99,13 @@ class _ConfirmAgencySelectionDialogState
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         Image.asset(
-                          "assets/images/cocoa.png",
+                          "assets/images/icons/dashboard/procurement_agency_logo.png",
                           height: 52,
                           width: 52,
                         ),
                         SizedBox(height: 8),
                         Text(
-                          "GreenGate Procurement",
+                          widget.agencyName,
                           style: kwikTextStlye(
                             18.0,
                             FontWeight.w400,
@@ -176,7 +191,90 @@ class _ConfirmAgencySelectionDialogState
                           ),
                         ),
                         SizedBox(height: 20),
-                        kwikbutton("Confirm Selection", widget.confirmFunc),
+                        kwikbutton("Confirm Selection", () async {
+                          // Navigator.pop(context);
+                          debugPrint(
+                            '🛠 ExporterContractId: ${dashboardApi.data?.exports.last.id}', //widget.kwikticket?.exporter?.
+                          );
+                          // widget.kwikticket?.exporter?.id
+                          //dashboardApi.data?.userProfile?.
+                          showDialog(
+                            context: context,
+                            barrierDismissible: false,
+                            builder: (_) => kwikportloader(),
+                          );
+
+                          // final selectAgencyApi = Provider.of<ExportStageApi>(
+                          //   context,
+                          //   listen: false,
+                          // );
+
+                          selectagencyProvider
+                              .selectAgency(
+                                exporterContractId:
+                                    dashboardApi.data?.exports?.last.id ?? "",
+                                // widget.kwikticket?.exporter?.id ?? '',
+                                // ?.first
+
+                                // widget.kwikticket?.exporter?.id ?? '',
+                                agencyId: widget.agencyId,
+                                stageType: 2,
+                              )
+                              .then((_) {
+                                Navigator.pop(context);
+                                if (selectagencyProvider.success) {
+                                  showDialog(
+                                    barrierDismissible: false,
+                                    context: context,
+                                    builder: (BuildContext context) {
+                                      return AgencySelectionConfirmedDialog(
+                                        serviceFee: "${widget.serviceFee}",
+                                        totalcostTons:
+                                            "${widget.totalcostTons}",
+                                        totalCost:
+                                            "${widget.kwikticket?.kwikTicketAmount}",
+                                        continueFunc: () async {
+                                          Navigator.pushAndRemoveUntil(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder:
+                                                  (_) => ExportJourneyScreen(
+                                                    kwikticket:
+                                                        widget.kwikticket,
+                                                    // ?.exporterContractId ??
+                                                    // '',
+                                                  ),
+                                            ),
+                                            (Route<dynamic> route) => false,
+                                          );
+                                          // Navigator.push(
+                                          //   context,
+                                          //   MaterialPageRoute(
+                                          //     builder:
+                                          //         (context) => ExportJourneyScreen(
+                                          //           kwikticket: widget.kwikticket,
+                                          //           //     ?.exportContractId ??
+                                          //           // "Unknown id",
+                                          //         ),
+                                          //   ),
+                                          // );
+                                        },
+                                      );
+                                    },
+                                  );
+                                } else {
+                                  Navigator.pop(context);
+                                  showToastContainer(
+                                    "Procurement Agency",
+                                    selectagencyProvider.message,
+                                    colorCodes.mistyRose,
+                                    colorCodes.portlandOrange,
+                                    context,
+                                  );
+                                }
+                              });
+                          Navigator.pop(context);
+                        }),
                         SizedBox(height: 12),
                         kwikbutton(
                           "Cancel",

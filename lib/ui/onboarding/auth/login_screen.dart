@@ -219,7 +219,7 @@ class _LoginScreenState extends State<LoginScreen> {
             // Loader.hide();
             Navigator.pop(context);
             if (loginProvider.isLoggedIn) {
-              Navigator.push(
+              Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(
                   builder: (context) => LoginSuccessfulScreen(),

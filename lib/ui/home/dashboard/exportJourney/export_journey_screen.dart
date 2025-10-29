@@ -1,28 +1,62 @@
 import 'package:flutter/material.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:kwik_port/api/controller/agency/export_substage_api.dart';
+import 'package:kwik_port/api/model/dashboard_model.dart';
 import 'package:kwik_port/colors/color.dart';
 import 'package:kwik_port/ui/home/dashboard/exportJourney/export_complete_screen.dart';
+import 'package:kwik_port/ui/home/dashboard/exportJourney/journey_check_list.dart';
 import 'package:kwik_port/ui/home/dashboard/exportJourney/packaging_and_documentation.dart';
 import 'package:kwik_port/ui/home/profile/export_accordion.dart';
 import 'package:kwik_port/utils/button/back_nav_header.dart';
 import 'package:kwik_port/utils/button/bottom_navigatior_bar.dart';
 import 'package:kwik_port/utils/button/kwik_button.dart';
 import 'package:kwik_port/utils/text/textstyle.dart';
+import 'package:kwik_port/utils/toast.dart';
 import 'package:provider/provider.dart';
 
 class ExportJourneyScreen extends StatefulWidget {
-  final String exporterContractId;
+  // final String exporterContractId;
+  final KwikTicketModel? kwikticket;
 
-  const ExportJourneyScreen({super.key, required this.exporterContractId});
+  const ExportJourneyScreen({super.key, required this.kwikticket});
 
   @override
   State<ExportJourneyScreen> createState() => _ExportJourneyScreenState();
 }
 
+enum StageStatus { pending, selectAgency, inProgress, completed }
+
 class _ExportJourneyScreenState extends State<ExportJourneyScreen> {
   bool checkterms = false;
   int itemCount = 5;
+  String packagingButtonText = "Select Packaging Agency";
+  bool agencySelected = false;
+  bool isLoading = true;
+
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   _loadStageData();
+  // }
+
+  // Future<void> _loadStageData() async {
+  //   final exportSubStageApi = Provider.of<ExportSubStageApi>(context, listen: false);
+  //   await exportSubStageApi.getSubStages(
+  //     exporterContractId: widget.exporterContractId,
+  //     mainStage: 2, // packaging stage
+  //   );
+
+  //   // Check if agency already selected
+  //   setState(() {
+  //     isLoading = false;
+  //     if (exportSubStageApi.hasAgencySelected == true) {
+  //       packagingButtonText = "Agency Selected ✅";
+  //       agencySelected = true;
+  //     }
+  //   });
+  // }
+
+  // Future<void> _refresh() async => await _loadStageData();
   List progressTitle = [
     "Agency Assigned ",
     "Sourcing in progress 🔍",
@@ -52,30 +86,135 @@ class _ExportJourneyScreenState extends State<ExportJourneyScreen> {
     List.filled(5, false), // Final Export
   ];
   List<bool> isChecked = [false, false, false, false, false];
-  int selectedMainStage = 1; // you can change depending on stage
+  // int selectedMainStage = 1; // you can change depending on stage
+
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   WidgetsBinding.instance.addPostFrameCallback((_) {
+  //     Provider.of<ExportSubStageApi>(context, listen: false).getSubStages(
+  //       exporterContractId: widget.exporterContractId,
+  //       mainStage: selectedMainStage,
+  //     );
+  //   });
+  // }
+
+  // Future<void> _refresh() async {
+  //   await Provider.of<ExportSubStageApi>(context, listen: false).getSubStages(
+  //     exporterContractId: widget.exporterContractId,
+  //     mainStage: selectedMainStage,
+  //   );
+  // }
+  final List<String> _stageTitles = [
+    "Procurement 🏭",
+    "Packaging, Quality Control & Documentation 📋",
+    "Logistics 🚚",
+    "Freight Forwarding (Port Clearance & Vessel Loading) ⚓",
+    "Final Export 🌍",
+  ];
+
+  late List<StageStatus> stageStates;
+  int selectedMainStage = 2;
 
   @override
   void initState() {
     super.initState();
+    stageStates = [
+      StageStatus.inProgress, // Procurement
+      StageStatus.selectAgency, // Packaging
+      StageStatus.pending, // Logistics
+      StageStatus.pending, // Freight Forwarding
+      StageStatus.pending, // Final Export
+    ];
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      Provider.of<ExportSubStageApi>(context, listen: false).getSubStages(
-        exporterContractId: widget.exporterContractId,
-        mainStage: selectedMainStage,
-      );
+      _fetchStage(selectedMainStage);
     });
   }
 
-  Future<void> _refresh() async {
-    await Provider.of<ExportSubStageApi>(context, listen: false).getSubStages(
-      exporterContractId: widget.exporterContractId,
-      mainStage: selectedMainStage,
+  Future<void> _fetchStage(int mainStage) async {
+    final api = Provider.of<ExportSubStageApi>(context, listen: false);
+    await api.getSubStages(
+      exporterContractId: widget.kwikticket?.exporter?.id ?? "",
+      mainStage: mainStage,
+      // await Provider.of<ExportSubStageApi>(context, listen: false).getSubStages(
+      //   exporterContractId: widget.exporterContractId,
+      //   mainStage: mainStage,
     );
+    // Determine status of current stage
+    final allCompleted = api.subStages.every((s) => s.isCompleted);
+    if (mainStage == 2 && allCompleted) {
+      _unlockNextStage(3);
+      setState(() {
+        stageStates[0] = StageStatus.completed; // Procurement done
+      });
+    }
+    if (mainStage == 3 && allCompleted) {
+      _unlockNextStage(4);
+    }
+    if (mainStage == 4 && allCompleted) {
+      _unlockNextStage(5);
+    }
+    if (mainStage == 5 && allCompleted) {
+      _unlockNextStage(6);
+    }
+    setState(() {});
+  }
+
+  void _unlockNextStage(int nextStage) {
+    if (nextStage <= stageStates.length) {
+      setState(() {
+        stageStates[nextStage - 1] = StageStatus.selectAgency;
+      });
+    }
+  }
+
+  Future<void> _refresh() async {
+    await _fetchStage(selectedMainStage);
+  }
+
+  String _getButtonText(StageStatus status) {
+    switch (status) {
+      case StageStatus.completed:
+        return "Completed";
+      case StageStatus.inProgress:
+        return "In Progress";
+      case StageStatus.selectAgency:
+        return "Select Agency";
+      default:
+        return "Pending";
+    }
+  }
+
+  Color _getButtonColor(StageStatus status) {
+    switch (status) {
+      case StageStatus.completed:
+        return colorCodes.pigmentGreen;
+      case StageStatus.inProgress:
+        return colorCodes.azureBlue;
+      case StageStatus.selectAgency:
+        return colorCodes.yellowOrange;
+      default:
+        return colorCodes.aluminium;
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     final exportSubStageProvider = Provider.of<ExportSubStageApi>(context);
-
+    final subStages = exportSubStageProvider.subStages;
+    // Determine current progress
+    bool procurementCompleted = true; // already selected before this screen
+    bool packagingCompleted = subStages.every((s) => s.isCompleted);
+    bool hasPackagingAgency =
+        subStages.isNotEmpty; // or from API flag if available
+    String packagingBtnText;
+    if (!hasPackagingAgency) {
+      packagingBtnText = "Select Agency";
+    } else if (packagingCompleted) {
+      packagingBtnText = "Completed";
+    } else {
+      packagingBtnText = "In Progress";
+    }
     return Scaffold(
       extendBody: true,
       appBar: PreferredSize(
@@ -89,478 +228,313 @@ class _ExportJourneyScreenState extends State<ExportJourneyScreen> {
         ),
       ),
       backgroundColor: colorCodes.whiteSmoke,
-      body: ListView(
-        padding: EdgeInsets.only(left: 20, right: 20, top: 20, bottom: 65),
-        children: [
-          Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Container(
-                // height: 581,
-                width: 391,
-                padding: EdgeInsets.symmetric(horizontal: 12, vertical: 20),
-                decoration: BoxDecoration(
-                  color: colorCodes.white,
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: Column(
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          "Overall Progress",
-                          style: kwikTextStlye(
-                            12.0,
-                            FontWeight.w300,
-                            colorCodes.darkGrey,
-                          ),
-                        ),
-                        Text(
-                          "15% Complete",
-                          style: kwikTextStlye(
-                            12.0,
-                            FontWeight.w300,
-                            colorCodes.darkGrey,
-                          ),
-                        ),
-                      ],
-                    ),
-                    SizedBox(height: 10),
-                    LinearProgressIndicator(
-                      backgroundColor: HexColor("#D6E7FF"),
-                      minHeight: 8,
-                      value: 0.15,
-                      borderRadius: BorderRadius.circular(12),
-                      color: colorCodes.azureBlue,
-                    ),
+      body: RefreshIndicator(
+        onRefresh: _refresh,
+        child: ListView(
+          padding: EdgeInsets.only(left: 20, right: 20, top: 20, bottom: 65),
+          children: [
+            Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Container(
+                  // height: 581,
+                  width: 391,
+                  padding: EdgeInsets.symmetric(horizontal: 12, vertical: 20),
+                  decoration: BoxDecoration(
+                    color: colorCodes.white,
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Column(
+                    children: [
+                      _overallProgress(
+                        procurementCompleted,
+                        packagingCompleted,
+                      ),
 
-                    SizedBox(height: 25),
-                    // ExportAccordion(title: title, statusbtntxt: statusbtntxt, statusbtnFunc: statusbtnFunc, child: child)
-                    ExportAccordion(
-                      title: "Procurement 🏭",
-                      statusbtntxt: "Completed",
-                      statusbtnFunc: () {},
-                      child: SizedBox(
-                        height: 450,
-                        child: ListView.separated(
-                          shrinkWrap: true,
-                          physics: NeverScrollableScrollPhysics(),
-                          separatorBuilder:
-                              (context, index) => SizedBox(height: 10),
-                          itemCount: itemCount,
-                          itemBuilder: (ctx, index) {
-                            return checkContainer(
-                              progressTitle[index],
-                              isCheckedSections[0],
-                              isChecked[index],
-                              progressSubTitle[index],
-                              false,
-                              "",
-                              () {
-                                setState(() {
-                                  isChecked[index] = !isChecked[index];
-                                });
-                              },
-                            );
-                          },
-                        ),
-                      ),
-                    ),
-                    ExportAccordion(
-                      title: "Packaging, Quality Control & Documentation 📋",
-                      statusbtntxt: "Select Agency",
-                      statusbtnFunc: () {},
-                      child: SizedBox(
-                        height: 450,
-                        child: ListView.separated(
-                          shrinkWrap: true,
-                          physics: NeverScrollableScrollPhysics(),
-                          separatorBuilder:
-                              (context, index) => SizedBox(height: 10),
-                          itemCount: itemCount,
-                          itemBuilder: (ctx, index) {
-                            return checkContainer(
-                              progressTitle[index],
-                              isCheckedSections[1],
-                              isChecked[index],
-                              progressSubTitle[index],
-                              true,
-                              "2-3days",
-                              () {
-                                setState(() {
-                                  isChecked[index] = !isChecked[index];
-                                });
-                              },
-                            );
-                          },
-                        ),
-                      ),
-                    ),
-                    ExportAccordion(
-                      title: "Logistics",
-                      statusbtntxt: "Pending",
-                      statusbtnFunc: () {},
-                      child: SizedBox(
-                        height: 450,
-                        child: ListView.separated(
-                          shrinkWrap: true,
-                          physics: NeverScrollableScrollPhysics(),
-                          separatorBuilder:
-                              (context, index) => SizedBox(height: 10),
-                          itemCount: itemCount,
-                          itemBuilder: (ctx, index) {
-                            return checkContainer(
-                              progressTitle[index],
-                              isCheckedSections[2],
-                              isChecked[index],
-                              progressSubTitle[index],
-                              true,
-                              "1day",
-                              () {
-                                setState(() {
-                                  isChecked[index] = !isChecked[index];
-                                });
-                              },
-                            );
-                          },
-                        ),
-                      ),
-                    ),
-                    ExportAccordion(
-                      title:
-                          "Freight Forwarding (Port Clearance & Vessel Loading)",
-                      statusbtntxt: "Pending",
-                      statusbtnFunc: () {},
-                      child: SizedBox(
-                        height: 450,
-                        child: ListView.separated(
-                          shrinkWrap: true,
-                          physics: NeverScrollableScrollPhysics(),
-                          separatorBuilder:
-                              (context, index) => SizedBox(height: 10),
-                          itemCount: itemCount,
-                          itemBuilder: (ctx, index) {
-                            return checkContainer(
-                              progressTitle[index],
-                              isCheckedSections[3],
-                              isChecked[index],
-                              progressSubTitle[index],
-                              false,
-                              "",
-                              () {
-                                setState(() {
-                                  isChecked[index] = !isChecked[index];
-                                });
-                              },
-                            );
-                          },
-                        ),
-                      ),
-                    ),
-                    ExportAccordion(
-                      title: "Final Export",
-                      statusbtntxt: "Pending",
-                      statusbtnFunc: () {},
-                      child: SizedBox(
-                        height: 450,
-                        child: ListView.separated(
-                          shrinkWrap: true,
-                          physics: NeverScrollableScrollPhysics(),
-                          separatorBuilder:
-                              (context, index) => SizedBox(height: 10),
-                          itemCount: itemCount,
-                          itemBuilder: (ctx, index) {
-                            return checkContainer(
-                              progressTitle[index],
-                              isCheckedSections[4],
-                              isChecked[index],
-                              progressSubTitle[index],
-                              false,
-                              "",
-                              () {
-                                setState(() {
-                                  isChecked[index] = !isChecked[index];
-                                });
-                              },
-                            );
-                          },
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              SizedBox(height: 15),
-              Container(
-                height: 160,
-                width: 391,
-                padding: EdgeInsets.symmetric(horizontal: 12, vertical: 20),
-                decoration: BoxDecoration(
-                  color: colorCodes.white,
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: Column(
-                  children: [
-                    // Container(
-                    //   height: 74,
-                    //   width: 350,
-                    //   alignment: Alignment.center,
-                    //   padding: EdgeInsets.symmetric(
-                    //     horizontal: 10,
-                    //     vertical: 15,
-                    //   ),
-                    //   decoration: BoxDecoration(
-                    //     color: colorCodes.floralWhite,
-                    //     borderRadius: BorderRadius.circular(16),
-                    //     border: Border.all(
-                    //       width: 1.5,
-                    //       color: colorCodes.sunset,
-                    //     ),
-                    //   ),
-                    //   child: Row(
-                    //     mainAxisAlignment: MainAxisAlignment.start,
-                    //     crossAxisAlignment: CrossAxisAlignment.start,
-                    //     children: [
-                    //       Image.asset(
-                    //         "assets/images/icons/dashboard/Frame 10000060291.png",
-                    //         height: 25,
-                    //         width: 25,
-                    //       ),
-                    //       SizedBox(width: 12),
-                    //       SizedBox(
-                    //         width: 211,
-                    //         child: Column(
-                    //           crossAxisAlignment: CrossAxisAlignment.start,
-                    //           children: [
-                    //             Text(
-                    //               "Action Required: Packaging & Documentation",
-                    //               style: kwikTextStlye(
-                    //                 14.0,
-                    //                 FontWeight.w600,
-                    //                 colorCodes.black,
-                    //               ),
-                    //             ),
-                    //           ],
-                    //         ),
-                    //       ),
-                    //     ],
-                    //   ),
-                    // ),
-                    // SizedBox(height: 10),
-                    Container(
-                      height: 104,
-                      width: 350,
-                      alignment: Alignment.center,
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 10,
-                        vertical: 15,
-                      ),
-                      decoration: BoxDecoration(
-                        color: colorCodes.white,
-                        borderRadius: BorderRadius.circular(16),
-                        border: Border.all(
-                          width: 1.5,
-                          color: colorCodes.sunset,
-                        ),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Image.asset(
-                            "assets/images/icons/dashboard/Frame 10000060291.png",
-                            height: 24,
-                            width: 24,
-                          ),
-                          SizedBox(width: 8),
-                          SizedBox(
-                            width: 238,
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  "Agency Selction Required",
-                                  style: kwikTextStlye(
-                                    14.0,
-                                    FontWeight.w600,
-                                    colorCodes.sinopia,
-                                  ),
+                      SizedBox(height: 20),
+                      Column(
+                        children: List.generate(_stageTitles.length, (index) {
+                          return Padding(
+                            padding: const EdgeInsets.only(bottom: 10),
+                            child: _accordionStage(
+                              title: _stageTitles[index],
+                              status: stageStates[index],
+                              child: SizedBox(
+                                height: 450,
+                                child: ListView.separated(
+                                  shrinkWrap: true,
+                                  physics: const NeverScrollableScrollPhysics(),
+                                  separatorBuilder:
+                                      (_, __) => const SizedBox(height: 10),
+                                  itemCount: itemCount,
+                                  itemBuilder: (ctx, subIndex) {
+                                    return checkContainer(
+                                      progressTitle[subIndex],
+                                      isCheckedSections[index],
+                                      isChecked[subIndex],
+                                      progressSubTitle[subIndex],
+                                      false,
+                                      "",
+                                      () {
+                                        setState(() {
+                                          isChecked[subIndex] =
+                                              !isChecked[subIndex];
+                                        });
+                                      },
+                                    );
+                                  },
                                 ),
-                                Text(
-                                  "Procurement is complete. Select a packaging & documentation agency to continue your export journey.",
-                                  style: kwikTextStlye(
-                                    10.0,
-                                    FontWeight.w300,
-                                    colorCodes.black,
-                                  ),
-                                ),
-                              ],
+                              ),
+                              onButtonPressed: () async {
+                                await _handleStageButton(index);
+                              },
                             ),
-                          ),
-                        ],
+                          );
+                        }),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-              SizedBox(height: 15),
-              kwikbutton(
-                "Select Packaging Agency",
-                () {
+                SizedBox(height: 15),
+                Container(
+                  height: 160,
+                  width: 391,
+                  padding: EdgeInsets.symmetric(horizontal: 12, vertical: 20),
+                  decoration: BoxDecoration(
+                    color: colorCodes.white,
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Column(
+                    children: [
+                      Container(
+                        height: 104,
+                        width: 350,
+                        alignment: Alignment.center,
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 15,
+                        ),
+                        decoration: BoxDecoration(
+                          color: colorCodes.white,
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(
+                            width: 1.5,
+                            color: colorCodes.sunset,
+                          ),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Image.asset(
+                              "assets/images/icons/dashboard/Frame 10000060291.png",
+                              height: 24,
+                              width: 24,
+                            ),
+                            SizedBox(width: 8),
+                            SizedBox(
+                              width: 238,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    "Agency Selction Required",
+                                    style: kwikTextStlye(
+                                      14.0,
+                                      FontWeight.w600,
+                                      colorCodes.sinopia,
+                                    ),
+                                  ),
+                                  Text(
+                                    "Procurement is complete. Select a packaging & documentation agency to continue your export journey.",
+                                    style: kwikTextStlye(
+                                      10.0,
+                                      FontWeight.w300,
+                                      colorCodes.black,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox(height: 15),
+                kwikbutton(
+                  "Select Packaging Agency",
+                  () {
+                    // Navigator.push(
+                    //   context,
+                    //   MaterialPageRoute(
+                    //     builder:
+                    //         (context) =>
+                    //             PackagingAndDocumentation(kwikticket: null,stageType: currentStage, ),
+                    //   ),
+                    // );
+                  },
+                  buttonChild: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        "Select Packaging Agency",
+                        style: kwikTextStlye(
+                          14.0,
+                          FontWeight.w600,
+                          // enabled == true
+                          //     ?
+                          colorCodes.whiteSmoke,
+                          // : colorCodes.aluminium,
+                        ),
+                      ),
+                      SizedBox(width: 8),
+                      Image.asset(
+                        "assets/images/icons/arrow-right.png",
+                        height: 18,
+                        width: 18,
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox(height: 10),
+                kwikbutton("Complete Export", () {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => PackagingAndDocumentation(),
+                      builder: (context) => ExportCompleteScreen(),
                     ),
                   );
-                },
-                buttonChild: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      "Select Packaging Agency",
-                      style: kwikTextStlye(
-                        14.0,
-                        FontWeight.w600,
-                        // enabled == true
-                        //     ?
-                        colorCodes.whiteSmoke,
-                        // : colorCodes.aluminium,
-                      ),
-                    ),
-                    SizedBox(width: 8),
-                    Image.asset(
-                      "assets/images/icons/arrow-right.png",
-                      height: 18,
-                      width: 18,
-                    ),
-                  ],
-                ),
-              ),
-              SizedBox(height: 10),
-              kwikbutton("Complete Export", () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => ExportCompleteScreen(),
-                  ),
-                );
-              }),
-              SizedBox(height: 25),
-            ],
-          ),
-        ],
+                }),
+                SizedBox(height: 25),
+              ],
+            ),
+          ],
+        ),
       ),
       bottomNavigationBar: Bottomnavigationbar(1),
     );
   }
 
-  Widget checkContainer(
-    title,
-    isCheckedSection,
-    checkterms,
-    subtitle,
-    delay,
-    delaydate,
-    checkFunc,
-  ) {
-    return Container(
-      height: 75,
-      width: 335,
-      padding: EdgeInsets.symmetric(horizontal: 5, vertical: 5),
-      decoration: BoxDecoration(
-        color: colorCodes.whiteSmoke,
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: Row(
-        // mainAxisAlignment: MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          InkWell(
-            onTap: checkFunc,
-            child:
-                checkterms == true
-                    ? Image.asset(
-                      "assets/images/icons/dashboard/Checkbox (1).png",
-                      height: 23,
-                      width: 23,
-                    )
-                    : Container(
-                      height: 20,
-                      width: 20,
-                      alignment: Alignment.center,
-                      decoration: BoxDecoration(
-                        border: Border.all(
-                          color: colorCodes.frenchSkyBlue,
-                          width: 1.5,
-                        ),
+  Widget _overallProgress(bool procurementDone, bool packagingDone) {
+    double progress = 0.0;
+    if (procurementDone) progress += 0.3;
+    if (packagingDone) progress += 0.3;
 
-                        color: colorCodes.white,
-                        borderRadius: BorderRadius.circular(
-                          6,
-                        ), // rounded corners
-                      ),
-                    ),
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 20),
+      decoration: BoxDecoration(
+        color: colorCodes.white,
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                "Overall Progress",
+                style: kwikTextStlye(
+                  12.0,
+                  FontWeight.w300,
+                  colorCodes.darkGrey,
+                ),
+              ),
+              Text(
+                "${(progress * 100).toInt()}% Complete",
+                style: kwikTextStlye(
+                  12.0,
+                  FontWeight.w300,
+                  colorCodes.darkGrey,
+                ),
+              ),
+            ],
           ),
-          SizedBox(width: 5),
-          SizedBox(
-            width: 220,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      title,
-                      textAlign: TextAlign.start,
-                      style: kwikTextStlye(
-                        10.0,
-                        FontWeight.w500,
-                        colorCodes.black,
-                      ),
-                    ),
-                    delay == true
-                        ? Container(
-                          width: 57,
-                          height: 20,
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 5,
-                            vertical: 3,
-                          ),
-                          decoration: BoxDecoration(
-                            color: colorCodes.white,
-                            borderRadius: BorderRadius.circular(22.03),
-                            border: Border.all(
-                              color: colorCodes.antiFlashWhite,
-                              width: 1, // border-width
-                            ),
-                          ),
-                          child: Text(
-                            delaydate,
-                            style: kwikTextStlye(
-                              10.0,
-                              FontWeight.w400,
-                              colorCodes.textBlack,
-                            ),
-                          ),
-                        )
-                        : SizedBox(width: 10),
-                  ],
-                ),
-                // SizedBox(height: 2),
-                Text(
-                  subtitle,
-                  textAlign: TextAlign.start,
-                  style: kwikTextStlye(10.0, FontWeight.w300, colorCodes.black),
-                ),
-              ],
-            ),
+          const SizedBox(height: 10),
+          LinearProgressIndicator(
+            backgroundColor: HexColor("#D6E7FF"),
+            minHeight: 8,
+            value: progress,
+            borderRadius: BorderRadius.circular(12),
+            color: colorCodes.azureBlue,
           ),
         ],
       ),
+    );
+  }
+
+  Future<void> _handleStageButton(int index) async {
+    // final currentStage = index + 1;
+    final currentStage = index + 2;
+    if (index == 0) {
+      showToastContainer(
+        "Procurement Stage",
+        "Procurement agency already assigned. Monitoring in progress 🕓",
+        colorCodes.azureBlue,
+        colorCodes.mediumSeaGreen,
+        context,
+      );
+      return;
+    }
+    if (stageStates[index] == StageStatus.selectAgency) {
+      await Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder:
+              (_) => PackagingAndDocumentation(
+                kwikticket: widget.kwikticket,
+                stageType: currentStage,
+              ),
+        ),
+      );
+
+      // Refresh data after returning
+      await _fetchStage(currentStage);
+
+      setState(() {
+        stageStates[index] = StageStatus.inProgress; // update local UI
+      });
+    } else {
+      // Optional handling for other statuses
+      showToastContainer(
+        "Export Stage",
+        stageStates[index] == StageStatus.pending
+            ? "This stage is not unlocked yet 🚧"
+            : "Stage already in progress or completed ✅",
+        colorCodes.pigmentGreen,
+        colorCodes.mediumSeaGreen,
+        context,
+      );
+      // ScaffoldMessenger.of(context).showSnackBar(
+      //   SnackBar(
+      //     content: Text(
+      //       stageStates[index] == StageStatus.pending
+      //           ? "This stage is not unlocked yet 🚧"
+      //           : "Stage already in progress or completed ✅",
+      //     ),
+      //     backgroundColor: Colors.grey,
+      //   ),
+      // );
+    }
+  }
+
+  Widget _accordionStage({
+    required String title,
+    required StageStatus status,
+    required Widget child,
+    VoidCallback? onButtonPressed,
+    bool expanded = false,
+  }) {
+    String btnText = _getButtonText(status);
+    Color btnColor = _getButtonColor(status);
+    return ExportAccordion(
+      title: title,
+      statusbtntxt: btnText,
+      statusbtnFunc: onButtonPressed,
+      statusbackgroundColor: btnColor,
+      child: child,
     );
   }
 }
