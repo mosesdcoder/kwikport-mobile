@@ -3,11 +3,17 @@ import 'package:hexcolor/hexcolor.dart';
 import 'package:kwik_port/colors/color.dart';
 import 'package:kwik_port/utils/text/textstyle.dart';
 
-Widget walletBalanceContainer(visibilityFunc) {
+Widget dashboardBalanceContainer(
+  walletBalance,
+  showBalance,
+  visibilityFunc,
+  context,
+) {
+  double width = MediaQuery.of(context).size.width / 2;
   return Container(
     height: 160,
-    width: 190,
-    padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+    width: width - 20, // 170,
+    padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 12.0),
     decoration: BoxDecoration(
       borderRadius: BorderRadius.circular(8),
       color: colorCodes.azureBlue,
@@ -28,7 +34,9 @@ Widget walletBalanceContainer(visibilityFunc) {
               child: Padding(
                 padding: const EdgeInsets.all(10),
                 child: Image.asset(
-                  'assets/images/icons/eye.png',
+                  showBalance == true
+                      ? 'assets/images/icons/eye.png'
+                      : "assets/images/icons/eye-slash.png",
                   color: colorCodes.white,
                   width: 19,
                   height: 19,
@@ -39,11 +47,11 @@ Widget walletBalanceContainer(visibilityFunc) {
         ),
         SizedBox(height: 12),
         Text(
-          "Gross Earning",
+          "Wallet Balance",
           style: kwikTextStlye(14.0, FontWeight.w300, colorCodes.whiteSmoke),
         ),
         Text(
-          "\$24,580.00",
+          "$walletBalance",
           style: TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.w600,
@@ -60,10 +68,11 @@ Widget walletBalanceContainer(visibilityFunc) {
   );
 }
 
-Widget activityProgressContainer(img, title, progress) {
+Widget activityProgressContainer(img, title, progress, context) {
+  double width = MediaQuery.of(context).size.width / 2;
   return Container(
     height: 77,
-    width: 185,
+    width: width - 20, //165,
     padding: const EdgeInsets.symmetric(horizontal: 9.0, vertical: 12.0),
     decoration: BoxDecoration(
       border: Border.all(width: 1.2, color: colorCodes.antiFlashWhite),
@@ -72,7 +81,7 @@ Widget activityProgressContainer(img, title, progress) {
     ),
     child: Row(
       children: [
-        Image.asset(img, height: 40, width: 40),
+        Image.asset(img, height: 30, width: 30),
         SizedBox(width: 7),
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -81,7 +90,7 @@ Widget activityProgressContainer(img, title, progress) {
             Text(
               title,
               style: kwikTextStlye(
-                12.0,
+                10.0,
                 FontWeight.w300,
                 colorCodes.graniteGrey,
               ),
@@ -89,11 +98,38 @@ Widget activityProgressContainer(img, title, progress) {
             SizedBox(height: 3),
             Text(
               progress,
-              style: kwikTextStlye(20.0, FontWeight.w600, colorCodes.black),
+              style: kwikTextStlye(15.0, FontWeight.w600, colorCodes.black),
             ),
           ],
         ),
       ],
+    ),
+  );
+}
+
+Widget quickActionsContainer(actionImg, title, func, {width}) {
+  return InkWell(
+    onTap: func,
+    child: Container(
+      height: 94,
+      width: width ?? 150,
+
+      padding: EdgeInsets.symmetric(horizontal: 5, vertical: 10),
+      decoration: BoxDecoration(
+        color: colorCodes.white,
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Image.asset(actionImg, height: 44, width: 44),
+          SizedBox(height: 5),
+          Text(
+            title,
+            style: kwikTextStlye(10.0, FontWeight.w500, colorCodes.black),
+          ),
+        ],
+      ),
     ),
   );
 }

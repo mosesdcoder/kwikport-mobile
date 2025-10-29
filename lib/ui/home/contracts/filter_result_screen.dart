@@ -1,9 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:kwik_port/api/model/dashboard_model.dart';
 import 'package:kwik_port/colors/color.dart';
 import 'package:kwik_port/utils/text/textstyle.dart';
 
 class FilterResultScreen extends StatefulWidget {
-  const FilterResultScreen({super.key});
+  final String title;
+  final List<ContractModel> contracts;
+  const FilterResultScreen({
+    super.key,
+    required this.title,
+    required this.contracts,
+  });
 
   @override
   State<FilterResultScreen> createState() => _FilterResultScreenState();
@@ -32,7 +39,7 @@ class _FilterResultScreenState extends State<FilterResultScreen> {
                 width: MediaQuery.of(context).size.width,
                 child: ListView.separated(
                   separatorBuilder: (context, index) => SizedBox(width: 12),
-                  itemCount: 3,
+                  itemCount: filterOptions.length,
                   scrollDirection: Axis.horizontal,
                   itemBuilder: (context, index) {
                     return Container(

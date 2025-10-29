@@ -1,10 +1,66 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:hexcolor/hexcolor.dart';
+import 'package:kwik_port/api/controller/agency/export_stage_api.dart';
+import 'package:kwik_port/api/controller/agency/export_substage_api.dart';
+import 'package:kwik_port/api/controller/agency/get_agency_api.dart';
+import 'package:kwik_port/api/controller/authApi/change_password_api.dart';
+import 'package:kwik_port/api/controller/authApi/createExportProfileApi.dart';
+import 'package:kwik_port/api/controller/authApi/forgotPasswordApi.dart';
+import 'package:kwik_port/api/controller/authApi/loginApi.dart';
+import 'package:kwik_port/api/controller/authApi/registerApi.dart';
+import 'package:kwik_port/api/controller/authApi/reset_passwordApi.dart';
+import 'package:kwik_port/api/controller/authApi/update_user_api.dart';
+import 'package:kwik_port/api/controller/authApi/verifyEmailApi.dart';
+import 'package:kwik_port/api/controller/contractsApi/calculate_commodity_cost.dart';
+import 'package:kwik_port/api/controller/contractsApi/get_contract_api.dart';
+import 'package:kwik_port/api/controller/contractsApi/publishedcontractsApi.dart';
+import 'package:kwik_port/api/controller/home/dashboard_api.dart';
+import 'package:kwik_port/api/controller/kwikTickets/create_kwikticket_api.dart';
+import 'package:kwik_port/api/controller/kwikTickets/fund_ticket_api.dart';
+import 'package:kwik_port/api/controller/kwikTickets/get_kwik_ticket_api.dart';
+import 'package:kwik_port/api/controller/kwikTickets/update_kwikticket_status_api.dart';
+import 'package:kwik_port/api/controller/kwikTickets/verify_payment.dart';
+import 'package:kwik_port/api/model/userModel.dart';
 import 'package:kwik_port/colors/color.dart';
 import 'package:kwik_port/ui/onboarding/splash_screen.dart';
+import 'package:provider/provider.dart';
 
-void main() {
-  runApp(const MyApp());
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized(); // Ensure Flutter bindings are initialized
+  await initUserSession(); // ✅ Loads once, globally
+  SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]).then((
+    _,
+  ) {
+    runApp(
+      MultiProvider(
+        providers: [
+          ChangeNotifierProvider(create: (_) => Registerapi()),
+          ChangeNotifierProvider(create: (_) => VerifyEmailApi()),
+          ChangeNotifierProvider(create: (_) => CreateExportProfileApi()),
+          ChangeNotifierProvider(create: (_) => LoginApi()),
+          ChangeNotifierProvider(create: (_) => GetContractApi()),
+          ChangeNotifierProvider(create: (_) => CreateKwikticketApi()),
+          ChangeNotifierProvider(create: (_) => GetKwikTicketApi()),
+          ChangeNotifierProvider(create: (_) => UpdateKwikTicketStatusApi()),
+          ChangeNotifierProvider(create: (_) => ForgotPasswordApi()),
+          ChangeNotifierProvider(create: (_) => ResetPasswordApi()),
+          ChangeNotifierProvider(create: (_) => UpdateUserApi()),
+          ChangeNotifierProvider(create: (_) => GetAgencyApi()),
+          ChangeNotifierProvider(create: (_) => DashboardApi()),
+          ChangeNotifierProvider(create: (_) => ExportSubStageApi()),
+          ChangeNotifierProvider(create: (_) => ExportStageApi()),
+          ChangeNotifierProvider(create: (_) => ChangePasswordApi()),
+          ChangeNotifierProvider(create: (_) => FundKwikticketApi()),
+          ChangeNotifierProvider(create: (_) => CalculateCommodityCostApi()),
+          ChangeNotifierProvider(create: (_) => VerifyPaymentApi()),
+        ],
+        child: const MyApp(),
+      ),
+    );
+  });
 }
 
 int currentIndex = 1;

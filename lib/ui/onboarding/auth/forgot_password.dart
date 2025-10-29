@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_overlay_loader/flutter_overlay_loader.dart';
+import 'package:kwik_port/api/controller/authApi/forgotPasswordApi.dart';
+import 'package:kwik_port/api/utils/loader.dart';
 import 'package:kwik_port/colors/color.dart';
 import 'package:kwik_port/ui/onboarding/auth/Reset_password_screen.dart';
 import 'package:kwik_port/ui/onboarding/auth/confirm_otp_screen.dart';
@@ -6,10 +9,12 @@ import 'package:kwik_port/utils/button/backNav_button.dart';
 import 'package:kwik_port/utils/button/kwik_button.dart';
 import 'package:kwik_port/utils/text/header_subtitle_text.dart';
 import 'package:kwik_port/utils/textFields/emailField_column.dart';
+import 'package:kwik_port/utils/toast.dart';
+import 'package:provider/provider.dart';
 
 class ForgotPasswordScreen extends StatefulWidget {
-  const ForgotPasswordScreen({super.key});
-
+  const ForgotPasswordScreen({required this.email, super.key});
+  final String email;
   @override
   State<ForgotPasswordScreen> createState() => _ForgotPasswordScreenState();
 }
@@ -57,6 +62,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final forgotApi = Provider.of<ForgotPasswordApi>(context, listen: false);
     return Scaffold(
       backgroundColor: colorCodes.whiteSmoke,
       body: ListView(
@@ -87,17 +93,64 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                     'Confirm Code',
                     () {
                       if (emailController.text.isNotEmpty) {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder:
-                                (context) => ConfirmOtpScreen(
-                                  screen: ResetPasswordScreen(),
+                        showLoader(context: context);
+                        forgotApi.forgotPassword(emailController.text).then((
+                          _,
+                        ) {
+                          Loader.hide();
 
-                                  email: emailController.text,
-                                ),
-                          ),
-                        );
+                          if (forgotApi.success) {
+                            print(
+                              "Verifying with sessionHash: ${forgotApi.sessionHash}",
+                            );
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder:
+                                    (_) => ConfirmOtpScreen(
+                                      email: emailController.text,
+                                      sessionHash: forgotApi.sessionHash,
+                                      flowType: "forgotPassword",
+                                    ),
+                              ),
+                            );
+
+                            // Navigator.push(
+                            //   context,
+                            //   MaterialPageRoute(
+                            //     builder:
+                            //         (context) => ConfirmOtpScreen(
+                            //           screen: "ResetPasswordScreen",
+                            //           sessionHash: forgotApi.sessionHash,
+
+                            // (
+                            // email: emailController.text,
+                            // sessionHash: forgotApi.sessionHash,
+
+                            //   otp: '',
+                            // ),
+                            //           email: emailController.text,
+                            //         ),
+                            //   ),
+                            // );
+
+                            showToastContainer(
+                              "Success",
+                              forgotApi.message,
+                              colorCodes.pigmentGreen,
+                              colorCodes.mediumSeaGreen,
+                              context,
+                            );
+                          } else {
+                            showToastContainer(
+                              "Email ",
+                              forgotApi.message,
+                              colorCodes.mistyRose,
+                              colorCodes.portlandOrange,
+                              context,
+                            );
+                          }
+                        });
                       }
                       // else {}
                     },

@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
 
-Widget backnavButton(context) {
+Widget backnavButton(context, {func}) {
   return Column(
     mainAxisAlignment: MainAxisAlignment.start,
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
       InkWell(
-        onTap: () {
-          Navigator.pop(context);
-        },
+        onTap:
+            func ??
+            () {
+              Navigator.pop(context);
+            },
         child: Image.asset(
           'assets/images/icons/button back.png',
           height: 48,

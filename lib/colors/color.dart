@@ -23,4 +23,19 @@ class ColorCodes {
   HexColor aeroblue = HexColor("#D5EFDE");
   HexColor pigmentGreen = HexColor("#2CAD59");
   HexColor antiFlashWhite = HexColor("#EFEFEF");
+  HexColor paleCornflowerBlue = HexColor("#B1CEF9");
+  HexColor bluetiful = HexColor("#166CEC");
+  HexColor rufous = HexColor("#9F2D00");
+  HexColor yellowOrange = HexColor("#FFAA33");
+  HexColor floralWhite = HexColor("#FFF7ED");
+  HexColor papayaWhip = HexColor("#FFEED6");
+  HexColor sinopia = HexColor("#CA3500");
+  HexColor gainsboro = HexColor("#D8D8D8");
+  HexColor aeroBlue = HexColor("#D5EFDE");
+  HexColor mintCream = HexColor("#F5FDF8");
+  HexColor sunset = HexColor("#FFD7A8");
+  HexColor blackPurple = HexColor("#260B1F");
+  HexColor eggPlantPurple = HexColor("#420132");
+  HexColor eigengrau = HexColor("#0A0D1C");
+  HexColor blueBlack = HexColor("#061042");
 }

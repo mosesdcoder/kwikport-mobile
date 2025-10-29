@@ -1,8 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:hexcolor/hexcolor.dart';
+import 'package:kwik_port/api/model/userModel.dart';
 import 'package:kwik_port/colors/color.dart';
 
-Widget nameAndNotifHeading(context, newNotification, notificationFunc) {
+Widget nameAndNotifHeading(
+  context,
+  fullname,
+  newNotification,
+  notificationFunc,
+) {
   return Row(
     mainAxisAlignment: MainAxisAlignment.spaceBetween,
     children: [
@@ -27,7 +33,7 @@ Widget nameAndNotifHeading(context, newNotification, notificationFunc) {
               child: Center(
                 child: FittedBox(
                   child: Text(
-                    "JG",
+                    _generateInitials(fullname),
                     style: TextStyle(
                       fontFamily: "Poppins",
                       color: HexColor("#FF8A00"), // Set your desired text color
@@ -44,7 +50,7 @@ Widget nameAndNotifHeading(context, newNotification, notificationFunc) {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'John Gbenga',
+                fullname,
                 style: TextStyle(
                   fontFamily: 'Poppins',
                   fontSize: 16.0,
@@ -53,7 +59,129 @@ Widget nameAndNotifHeading(context, newNotification, notificationFunc) {
                 ),
               ),
               Text(
-                "ID: KWP-2024-001",
+                "ID: ${userDataVar?.exporter?.exporterUniqueId}",
+                style: TextStyle(
+                  fontFamily: 'Poppins',
+                  fontSize: 14.0,
+                  fontWeight: FontWeight.w500,
+                  color: colorCodes.aluminium,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+      Row(
+        children: [
+          InkWell(
+            onTap: () {},
+            child: Image.asset(
+              "assets/images/icons/informationIcon.png",
+              height: 44,
+              width: 44,
+            ),
+          ),
+          InkWell(
+            onTap: notificationFunc,
+            child: Container(
+              height: 48,
+              width: 48,
+              // alignment: Alignment.center,
+              decoration: BoxDecoration(
+                color: colorCodes.white,
+                border: Border.all(
+                  width: 1.5,
+                  color: colorCodes.antiFlashWhite,
+                ),
+                shape: BoxShape.circle,
+              ),
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  Image.asset(
+                    'assets/images/icons/notification.png',
+                    color: colorCodes.black,
+                    height: 24,
+                    width: 24,
+                  ),
+                  newNotification
+                      ? Positioned(
+                        top: 12,
+                        // top: 0,
+                        right: 15,
+                        child: CircleAvatar(
+                          radius: 3.0,
+                          backgroundColor: colorCodes.portlandOrange,
+                        ),
+                      )
+                      : Container(),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    ],
+  );
+}
+
+Widget nameAndNotifHeading2(
+  context,
+  fullName,
+  newNotification,
+  notificationFunc,
+) {
+  return Row(
+    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    children: [
+      Row(
+        children: [
+          InkWell(
+            onTap: () {
+              // Navigator.push(
+              //     context,
+              //     MaterialPageRoute(
+              //         builder: (context) => Profiledetailscreen()));
+            },
+            child: Container(
+              height: 55,
+              width: 55,
+              padding: EdgeInsets.all(2),
+              decoration: BoxDecoration(
+                color: HexColor("#FFE8CC"),
+                shape: BoxShape.circle,
+                border: Border.all(color: colorCodes.white, width: 2.0),
+              ),
+              child: Center(
+                child: FittedBox(
+                  child: Text(
+                    _generateInitials(fullName),
+                    style: TextStyle(
+                      fontFamily: "Poppins",
+                      color: HexColor("#FF8A00"), // Set your desired text color
+                      fontWeight: FontWeight.w600,
+                      fontSize: 20,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+          SizedBox(width: 10.0),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                fullName,
+                style: TextStyle(
+                  fontFamily: 'Poppins',
+                  fontSize: 16.0,
+                  fontWeight: FontWeight.w600,
+                  color: colorCodes.black,
+                ),
+              ),
+              Text(
+                "ID: ${userDataVar?.exporter?.exporterUniqueId}",
                 style: TextStyle(
                   fontFamily: 'Poppins',
                   fontSize: 14.0,
@@ -87,12 +215,12 @@ Widget nameAndNotifHeading(context, newNotification, notificationFunc) {
               ),
               newNotification
                   ? Positioned(
-                    bottom: 17,
+                    top: 12,
                     // top: 0,
-                    left: 18,
+                    right: 15,
                     child: CircleAvatar(
                       radius: 3.0,
-                      backgroundColor: HexColor("#FF4E33"),
+                      backgroundColor: colorCodes.portlandOrange,
                     ),
                   )
                   : Container(),
@@ -107,9 +235,11 @@ Widget nameAndNotifHeading(context, newNotification, notificationFunc) {
 String _generateInitials(String fullName) {
   List<String> nameParts = fullName.split(' ');
   if (nameParts.length >= 2) {
-    return '${nameParts[0][0]}${nameParts[1][0]}';
+    return '${nameParts[0][0]}${nameParts[1][0]}'.toUpperCase();
+    ;
   } else if (nameParts.length == 1) {
-    return '${nameParts[0][0]}';
+    return '${nameParts[0][0]}'.toUpperCase();
+    ;
   } else {
     return ''; // Handle the case where the name is empty
   }

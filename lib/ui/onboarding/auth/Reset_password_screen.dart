@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kwik_port/api/controller/authApi/reset_passwordApi.dart';
 import 'package:kwik_port/colors/color.dart';
 import 'package:kwik_port/ui/onboarding/account_create_sucess.dart';
 import 'package:kwik_port/ui/onboarding/auth/login_screen.dart';
@@ -6,9 +7,19 @@ import 'package:kwik_port/utils/button/backNav_button.dart';
 import 'package:kwik_port/utils/button/kwik_button.dart';
 import 'package:kwik_port/utils/text/header_subtitle_text.dart';
 import 'package:kwik_port/utils/textFields/passwordField_column.dart';
+import 'package:kwik_port/utils/toast.dart';
+import 'package:provider/provider.dart';
 
 class ResetPasswordScreen extends StatefulWidget {
-  const ResetPasswordScreen({super.key});
+  final String email;
+  final String sessionHash;
+  final String otp;
+  const ResetPasswordScreen({
+    super.key,
+    required this.email,
+    required this.sessionHash,
+    required this.otp,
+  });
 
   @override
   State<ResetPasswordScreen> createState() => _ResetPasswordScreenState();
@@ -24,6 +35,10 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
   String confirmpasswordVal = '';
   @override
   Widget build(BuildContext context) {
+    final resetPasswordProvider = Provider.of<ResetPasswordApi>(
+      context,
+      listen: false,
+    );
     return Scaffold(
       backgroundColor: colorCodes.whiteSmoke,
       body: ListView(
@@ -79,28 +94,50 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                     () {
                       if (passwordController.text.isNotEmpty &&
                           confirmpasswordController.text.isNotEmpty) {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder:
-                                (context) => AccountCreateSucess(
-                                  img:
-                                      "assets/images/icons/password_success.png",
-                                  text: "Password Updated!",
-                                  buttonText: "Back to login",
-                                  buttonFunc: () {
-                                    Navigator.pushReplacement(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) => LoginScreen(),
-                                      ),
-                                    );
-                                  },
-                                  subText:
-                                      "Password update successfully. Please login again.",
-                                ),
-                          ),
-                        );
+                        resetPasswordProvider
+                            .resetPassword(
+                              widget.otp,
+                              widget.sessionHash,
+                              widget.email,
+                              passwordController.text,
+                              confirmpasswordController.text,
+                              context,
+                            )
+                            .then((_) {
+                              if (resetPasswordProvider.success) {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder:
+                                        (context) => AccountCreateSucess(
+                                          img:
+                                              "assets/images/icons/password_success.png",
+                                          text: "Password Updated!",
+                                          buttonText: "Back to login",
+                                          buttonFunc: () {
+                                            Navigator.pushReplacement(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder:
+                                                    (context) => LoginScreen(),
+                                              ),
+                                            );
+                                          },
+                                          subText:
+                                              "Password update successfully. Please login again.",
+                                        ),
+                                  ),
+                                );
+                              } else {
+                                showToastContainer(
+                                  "Error",
+                                  resetPasswordProvider.message,
+                                  colorCodes.mistyRose,
+                                  colorCodes.portlandOrange,
+                                  context,
+                                );
+                              }
+                            });
                       } else {}
                     },
 

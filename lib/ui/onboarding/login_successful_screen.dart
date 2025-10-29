@@ -16,12 +16,13 @@ class _LoginSuccessfulScreenState extends State<LoginSuccessfulScreen> {
   @override
   void initState() {
     Timer(
-      Duration(seconds: 3),
+      Duration(seconds: 2),
       () => Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => Dashboard()),
       ),
     );
+
     super.initState();
   }
 
@@ -41,7 +42,7 @@ class _LoginSuccessfulScreenState extends State<LoginSuccessfulScreen> {
             ),
             SizedBox(height: 40),
             Text(
-              'Login Successfully!',
+              'Login Successful!',
               style: kwikTextStlye(24.0, FontWeight.w600, colorCodes.black),
             ),
           ],

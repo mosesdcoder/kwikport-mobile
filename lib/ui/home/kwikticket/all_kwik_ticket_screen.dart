@@ -1,0 +1,289 @@
+import 'dart:async';
+
+import 'package:flutter/material.dart';
+import 'package:kwik_port/api/controller/kwikTickets/get_kwik_ticket_api.dart';
+import 'package:kwik_port/colors/color.dart';
+import 'package:kwik_port/main.dart';
+import 'package:kwik_port/ui/home/kwikticket/ticket_details_container.dart';
+import 'package:kwik_port/utils/button/back_nav_header.dart';
+import 'package:kwik_port/utils/button/bottom_navigatior_bar.dart';
+import 'package:provider/provider.dart';
+import 'package:swipe_refresh/swipe_refresh.dart';
+
+class AllKwikTicketScreen extends StatefulWidget {
+  const AllKwikTicketScreen({super.key});
+
+  @override
+  State<AllKwikTicketScreen> createState() => _AllKwikTicketScreenState();
+}
+
+class _AllKwikTicketScreenState extends State<AllKwikTicketScreen>
+    with SingleTickerProviderStateMixin {
+  late TabController _tabController;
+  final _controller = StreamController<SwipeRefreshState>.broadcast();
+  Stream<SwipeRefreshState> get _stream => _controller.stream;
+  bool isLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: 3, vsync: this);
+
+    // Fetch contracts on init
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final api = Provider.of<GetKwikTicketApi>(context, listen: false);
+      api.fetchKwikTickets(); // PageIndex=1, PageSize=20, version=1
+      isLoading = true;
+    });
+    // _scrollController.addListener(_scrollListener);
+  }
+
+  Future<void> _refresh() async {
+    final api = Provider.of<GetKwikTicketApi>(context, listen: false);
+    setState(() {
+      // selectedCategory = null; // Clear category filter
+    });
+    await api.fetchKwikTickets();
+    _controller.sink.add(SwipeRefreshState.hidden);
+    // _controller.sink.add(SwipeRefreshState.hidden);
+  }
+
+  @override
+  void dispose() {
+    // _scrollController.dispose();
+    // _controller.close();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    String? statusFilter;
+    final ticketProvider = Provider.of<GetKwikTicketApi>(context);
+    final filteredTickets =
+        ticketProvider.tickets.where((t) {
+          // Adjust filtering based on your backend status codes
+          switch (statusFilter) {
+            case "awaiting":
+              return t.kwikTicketStatus == 1;
+            case "active":
+              return t.kwikTicketStatus == 2;
+            case "fulfilled":
+              return t.kwikTicketStatus == 4;
+            default:
+              return true;
+          }
+        }).toList();
+    return Scaffold(
+      extendBody: true,
+      backgroundColor: colorCodes.whiteSmoke,
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(85.0),
+        child: Padding(
+          padding: const EdgeInsets.only(left: 20.0, top: 42.0, bottom: 15),
+          child: Text(
+            "Kwiktickets",
+            style: TextStyle(
+              fontFamily: 'Poppins',
+              fontSize: 24.0,
+              fontWeight: FontWeight.w600,
+              color: colorCodes.black,
+            ),
+          ),
+        ),
+      ),
+
+      body:
+      // ListView(
+      //   children: [
+      SizedBox(
+        height: MediaQuery.of(context).size.height - 20,
+        child: SwipeRefresh.adaptive(
+          physics: const NeverScrollableScrollPhysics(),
+          stateStream: _stream,
+          onRefresh: _refresh,
+          children: [
+            Padding(
+              // height: MediaQuery.of(context).size.height - 20,
+              padding: EdgeInsets.only(
+                left: 18,
+                right: 18,
+                top: 10,
+                bottom: 55,
+              ),
+
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+
+                children: [
+                  kwikticketTabBar(_tabController),
+                  SizedBox(height: 21),
+                  // TAB CONTENT
+                  SizedBox(
+                    height: 420 * filteredTickets.length.toDouble(),
+                    // height: MediaQuery.of(context).size.height - 20,
+                    child: TabBarView(
+                      controller: _tabController,
+
+                      // physics: const NeverScrollableScrollPhysics(),
+                      children: [
+                        _buildTicketList(
+                          ticketProvider,
+                          statusFilter: "awaiting",
+                        ),
+                        _buildTicketList(
+                          ticketProvider,
+                          statusFilter: "active",
+                        ),
+                        _buildTicketList(
+                          ticketProvider,
+                          statusFilter: "fulfilled",
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+      //   ],
+      // ),
+      bottomNavigationBar: Bottomnavigationbar(3),
+    );
+  }
+
+  Widget kwikticketTabBar(_tabController) {
+    return Container(
+      height: 46,
+      width: 390,
+      padding: EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+
+      decoration: BoxDecoration(
+        color: colorCodes.white,
+        borderRadius: BorderRadius.circular(100),
+      ),
+      child: TabBar(
+        // indicatorColor: colorCodes.teaGreen,
+        // labelPadding: const EdgeInsets.symmetric(vertical: 12),
+        indicatorSize: TabBarIndicatorSize.tab,
+
+        labelColor: colorCodes.white,
+        labelStyle: const TextStyle(
+          fontFamily: 'Poppins',
+          fontSize: 14.0,
+          fontWeight: FontWeight.w500,
+        ),
+        unselectedLabelColor: colorCodes.black,
+        unselectedLabelStyle: TextStyle(
+          fontFamily: 'Poppins',
+          fontSize: 14.0,
+          fontWeight: FontWeight.w500,
+          // color: colorCodes
+        ),
+
+        // indicatorPadding: const EdgeInsets.symmetric(
+        //   vertical: 4,
+        //   horizontal: 4,
+        // ),
+        indicator: BoxDecoration(
+          borderRadius: BorderRadius.circular(100),
+          border: Border.all(color: colorCodes.frenchSkyBlue),
+          gradient: LinearGradient(
+            begin: Alignment.centerLeft,
+            end: Alignment.centerRight,
+            colors: [
+              colorCodes.jordyBlue,
+              colorCodes.azureBlue,
+              colorCodes.azureBlue,
+            ],
+          ),
+          color: colorCodes.white,
+        ),
+        controller: _tabController,
+        tabs: [
+          Tab(text: "Awaiting"),
+          Tab(text: "Active"),
+          Tab(text: "Fulfilled"),
+        ],
+      ),
+    );
+  }
+
+  /// Ticket list for each tab
+  Widget _buildTicketList(
+    GetKwikTicketApi provider, {
+    required String statusFilter,
+  }) {
+    print("Tickets fetched: ${provider.tickets.length}");
+    for (var t in provider.tickets) {
+      print("Ticket ID: ${t.uniqueId}, Status Value: ${t.kwikTicketStatus}");
+    }
+    print("Filtering for statusFilter = $statusFilter");
+    for (var t in provider.tickets) {
+      print("Ticket: ${t.uniqueId}, Status: ${t.kwikTicketStatus}");
+    }
+    if (provider.loading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    final filteredTickets =
+        provider.tickets.where((t) {
+          // Adjust filtering based on your backend status codes
+          switch (statusFilter) {
+            case "awaiting":
+              return t.kwikTicketStatus == 1;
+            case "active":
+              return t.kwikTicketStatus == 2;
+            case "fulfilled":
+              return t.kwikTicketStatus == 4;
+            default:
+              return true;
+          }
+        }).toList();
+    // final allTickets = provider.tickets;
+
+    if (filteredTickets.isEmpty) {
+      return const Center(child: Text("No tickets found"));
+    }
+
+    return ListView.separated(
+      shrinkWrap: true,
+      physics: NeverScrollableScrollPhysics(),
+      separatorBuilder: (_, __) => const SizedBox(height: 16),
+      itemCount: filteredTickets.length,
+      itemBuilder: (context, index) {
+        final ticket = filteredTickets[index];
+        final contract = ticket.contract;
+        final buyerSpec = contract?.buyerSpecification;
+        // final ticket = allTickets[index];
+        // final contract = ticket.contract;
+        // final buyerSpec = contract?.buyerSpecification;
+        return ticketDetailContainer(
+          ticket.uniqueId ?? "Unknown",
+          ticket.exporter?.businessName ?? "",
+          ticket.contract?.commodityName ?? "Unknown Commodity",
+          (contract?.contractType == 1 ? "International Buyer" : "Local Buyer"),
+          (contract?.totalQuantity?.toString() ?? "0"),
+          contract?.destinationCountry ?? "N/A",
+          (contract?.totalAmount?.toString() ??
+              ticket.kwikTicketAmount.toString()),
+          (buyerSpec?.buyerPricePerUnit?.toString() ?? "N/A"),
+          (contract?.projectedIncome?.toString() ?? "N/A"),
+          // ticket.contract?.contractType == 1
+          //     ? "International Buyer"
+          //     : "Local Buyer" ?? "",
+          // ticket.contract?.totalQuantity.toString() ?? "",
+          // ticket.contract?.destinationCountry ?? "",
+
+          // ticket.contract?.totalAmount ?? "",
+          // ticket.contract?.buyerSpecification?.buyerPricePerUnit ?? "",
+          // ticket.contract?.projectedIncome ?? "",
+          "",
+          ticket.kwikTicketStatus,
+          context,
+        );
+      },
+    );
+  }
+}

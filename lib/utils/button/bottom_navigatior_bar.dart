@@ -2,9 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:kwik_port/colors/color.dart';
 import 'package:kwik_port/main.dart';
+import 'package:kwik_port/ui/home/kwikticket/all_kwik_ticket_screen.dart';
 import 'package:kwik_port/ui/home/contracts/contract_screen.dart';
 import 'package:kwik_port/ui/home/dashboard/dashboard.dart';
+import 'package:kwik_port/ui/home/exportfulfillment/KycVerification/kyc_verification_screen.dart';
 import 'package:kwik_port/ui/home/profile/profile_screen.dart';
+import 'package:kwik_port/ui/home/wallet/wallet_screen.dart';
 import 'package:kwik_port/utils/text/textstyle.dart';
 
 class Bottomnavigationbar extends StatefulWidget {
@@ -21,8 +24,8 @@ class _BottomnavigationbarState extends State<Bottomnavigationbar> {
       child: Align(
         alignment: Alignment.bottomCenter,
         child: Container(
-          height: 79,
-          padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 24),
+          height: 85,
+          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
           decoration: BoxDecoration(
             color: colorCodes.white,
             border: Border.all(color: colorCodes.antiFlashWhite),
@@ -54,14 +57,14 @@ class _BottomnavigationbarState extends State<Bottomnavigationbar> {
                 'Contracts',
               ),
               btmNavCol(
-                const Dashboard(),
+                const AllKwikTicketScreen(),
                 3,
                 'ticket_enabled.png',
                 'ticket.png',
                 'Kwiktickets',
               ),
               btmNavCol(
-                const Dashboard(),
+                const WalletScreen(),
                 4,
                 'wallet_enabled.png',
                 'wallet.png',
@@ -83,6 +86,7 @@ class _BottomnavigationbarState extends State<Bottomnavigationbar> {
 
   Widget btmNavCol(location, indexId, img2, img1, screen) {
     return Expanded(
+      // width: 65,
       child: InkWell(
         onTap: () {
           setState(() {
