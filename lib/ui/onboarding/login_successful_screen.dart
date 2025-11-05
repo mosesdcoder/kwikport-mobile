@@ -1,9 +1,12 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:kwik_port/api/model/dashboard_model.dart';
 import 'package:kwik_port/colors/color.dart';
 import 'package:kwik_port/ui/home/dashboard/dashboard.dart';
 import 'package:kwik_port/utils/text/textstyle.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginSuccessfulScreen extends StatefulWidget {
   const LoginSuccessfulScreen({super.key});
@@ -15,13 +18,29 @@ class LoginSuccessfulScreen extends StatefulWidget {
 class _LoginSuccessfulScreenState extends State<LoginSuccessfulScreen> {
   @override
   void initState() {
-    Timer(
-      Duration(seconds: 2),
-      () => Navigator.pushReplacement(
+    Timer(Duration(seconds: 2), () async {
+      // final prefs = await SharedPreferences.getInstance();
+      // final storedKwikticket = prefs.getString('kwikticket');
+
+      // KwikTicketModel? kwikticket;
+      // if (storedKwikticket != null) {
+      //   kwikticket = KwikTicketModel.fromJson(jsonDecode(storedKwikticket));
+      //   print('✅ Loaded KwikTicket from SharedPreferences');
+      // }
+      final prefs = await SharedPreferences.getInstance();
+      final kwikTicketString = prefs.getString('kwikTicketData');
+      KwikTicketModel? savedKwikTicket;
+
+      if (kwikTicketString != null) {
+        savedKwikTicket = KwikTicketModel.fromJson(
+          jsonDecode(kwikTicketString),
+        );
+      }
+      Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => Dashboard()),
-      ),
-    );
+      );
+    });
 
     super.initState();
   }

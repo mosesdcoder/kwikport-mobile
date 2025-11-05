@@ -160,7 +160,12 @@ class _GenerateContractTicketDialogState
                     ],
                   ),
                   SizedBox(height: 12),
-                  Image.asset("assets/images/cocoa.png", height: 52, width: 52),
+                  Image.network(
+                    widget.contract.commodityImage ??
+                        "https://kwikport.s3.eu-west-3.amazonaws.com/commodity-images/cocoa.png",
+                    height: 52,
+                    width: 52,
+                  ),
                   SizedBox(height: 8),
                   Text(
                     "Agricultural Commodity ",
@@ -172,7 +177,7 @@ class _GenerateContractTicketDialogState
                   ),
                   SizedBox(height: 2),
                   Text(
-                    "Cocoa bean",
+                    widget.contract.commodityName ?? "N/A",
                     style: kwikTextStlye(
                       20.0,
                       FontWeight.w600,
@@ -285,6 +290,10 @@ class _GenerateContractTicketDialogState
                           .then((newTicket) {
                             if (createTicketApi.isSuccessful == true &&
                                 newTicket != null) {
+                              newTicket.quantityToFulfill = double.tryParse(
+                                volumeController.text,
+                              );
+
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(

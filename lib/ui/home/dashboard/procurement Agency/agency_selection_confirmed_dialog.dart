@@ -6,13 +6,14 @@ import 'package:kwik_port/utils/button/kwik_button.dart';
 import 'package:kwik_port/utils/text/textstyle.dart';
 
 class AgencySelectionConfirmedDialog extends StatefulWidget {
-  final serviceFee, totalcostTons, totalCost, continueFunc;
+  final serviceFee, totalcostTons, totalCost, agencyName, continueFunc;
   const AgencySelectionConfirmedDialog({
     super.key,
     required this.serviceFee,
     required this.totalcostTons,
     required this.totalCost,
     required this.continueFunc,
+    required this.agencyName,
   });
 
   @override
@@ -76,13 +77,13 @@ class _AgencySelectionConfirmedDialogState
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         Image.asset(
-                          "assets/images/cocoa.png",
+                          "assets/images/icons/dashboard/procurement_agency_logo.png",
                           height: 52,
                           width: 52,
                         ),
                         SizedBox(height: 8),
                         Text(
-                          "GreenGate Procurement",
+                          widget.agencyName ?? '',
                           style: kwikTextStlye(
                             16.0,
                             FontWeight.w600,

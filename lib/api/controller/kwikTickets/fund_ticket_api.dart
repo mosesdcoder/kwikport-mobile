@@ -17,6 +17,7 @@ class FundKwikticketApi extends ChangeNotifier {
   Future<void> fundTicket({
     required String kwikTicketId,
     required String exporterId,
+    required int fundingMethod,
   }) async {
     if (loading) return;
     loading = true;
@@ -40,7 +41,11 @@ class FundKwikticketApi extends ChangeNotifier {
         return;
       }
 
-      final body = {"kwikTicketId": kwikTicketId, "exporterId": exporterId};
+      final body = {
+        "kwikTicketId": kwikTicketId,
+        "exporterId": exporterId,
+        "fundingMethod": fundingMethod,
+      };
 
       final response = await HttpService.postRequest(
         '/KwikTicket/fund-ticket', // ✅ adjust version as needed

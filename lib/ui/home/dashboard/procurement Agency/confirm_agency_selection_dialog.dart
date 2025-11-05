@@ -11,6 +11,7 @@ import 'package:kwik_port/utils/button/loading_dialog.dart';
 import 'package:kwik_port/utils/text/textstyle.dart';
 import 'package:kwik_port/utils/toast.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ConfirmAgencySelectionDialog extends StatefulWidget {
   final KwikTicketModel? kwikticket;
@@ -37,7 +38,10 @@ class _ConfirmAgencySelectionDialogState
   Widget build(BuildContext context) {
     final selectagencyProvider = Provider.of<ExportStageApi>(context);
     final dashboardApi = Provider.of<DashboardApi>(context);
-
+    // final matchingExport = dashboardApi.data?.exports?.firstWhere(
+    //   (exp) => exp.contractId == widget.kwikticket?.exportContractId,
+    //   orElse: () => dashboardApi.data!.exports!.last,
+    // );
     return SizedBox(
       width: 390,
       child: Dialog(
@@ -157,7 +161,7 @@ class _ConfirmAgencySelectionDialogState
                                     MainAxisAlignment.spaceBetween,
                                 children: [
                                   Text(
-                                    "Total Cost (${widget.totalcostTons} tons)",
+                                    "Total Cost (${widget.kwikticket?.quantityToFulfill} tons)",
                                     textAlign: TextAlign.center,
                                     style: kwikTextStlye(
                                       10.0,
@@ -166,7 +170,7 @@ class _ConfirmAgencySelectionDialogState
                                     ),
                                   ),
                                   Text(
-                                    widget.totalCost,
+                                    "${widget.kwikticket?.kwikTicketAmount}",
                                     textAlign: TextAlign.center,
                                     style: TextStyle(
                                       fontFamily: "",
@@ -203,26 +207,82 @@ class _ConfirmAgencySelectionDialogState
                             barrierDismissible: false,
                             builder: (_) => kwikportloader(),
                           );
+                          final exports = dashboardApi.data?.exports ?? [];
+                          // Filter for CommoditySourcing + KwikProcure
+                          final activeExports =
+                              exports
+                                  .where(
+                                    (exp) =>
+                                        exp.exportContractStageEnum ==
+                                            "CommoditySourcing" &&
+                                        exp.contractFulfilmentMethod ==
+                                            "KwikProcure",
+                                  )
+                                  .toList();
 
-                          // final selectAgencyApi = Provider.of<ExportStageApi>(
-                          //   context,
-                          //   listen: false,
-                          // );
+                          // Sort by createdAt (latest first)
+                          activeExports.sort((a, b) {
+                            //  => DateTime.parse(
+                            //   b.createdDate,
+                            // ).compareTo(DateTime.parse(a.createdDate)),
+                            final aDate = a.createdDate ?? DateTime(1970);
+                            final bDate = b.createdDate ?? DateTime(1970);
+                            return bDate.compareTo(aDate);
+                          });
 
+                          // Pick the most recent export
+                          final selectedExport =
+                              activeExports.isNotEmpty
+                                  ? activeExports.first
+                                  : exports.first;
+                          final exportId = selectedExport.id;
+
+                          debugPrint("✅ Selected Export ID: $exportId");
                           selectagencyProvider
                               .selectAgency(
-                                exporterContractId:
-                                    dashboardApi.data?.exports?.last.id ?? "",
+                                exporterContractId: exportId,
+                                // dashboardApi.data?.exports?.last.id ?? "",
+                                // matchingExport?.id ?? '',
                                 // widget.kwikticket?.exporter?.id ?? '',
                                 // ?.first
-
+                                //
                                 // widget.kwikticket?.exporter?.id ?? '',
                                 agencyId: widget.agencyId,
                                 stageType: 2,
                               )
-                              .then((_) {
+                              .then((_) async {
                                 Navigator.pop(context);
                                 if (selectagencyProvider.success) {
+                                  final prefs =
+                                      await SharedPreferences.getInstance();
+                                  await prefs.setBool(
+                                    'procurementInProgress',
+                                    true,
+                                  );
+                                  await prefs.setBool(
+                                    'procurementCompleted',
+                                    false,
+                                  );
+                                  // final contractId =
+                                  //     widget.kwikticket?.exportContractId;
+
+                                  await prefs.setString(
+                                    'activeExportContractId',
+                                    exportId ?? '',
+                                  );
+                                  await prefs.setBool(
+                                    'procurementInProgress',
+                                    true,
+                                  );
+                                  await prefs.setBool(
+                                    'procurementCompleted',
+                                    false,
+                                  );
+                                  await prefs.setInt(
+                                    'procurementStartTime',
+                                    DateTime.now().millisecondsSinceEpoch,
+                                  );
+
                                   showDialog(
                                     barrierDismissible: false,
                                     context: context,
@@ -230,22 +290,24 @@ class _ConfirmAgencySelectionDialogState
                                       return AgencySelectionConfirmedDialog(
                                         serviceFee: "${widget.serviceFee}",
                                         totalcostTons:
-                                            "${widget.totalcostTons}",
+                                            "${widget.kwikticket?.quantityToFulfill}",
                                         totalCost:
                                             "${widget.kwikticket?.kwikTicketAmount}",
                                         continueFunc: () async {
-                                          Navigator.pushAndRemoveUntil(
+                                          Navigator.push(
                                             context,
                                             MaterialPageRoute(
                                               builder:
                                                   (_) => ExportJourneyScreen(
                                                     kwikticket:
                                                         widget.kwikticket,
+                                                    exporterContractId:
+                                                        exportId,
                                                     // ?.exporterContractId ??
                                                     // '',
                                                   ),
                                             ),
-                                            (Route<dynamic> route) => false,
+                                            // (Route<dynamic> route) => false,
                                           );
                                           // Navigator.push(
                                           //   context,
@@ -259,6 +321,7 @@ class _ConfirmAgencySelectionDialogState
                                           //   ),
                                           // );
                                         },
+                                        agencyName: widget.agencyName,
                                       );
                                     },
                                   );

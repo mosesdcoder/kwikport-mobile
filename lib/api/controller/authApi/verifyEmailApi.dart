@@ -43,7 +43,9 @@ class VerifyEmailApi extends ChangeNotifier {
         print("OTP request body: $body");
 
         if (response.statusCode == 200 && data['isSuccessful'] == true) {
-          _otpcode = data['code'];
+          // _otpcode = data['code'];
+          _otpcode = data['code']?.toString() ?? '';
+
           final apiResponse = ApiResponse<AuthData>.fromJson(
             data,
             (json) => AuthData.fromJson(json),

@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:kwik_port/api/model/export_substage_model.dart';
 import 'package:kwik_port/api/utils/utils.dart';
+import 'package:kwik_port/ui/home/dashboard/exportJourney/export_journey_screen.dart';
 
 class ExportSubStageApi extends ChangeNotifier {
   bool loading = false;
@@ -121,3 +122,19 @@ class ExportSubStageApi extends ChangeNotifier {
     }
   }
 }
+class ExportJourneyProvider with ChangeNotifier {
+  List<StageStatus> stageStates = [
+    StageStatus.inProgress, // Procurement
+    StageStatus.pending, // Packaging
+    StageStatus.pending, // Logistics
+    StageStatus.pending, // Freight Forwarding
+    StageStatus.pending, // Final Export
+  ];
+
+  void updateStage(int index, StageStatus status) {
+    stageStates[index] = status;
+    notifyListeners();
+  }
+}
+
+

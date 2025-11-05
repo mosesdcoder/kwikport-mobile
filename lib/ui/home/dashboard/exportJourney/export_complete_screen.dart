@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:kwik_port/api/model/dashboard_model.dart';
 import 'package:kwik_port/colors/color.dart';
 import 'package:kwik_port/ui/home/dashboard/dashboard.dart';
 import 'package:kwik_port/utils/text/textstyle.dart';
 
 class ExportCompleteScreen extends StatefulWidget {
-  const ExportCompleteScreen({super.key});
+  final KwikTicketModel? kwikticket;
+  const ExportCompleteScreen({super.key, required this.kwikticket});
 
   @override
   State<ExportCompleteScreen> createState() => _ExportCompleteScreenState();
@@ -164,7 +166,8 @@ class _ExportCompleteScreenState extends State<ExportCompleteScreen> {
                                         ),
                                       ),
                                       Text(
-                                        "Premium Cocoa Bean",
+                                        widget.kwikticket?.commodity?.name ??
+                                            '',
                                         style: kwikTextStlye(
                                           12.0,
                                           FontWeight.w500,
@@ -237,7 +240,7 @@ class _ExportCompleteScreenState extends State<ExportCompleteScreen> {
                                         ),
                                       ),
                                       Text(
-                                        "₦187,425.00",
+                                        "₦${widget.kwikticket?.grossEarning ?? '0.00'}",
 
                                         style: kwikTextStlye(
                                           fontFamily: "",
@@ -311,7 +314,8 @@ class _ExportCompleteScreenState extends State<ExportCompleteScreen> {
                           ),
                         ),
                         child: Text(
-                          "Share Milestone",
+                          "Continue",
+                          // "Share Milestone",
                           style: kwikTextStlye(
                             14.0,
                             FontWeight.w500,

@@ -117,19 +117,19 @@ class _WalletScreenState extends State<WalletScreen> {
                       "assets/images/icons/add_funds.png",
                       "Add Funds",
                       () {
-                        showModalBottomSheet(
-                          shape: const RoundedRectangleBorder(
-                            borderRadius: BorderRadius.only(
-                              topLeft: Radius.circular(32),
-                              topRight: Radius.circular(32),
-                            ),
-                          ),
-                          backgroundColor: Colors.transparent,
-                          context: context,
-                          builder: (BuildContext context) {
-                            return FundWalletBottomsheet();
-                          },
-                        );
+                        // showModalBottomSheet(
+                        //   shape: const RoundedRectangleBorder(
+                        //     borderRadius: BorderRadius.only(
+                        //       topLeft: Radius.circular(32),
+                        //       topRight: Radius.circular(32),
+                        //     ),
+                        //   ),
+                        //   backgroundColor: Colors.transparent,
+                        //   context: context,
+                        //   builder: (BuildContext context) {
+                        //     return FundWalletBottomsheet();
+                        //   },
+                        // );
                       },
                       width: 70.0,
                     ),

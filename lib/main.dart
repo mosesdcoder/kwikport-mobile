@@ -4,6 +4,7 @@ import 'package:hexcolor/hexcolor.dart';
 import 'package:kwik_port/api/controller/agency/export_stage_api.dart';
 import 'package:kwik_port/api/controller/agency/export_substage_api.dart';
 import 'package:kwik_port/api/controller/agency/get_agency_api.dart';
+import 'package:kwik_port/api/controller/agency/selected_agency.dart';
 import 'package:kwik_port/api/controller/authApi/change_password_api.dart';
 import 'package:kwik_port/api/controller/authApi/createExportProfileApi.dart';
 import 'package:kwik_port/api/controller/authApi/forgotPasswordApi.dart';
@@ -56,6 +57,9 @@ void main() async {
           ChangeNotifierProvider(create: (_) => FundKwikticketApi()),
           ChangeNotifierProvider(create: (_) => CalculateCommodityCostApi()),
           ChangeNotifierProvider(create: (_) => VerifyPaymentApi()),
+          ChangeNotifierProvider(create: (_) => ExportJourneyProvider()),
+              ChangeNotifierProvider(create: (_) => SelectedAgencyProvider()),
+
         ],
         child: const MyApp(),
       ),

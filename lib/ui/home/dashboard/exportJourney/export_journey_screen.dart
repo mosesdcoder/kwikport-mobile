@@ -3,6 +3,8 @@ import 'package:hexcolor/hexcolor.dart';
 import 'package:kwik_port/api/controller/agency/export_substage_api.dart';
 import 'package:kwik_port/api/model/dashboard_model.dart';
 import 'package:kwik_port/colors/color.dart';
+import 'package:kwik_port/main.dart';
+import 'package:kwik_port/ui/home/dashboard/dashboard.dart';
 import 'package:kwik_port/ui/home/dashboard/exportJourney/export_complete_screen.dart';
 import 'package:kwik_port/ui/home/dashboard/exportJourney/journey_check_list.dart';
 import 'package:kwik_port/ui/home/dashboard/exportJourney/packaging_and_documentation.dart';
@@ -13,12 +15,20 @@ import 'package:kwik_port/utils/button/kwik_button.dart';
 import 'package:kwik_port/utils/text/textstyle.dart';
 import 'package:kwik_port/utils/toast.dart';
 import 'package:provider/provider.dart';
+import 'dart:async';
+
+import 'package:shared_preferences/shared_preferences.dart'; // at the top of file
 
 class ExportJourneyScreen extends StatefulWidget {
   // final String exporterContractId;
   final KwikTicketModel? kwikticket;
+  final String exporterContractId;
 
-  const ExportJourneyScreen({super.key, required this.kwikticket});
+  const ExportJourneyScreen({
+    super.key,
+    required this.kwikticket,
+    required this.exporterContractId,
+  });
 
   @override
   State<ExportJourneyScreen> createState() => _ExportJourneyScreenState();
@@ -27,36 +37,44 @@ class ExportJourneyScreen extends StatefulWidget {
 enum StageStatus { pending, selectAgency, inProgress, completed }
 
 class _ExportJourneyScreenState extends State<ExportJourneyScreen> {
+  Timer? _autoCompleteTimer;
+  void _startAutoCompleteTimer(int currentStageIndex) {
+    // Only first stage should auto-complete
+    if (currentStageIndex != 0) return;
+
+    _autoCompleteTimer?.cancel();
+
+    _autoCompleteTimer = Timer(const Duration(minutes: 1), () {
+      setState(() {
+        stageStates[currentStageIndex] = StageStatus.completed;
+
+        // Unlock next stage to "Select Agency"
+        if (currentStageIndex + 1 < stageStates.length) {
+          stageStates[currentStageIndex + 1] = StageStatus.selectAgency;
+        }
+      });
+
+      showToastContainer(
+        "Stage Completed Automatically 🎉",
+        "${_stageTitles[currentStageIndex]} marked as complete after 5 minutes.",
+        colorCodes.azureBlue,
+        colorCodes.mediumSeaGreen,
+        context,
+      );
+    });
+    // Unlock next stage
+    // _unlockNextStage(
+    //   currentStageIndex + 2,
+    // ); // +1 for next stage, +1 because index is 0-based
+    // });
+  }
+
   bool checkterms = false;
   int itemCount = 5;
   String packagingButtonText = "Select Packaging Agency";
   bool agencySelected = false;
   bool isLoading = true;
 
-  // @override
-  // void initState() {
-  //   super.initState();
-  //   _loadStageData();
-  // }
-
-  // Future<void> _loadStageData() async {
-  //   final exportSubStageApi = Provider.of<ExportSubStageApi>(context, listen: false);
-  //   await exportSubStageApi.getSubStages(
-  //     exporterContractId: widget.exporterContractId,
-  //     mainStage: 2, // packaging stage
-  //   );
-
-  //   // Check if agency already selected
-  //   setState(() {
-  //     isLoading = false;
-  //     if (exportSubStageApi.hasAgencySelected == true) {
-  //       packagingButtonText = "Agency Selected ✅";
-  //       agencySelected = true;
-  //     }
-  //   });
-  // }
-
-  // Future<void> _refresh() async => await _loadStageData();
   List progressTitle = [
     "Agency Assigned ",
     "Sourcing in progress 🔍",
@@ -88,23 +106,6 @@ class _ExportJourneyScreenState extends State<ExportJourneyScreen> {
   List<bool> isChecked = [false, false, false, false, false];
   // int selectedMainStage = 1; // you can change depending on stage
 
-  // @override
-  // void initState() {
-  //   super.initState();
-  //   WidgetsBinding.instance.addPostFrameCallback((_) {
-  //     Provider.of<ExportSubStageApi>(context, listen: false).getSubStages(
-  //       exporterContractId: widget.exporterContractId,
-  //       mainStage: selectedMainStage,
-  //     );
-  //   });
-  // }
-
-  // Future<void> _refresh() async {
-  //   await Provider.of<ExportSubStageApi>(context, listen: false).getSubStages(
-  //     exporterContractId: widget.exporterContractId,
-  //     mainStage: selectedMainStage,
-  //   );
-  // }
   final List<String> _stageTitles = [
     "Procurement 🏭",
     "Packaging, Quality Control & Documentation 📋",
@@ -115,26 +116,59 @@ class _ExportJourneyScreenState extends State<ExportJourneyScreen> {
 
   late List<StageStatus> stageStates;
   int selectedMainStage = 2;
+  void _updateSectionCompletion(int sectionIndex) {
+    final allChecked = isCheckedSections[sectionIndex].every((v) => v);
+    if (allChecked) {
+      setState(() {
+        stageStates[sectionIndex] = StageStatus.completed;
+      });
+      showToastContainer(
+        "Stage Complete 🎉",
+        "${_stageTitles[sectionIndex]} marked as complete.",
+        colorCodes.azureBlue,
+        colorCodes.mediumSeaGreen,
+        context,
+      );
+    }
+  }
 
   @override
   void initState() {
     super.initState();
     stageStates = [
       StageStatus.inProgress, // Procurement
-      StageStatus.selectAgency, // Packaging
+      StageStatus.pending, // Packaging
       StageStatus.pending, // Logistics
       StageStatus.pending, // Freight Forwarding
       StageStatus.pending, // Final Export
     ];
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      // In ExportJourneyScreen initState or when starting journey
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool('journeyInProgress', true);
+      await prefs.setString(
+        'activeExportContractId',
+        widget.exporterContractId,
+      );
+      await prefs.setBool('procurementCompleted', true);
+      await prefs.setBool('procurementInProgress', false);
+      await prefs.remove('procurementStartTime');
+
+      // _startAutoCompleteTimer(currentIndex); // 0 = Procurement stage
       _fetchStage(selectedMainStage);
     });
+  }
+
+  @override
+  void dispose() {
+    // _autoCompleteTimer?.cancel();
+    super.dispose();
   }
 
   Future<void> _fetchStage(int mainStage) async {
     final api = Provider.of<ExportSubStageApi>(context, listen: false);
     await api.getSubStages(
-      exporterContractId: widget.kwikticket?.exporter?.id ?? "",
+      exporterContractId: widget.exporterContractId ?? "",
       mainStage: mainStage,
       // await Provider.of<ExportSubStageApi>(context, listen: false).getSubStages(
       //   exporterContractId: widget.exporterContractId,
@@ -142,7 +176,11 @@ class _ExportJourneyScreenState extends State<ExportJourneyScreen> {
     );
     // Determine status of current stage
     final allCompleted = api.subStages.every((s) => s.isCompleted);
+
     if (mainStage == 2 && allCompleted) {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool('procurementCompleted', true);
+      await prefs.setBool('procurementInProgress', false);
       _unlockNextStage(3);
       setState(() {
         stageStates[0] = StageStatus.completed; // Procurement done
@@ -160,6 +198,13 @@ class _ExportJourneyScreenState extends State<ExportJourneyScreen> {
     setState(() {});
   }
 
+  // void _unlockNextStage(int nextStage) {
+  //   if (nextStage <= stageStates.length) {
+  //     setState(() {
+  //       stageStates[nextStage - 1] = StageStatus.selectAgency;
+  //     });
+  //   }
+  // }
   void _unlockNextStage(int nextStage) {
     if (nextStage <= stageStates.length) {
       setState(() {
@@ -215,6 +260,10 @@ class _ExportJourneyScreenState extends State<ExportJourneyScreen> {
     } else {
       packagingBtnText = "In Progress";
     }
+    //  onWillPop: () async {
+    //   // Return false to prevent going back
+    //   return false;
+    // },
     return Scaffold(
       extendBody: true,
       appBar: PreferredSize(
@@ -223,7 +272,19 @@ class _ExportJourneyScreenState extends State<ExportJourneyScreen> {
           padding: const EdgeInsets.only(left: 20.0, top: 42.0, bottom: 15),
           child: Align(
             alignment: Alignment.centerLeft,
-            child: backNavRow(context, "Your Export Journey"),
+            child: backNavRow(
+              context,
+              "Your Export Journey",
+              func: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder:
+                        (context) => Dashboard(kwikticket: widget.kwikticket),
+                  ),
+                );
+              },
+            ),
           ),
         ),
       ),
@@ -248,8 +309,8 @@ class _ExportJourneyScreenState extends State<ExportJourneyScreen> {
                   child: Column(
                     children: [
                       _overallProgress(
-                        procurementCompleted,
-                        packagingCompleted,
+                        // procurementCompleted,
+                        // packagingCompleted,
                       ),
 
                       SizedBox(height: 20),
@@ -278,9 +339,10 @@ class _ExportJourneyScreenState extends State<ExportJourneyScreen> {
                                       "",
                                       () {
                                         setState(() {
-                                          isChecked[subIndex] =
-                                              !isChecked[subIndex];
+                                          isCheckedSections[index][subIndex] =
+                                              !isCheckedSections[index][subIndex];
                                         });
+                                        _updateSectionCompletion(index);
                                       },
                                     );
                                   },
@@ -364,47 +426,57 @@ class _ExportJourneyScreenState extends State<ExportJourneyScreen> {
                   ),
                 ),
                 SizedBox(height: 15),
-                kwikbutton(
-                  "Select Packaging Agency",
-                  () {
-                    // Navigator.push(
-                    //   context,
-                    //   MaterialPageRoute(
-                    //     builder:
-                    //         (context) =>
-                    //             PackagingAndDocumentation(kwikticket: null,stageType: currentStage, ),
-                    //   ),
-                    // );
-                  },
-                  buttonChild: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        "Select Packaging Agency",
-                        style: kwikTextStlye(
-                          14.0,
-                          FontWeight.w600,
-                          // enabled == true
-                          //     ?
-                          colorCodes.whiteSmoke,
-                          // : colorCodes.aluminium,
-                        ),
-                      ),
-                      SizedBox(width: 8),
-                      Image.asset(
-                        "assets/images/icons/arrow-right.png",
-                        height: 18,
-                        width: 18,
-                      ),
-                    ],
-                  ),
-                ),
-                SizedBox(height: 10),
-                kwikbutton("Complete Export", () {
+                // kwikbutton(
+                //   "Select Packaging Agency",
+                //   () {
+                // Navigator.push(
+                //   context,
+                //   MaterialPageRoute(
+                //     builder:
+                //         (context) =>
+                //             PackagingAndDocumentation(kwikticket: null,stageType: currentStage, ),
+                //   ),
+                // );
+                // },
+                // buttonChild: Row(
+                //   mainAxisAlignment: MainAxisAlignment.center,
+                // children: [
+                //   Text(
+                //     "Select Packaging Agency",
+                //     style: kwikTextStlye(
+                //       14.0,
+                //       FontWeight.w600,
+                // enabled == true
+                //     ?
+                // colorCodes.whiteSmoke,
+                // : colorCodes.aluminium,
+                //         ),
+                //       ),
+                //       SizedBox(width: 8),
+                //       Image.asset(
+                //         "assets/images/icons/arrow-right.png",
+                //         height: 18,
+                //         width: 18,
+                //       ),
+                //     ],
+                //   ),
+                // ),
+                // SizedBox(height: 10),
+                kwikbutton("Complete Export", () async {
+                  final prefs = await SharedPreferences.getInstance();
+                  await prefs.setBool('journeyInProgress', false);
+                  await prefs.remove('activeExportContractId');
+                  // final prefs = await SharedPreferences.getInstance();
+                  await prefs.remove('procurementCompleted');
+                  await prefs.remove('procurementInProgress');
+
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => ExportCompleteScreen(),
+                      builder:
+                          (context) => ExportCompleteScreen(
+                            kwikticket: widget.kwikticket,
+                          ),
                     ),
                   );
                 }),
@@ -418,11 +490,21 @@ class _ExportJourneyScreenState extends State<ExportJourneyScreen> {
     );
   }
 
-  Widget _overallProgress(bool procurementDone, bool packagingDone) {
-    double progress = 0.0;
-    if (procurementDone) progress += 0.3;
-    if (packagingDone) progress += 0.3;
+  double _calculateOverallProgress() {
+    int totalStages = stageStates.length;
+    int completedStages =
+        stageStates.where((s) => s == StageStatus.completed).length;
 
+    // Calculate completion as a fraction (e.g., 2/5 = 0.4)
+    double progress = completedStages / totalStages;
+    return progress;
+  }
+
+  Widget _overallProgress() {
+    // double progress = 0.0;
+    // if (procurementDone) progress += 0.3;
+    // if (packagingDone) progress += 0.3;
+    double progress = _calculateOverallProgress();
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 20),
       decoration: BoxDecoration(
@@ -478,6 +560,16 @@ class _ExportJourneyScreenState extends State<ExportJourneyScreen> {
       );
       return;
     }
+    if (stageStates[index] == StageStatus.pending) {
+      showToastContainer(
+        "Locked Stage 🚧",
+        "Complete the previous stage to unlock this one.",
+        colorCodes.sunset,
+        colorCodes.white,
+        context,
+      );
+      return;
+    }
     if (stageStates[index] == StageStatus.selectAgency) {
       await Navigator.push(
         context,
@@ -486,6 +578,7 @@ class _ExportJourneyScreenState extends State<ExportJourneyScreen> {
               (_) => PackagingAndDocumentation(
                 kwikticket: widget.kwikticket,
                 stageType: currentStage,
+                exporterContractId: widget.exporterContractId,
               ),
         ),
       );
@@ -496,14 +589,16 @@ class _ExportJourneyScreenState extends State<ExportJourneyScreen> {
       setState(() {
         stageStates[index] = StageStatus.inProgress; // update local UI
       });
+      // Start auto-complete timer for this stage
+      // _startAutoCompleteTimer(index);
     } else {
       // Optional handling for other statuses
       showToastContainer(
         "Export Stage",
-        stageStates[index] == StageStatus.pending
-            ? "This stage is not unlocked yet 🚧"
-            : "Stage already in progress or completed ✅",
-        colorCodes.pigmentGreen,
+        stageStates[index] == StageStatus.completed
+            ? "Stage already completed ✅"
+            : "Stage is currently in progress ⚙️",
+        colorCodes.azureBlue,
         colorCodes.mediumSeaGreen,
         context,
       );

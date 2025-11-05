@@ -13,6 +13,7 @@ import 'package:kwik_port/utils/button/bottom_navigatior_bar.dart';
 import 'package:kwik_port/utils/button/loading_dialog.dart';
 import 'package:kwik_port/utils/text/textstyle.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:swipe_refresh/swipe_refresh.dart';
 
 class SelectProcurementAgencyScreen extends StatefulWidget {
@@ -28,7 +29,7 @@ class _SelectProcurementAgencyScreenState
     extends State<SelectProcurementAgencyScreen> {
   final ScrollController _scrollController = ScrollController();
 
-  int endTime = DateTime.now().millisecondsSinceEpoch + 86400000; // 24 hours
+  // int endTime = DateTime.now().millisecondsSinceEpoch + 86400000; // 24 hours
 
   int itemCount = 5;
   // List agencyName = [
@@ -55,11 +56,32 @@ class _SelectProcurementAgencyScreenState
     }
   }
 
+  int endTime = 0;
+
   @override
   void initState() {
     super.initState();
     // Schedule the API call after the first build phase
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final prefs = await SharedPreferences.getInstance();
+      final savedExportId = prefs.getString('activeExportContractId');
+      final currentExportId = widget.kwikticket?.exportContractId;
+
+      // 🧹 reset timer if this is a new export
+      if (savedExportId != currentExportId) {
+        await prefs.remove('procurementStartTime');
+        await prefs.setString('activeExportContractId', currentExportId ?? '');
+      }
+
+      // start fresh if missing
+      final startTime =
+          prefs.getInt('procurementStartTime') ??
+          DateTime.now().millisecondsSinceEpoch;
+      await prefs.setInt('procurementStartTime', startTime);
+      endTime = startTime + Duration(hours: 24).inMilliseconds;
+      setState(() {});
+
+      setState(() {});
       _fetchInitialAgency();
     });
     // _scrollController = ScrollController();
@@ -220,7 +242,8 @@ class _SelectProcurementAgencyScreenState
                 builder: (BuildContext context) {
                   return ConfirmAgencySelectionDialog(
                     serviceFee: "\$$fee",
-                    totalcostTons: widget.kwikticket?.totalQuantity, // "20.5",
+                    totalcostTons:
+                        widget.kwikticket?.quantityToFulfill, // "20.5",
                     totalCost:
                         "${widget.kwikticket?.kwikTicketAmount}", // "₦246,000,000",
 

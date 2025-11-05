@@ -16,6 +16,7 @@ class UserSession {
   String? otherNames;
   String? email;
   String? phoneNumber;
+  String? image;
   ExporterModel? exporter;
   // List<ContractModel>? contracts;
 
@@ -26,6 +27,7 @@ class UserSession {
     this.otherNames,
     this.email,
     this.phoneNumber,
+    this.image,
     this.exporter,
     // this.contracts,
   });
@@ -37,6 +39,7 @@ class UserSession {
     'otherNames': otherNames,
     'email': email,
     'phoneNumber': phoneNumber,
+    'image': image,
     'exporter': exporter?.toJson(),
     // 'contracts': contracts?.map((c) => c.toJson()).toList(),
   };
@@ -68,6 +71,7 @@ class UserSession {
     String? otherNames,
     String? email,
     String? phoneNumber,
+    String? image,
     ExporterModel? exporter,
   }) {
     return UserSession(
@@ -77,6 +81,7 @@ class UserSession {
       otherNames: otherNames ?? this.otherNames,
       email: email ?? this.email,
       phoneNumber: phoneNumber ?? this.phoneNumber,
+      image: image ?? this.image,
       exporter: exporter ?? this.exporter,
     );
   }

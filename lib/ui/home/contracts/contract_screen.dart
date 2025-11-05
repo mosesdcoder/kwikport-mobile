@@ -275,11 +275,11 @@ class _ContractScreenState extends State<ContractScreen>
                               _buildContractList(contractProvider), // All
                               _buildContractList(
                                 contractProvider,
-                                statusFilter: 0,
+                                statusFilter: "Active",
                               ), // Open
                               _buildContractList(
                                 contractProvider,
-                                statusFilter: 1,
+                                statusFilter: "Closed",
                               ), // Closed
                             ],
                           ),
@@ -300,7 +300,7 @@ class _ContractScreenState extends State<ContractScreen>
 
   Widget _buildContractList(
     GetContractApi contractProvider, {
-    int? statusFilter,
+    String? statusFilter,
   }) {
     if (contractProvider.loading) {
       return Center(child: kwikportloader());
