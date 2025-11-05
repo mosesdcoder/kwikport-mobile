@@ -193,7 +193,7 @@ class _KwikticketCreatedSuccessfullyState
                     contractDetailHeadingAndSubtitletwo(
                       "Selected Capacity",
                       "Commodity Cost",
-                      "${widget.kwikticket.contract?.totalQuantity}",
+                      "${widget.kwikticket.quantityToFulfill} tons",
                       "${widget.kwikticket.kwikTicketAmount}",
                       // "20.5 tons",
                       // "₦246,000,000",
@@ -240,7 +240,7 @@ class _KwikticketCreatedSuccessfullyState
                               width: 16,
                             ),
                             Text(
-                              "${widget.kwikticket.contract?.projectedIncome}%",
+                              "${widget.kwikticket.grossEarning}%",
                               style: kwikTextStlye(
                                 14.0,
                                 FontWeight.w600,

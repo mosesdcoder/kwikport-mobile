@@ -269,7 +269,7 @@ class _AllKwikTicketScreenState extends State<AllKwikTicketScreen>
           (contract?.totalAmount?.toString() ??
               ticket.kwikTicketAmount.toString()),
           (buyerSpec?.buyerPricePerUnit?.toString() ?? "N/A"),
-          (contract?.projectedIncome?.toString() ?? "N/A"),
+          (ticket?.grossEarning?.toString() ?? "N/A"),
           // ticket.contract?.contractType == 1
           //     ? "International Buyer"
           //     : "Local Buyer" ?? "",

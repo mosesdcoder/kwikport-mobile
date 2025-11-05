@@ -152,7 +152,7 @@ class _ExportPaymentSucessfulDialogState
                 children: [
                   confirmeddetailRow(
                     "Gross Earnings:",
-                    " ${widget.kwikticket.contract?.projectedIncome}",
+                    " ${widget.kwikticket.grossEarning}",
                     fontFamily: "",
                   ),
                   SizedBox(height: 10),
@@ -190,12 +190,12 @@ class _ExportPaymentSucessfulDialogState
                             SizedBox(
                               width: 100,
                               child: Text(
-                                "${widget.kwikticket.exportContractId}",
+                                "${widget.kwikticket.contract?.contractId}",
                                 style: kwikTextStlye(
                                   10.0,
-                                  FontWeight.w500,
+                                  FontWeight.w400,
                                   colorCodes.black,
-                                  textOverflow: TextOverflow.ellipsis,
+                                  // textOverflow: TextOverflow.ellipsis,
                                 ),
                               ),
                             ),

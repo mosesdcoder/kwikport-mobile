@@ -67,17 +67,9 @@ class HttpService {
       print("About to refresh token");
       // Token expired, refresh it and retry the request
       final newTokens = await _refreshToken();
-      // final newAuthData = await _refreshToken();
       print(newTokens);
 
       if (newTokens != null) {
-        // Update access token and retry
-        // await updateAccessToken(
-        // newTokens
-        // newTokens['accessToken']!,
-        // newTokens['refreshToken']!,
-        // );
-        // await updateAccessToken(newAuthData);
         headers['Authorization'] = 'Bearer ${newTokens['accessToken']}';
         switch (method) {
           case 'GET':
@@ -170,93 +162,99 @@ class HttpService {
   /// ========== TOKEN REFRESH ==========
 
   static Future<Map<String, String>?> _refreshToken() async {
-    // static Future<AuthData?> _refreshToken() async {
     if (_refreshCompleter != null) {
-      // Wait for the ongoing refresh to complete
+      // Wait for ongoing refresh to complete
       return _refreshCompleter!.future;
     }
 
-    // Lock the refresh process
     _refreshCompleter = Completer();
 
     try {
       final SharedPreferences prefs = await SharedPreferences.getInstance();
+      final refreshToken = prefs.getString('refreshToken');
+      final accessToken = prefs.getString('accessToken');
 
-      final refreshToken = await getRefreshTokenFromLogin();
-      if (refreshToken == null) {
-        throw Exception('Refresh token not found');
+      if (refreshToken == null || accessToken == null) {
+        debugPrint('⚠️ No valid tokens found — user must log in again.');
+        _redirectToLogin();
+        _refreshCompleter?.complete(null);
+        return null;
       }
 
-      final url = Uri.parse('$baseUrl/refresh-token');
+      final url = Uri.parse('$baseUrl/Access/refresh-token');
       final response = await http.post(
         url,
-        body: json.encode({'refreshToken': refreshToken}),
         headers: {'Content-Type': 'application/json'},
+        body: json.encode({'token': accessToken, 'refreshToken': refreshToken}),
       );
 
       printRequestInfo('POST', url, response.statusCode, response.body);
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
-        final newTokens = {
-          'accessToken': data['data']['accessToken'],
-          'refreshToken': data['data']['refreshToken'],
-        };
-        // Update tokens in user data
-        /// Save back into SharedPreferences
-        final String? userModelPref = prefs.getString('userModelData');
-        if (userModelPref != null) {
-          Map<String, dynamic> userData = json.decode(userModelPref);
-          userData['token'] = newTokens['accessToken'];
-          userData['refreshToken'] = newTokens['refreshToken'];
-          userData['accessTokenExpiresAt'] =
-              data['data']['accessTokenExpiresAt'];
-          userData['refreshTokenExpiresAt'] =
-              data['data']['refreshTokenExpiresAt'];
-          await prefs.setString('userModelData', json.encode(userData));
+
+        if (data['isSuccessful'] == true && data['data'] != null) {
+          final newTokens = {
+            'accessToken': data['data']['accessToken'].toString(),
+            'refreshToken': data['data']['refreshToken'].toString(),
+          };
+
+          // Save the new tokens locally
+          await prefs.setString('accessToken', newTokens['accessToken']!);
+          await prefs.setString('refreshToken', newTokens['refreshToken']!);
+
+          // If you store userModelData, update it too
+          final String? userModelPref = prefs.getString('userModelData');
+          if (userModelPref != null) {
+            Map<String, dynamic> userData = json.decode(userModelPref);
+            userData['token'] = newTokens['accessToken'];
+            userData['refreshToken'] = newTokens['refreshToken'];
+            await prefs.setString('userModelData', json.encode(userData));
+          }
+
+          debugPrint('✅ Token refresh successful');
+          _refreshCompleter?.complete(newTokens);
+          return newTokens;
+        } else {
+          debugPrint('❌ Refresh failed: ${data['message']}');
+          _redirectToLogin();
+          _refreshCompleter?.complete(null);
+          return null;
         }
-
-        _refreshCompleter?.complete({
-          // 'accessToken': data['accessToken'],
-          // 'refreshToken': data['refreshToken'],
-          'accessToken': data['data']['accessToken'],
-          'refreshToken': data['data']['refreshToken'],
-        });
-
-        return {
-          // 'accessToken': data['accessToken'],
-          // 'refreshToken': data['refreshToken'],
-          'accessToken': data['data']['accessToken'],
-          'refreshToken': data['data']['refreshToken'],
-        };
       } else {
-        // Handle refresh token failure
+        debugPrint('❌ Refresh request failed: ${response.statusCode}');
+        _redirectToLogin();
         _refreshCompleter?.complete(null);
-        _refreshCompleter = null;
-
-        navigatorKey.currentState?.pushReplacement(
-          MaterialPageRoute(builder: (context) => const LoginScreen()),
-        );
-
-        final context = navigatorKey.currentState?.overlay?.context;
-        if (context != null) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text("Session Ended"),
-              backgroundColor: Colors.red,
-            ),
-          );
-        }
-
-        throw Exception('Failed to refresh token: ${response.body}');
+        return null;
       }
     } catch (e) {
+      debugPrint('❌ Exception during refresh: $e');
       _refreshCompleter?.completeError(e);
+      _redirectToLogin();
       rethrow;
     } finally {
-      // Clear the lock
       _refreshCompleter = null;
     }
+  }
+
+  static void _redirectToLogin() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.clear();
+
+    final context = navigatorKey.currentState?.overlay?.context;
+    if (context != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Session expired, please log in again."),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+
+    navigatorKey.currentState?.pushAndRemoveUntil(
+      MaterialPageRoute(builder: (_) => const LoginScreen()),
+      (route) => false,
+    );
   }
 
   static Future<void> updateAccessToken(AuthData authData) async {

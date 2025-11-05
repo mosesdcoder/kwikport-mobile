@@ -44,6 +44,10 @@ class _DashboardState extends State<Dashboard> {
   bool isLoading = false;
   final _controller = StreamController<SwipeRefreshState>.broadcast();
   Stream<SwipeRefreshState> get _stream => _controller.stream;
+  Future<void> _setProcurementShown(bool value) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('showProcurement', value);
+  }
 
   void _scrollListener() {
     final api = Provider.of<GetContractApi>(context, listen: false);
@@ -67,29 +71,13 @@ class _DashboardState extends State<Dashboard> {
     super.initState();
     currentIndex = 1;
     notificationExist;
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      // 🔹 1️⃣ Load KwikTicket data from SharedPreferences
-      // final prefs = await SharedPreferences.getInstance();
-      // final data = prefs.getString('kwikTicketData');
+    // WidgetsBinding.instance.addPostFrameCallback((_) async {
 
-      // if (data != null && data.isNotEmpty) {
-      // final decoded = jsonDecode(data);
-      // final kwikTicket = KwikTicketModel.fromJson(decoded);
-      // debugPrint("✅ Loaded KwikTicket: ${kwikTicket.exportContractId}");
-      // }
-      if (widget.kwikticket != null) {
-        procurementShownTime = DateTime.now();
-        Timer(const Duration(hours: 24), () {
-          if (mounted) {
-            setState(() {
-              showProcurement = false;
-            });
-          }
-        });
-      }
+    // });
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await _loadProcurementState();
+      _loadJourneyState();
       Provider.of<DashboardApi>(context, listen: false).fetchDashboard();
-    });
-    WidgetsBinding.instance.addPostFrameCallback((_) {
       final api = Provider.of<GetContractApi>(context, listen: false);
       api.fetchContracts(); // PageIndex=1, PageSize=20, version=1
       isLoading = true;
@@ -97,20 +85,144 @@ class _DashboardState extends State<Dashboard> {
     _scrollController.addListener(_scrollListener);
   }
 
+  Future<void> _startProcurementCountdown() async {
+    final prefs = await SharedPreferences.getInstance();
+    final now = DateTime.now().millisecondsSinceEpoch;
+    await prefs.setInt('procurementStartTime', now);
+    await prefs.setBool('showProcurement', true);
+  }
+
+  Future<void> _saveProcurementVisibility(bool value) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('persistedProcurementVisible', value);
+  }
+
+  Future<void> _loadProcurementState() async {
+    final prefs = await SharedPreferences.getInstance();
+    final selected = prefs.getBool('procurementSelected') ?? false;
+    final startTime = prefs.getInt('procurementStartTime');
+    final inProgress = prefs.getBool('procurementInProgress') ?? false;
+    final completed = prefs.getBool('procurementCompleted') ?? false;
+
+    // if (selected) {
+    //   setState(() => showProcurement = false);
+    //   await prefs.setBool('showProcurement', false);
+    //   return;
+    // }
+    if (completed) {
+      setState(() => showProcurement = false);
+      return;
+    }
+
+    if (widget.kwikticket == null) {
+      // No KwikTicket → never show
+      setState(() => showProcurement = false);
+      await prefs.setBool('showProcurement', false);
+      return;
+    }
+
+    if (startTime == null) {
+      // First time → show and start timer
+      await prefs.setInt(
+        'procurementStartTime',
+        DateTime.now().millisecondsSinceEpoch,
+      );
+      await prefs.setBool('showProcurement', true);
+      setState(() => showProcurement = true);
+      return;
+    }
+
+    // Has timer → check if 24h passed
+    final startDate = DateTime.fromMillisecondsSinceEpoch(startTime);
+    final diff = DateTime.now().difference(startDate);
+
+    if (diff >= const Duration(hours: 24)) {
+      await prefs.setBool('showProcurement', false);
+      setState(() => showProcurement = false);
+    } else {
+      setState(() => showProcurement = true);
+      final remaining = const Duration(hours: 24) - diff;
+      Timer(remaining, () async {
+        if (mounted) {
+          setState(() => showProcurement = false);
+          await prefs.setBool('showProcurement', false);
+        }
+      });
+    }
+  }
+
+  bool showContinueJourney = false;
+  String? exportContractId;
+
+  Future<void> _loadJourneyState() async {
+    final prefs = await SharedPreferences.getInstance();
+    final inProgress = prefs.getBool('journeyInProgress') ?? false;
+    final savedId = prefs.getString('activeExportContractId');
+
+    if (inProgress && savedId != null) {
+      setState(() {
+        showContinueJourney = true;
+        exportContractId = savedId;
+      });
+    }
+  }
+
+  // Future<void> _loadProcurementState() async {
+  //   final prefs = await SharedPreferences.getInstance();
+  //   final selected = prefs.getBool('procurementSelected') ?? false;
+  //   final startTime = prefs.getInt('procurementStartTime');
+
+  //   if (selected) {
+  //     // already chosen → never show again
+  //     setState(() => showProcurement = false);
+  //     return;
+  //   }
+
+  // if (startTime == null) {
+  //   // no timer yet → show container
+  //   setState(() => showProcurement = true);
+  //   return;
+  // }
+
+  // final startDate = DateTime.fromMillisecondsSinceEpoch(startTime);
+  // final diff = DateTime.now().difference(startDate);
+
+  // if (diff >= Duration(hours: 24)) {
+  //     // expired
+  //     await prefs.setBool('showProcurement', false);
+  //     setState(() => showProcurement = false);
+  //   } else {
+  //     final remaining = Duration(hours: 24) - diff;
+  //     setState(() => showProcurement = true);
+
+  //     Timer(remaining, () async {
+  //       if (mounted) {
+  //         setState(() => showProcurement = false);
+  //         await prefs.setBool('showProcurement', false);
+  //       }
+  //     });
+  //   }
+  // }
+
+  Future<void> _hideProcurement() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt('procurementShownTime', 0);
+    setState(() => showProcurement = false);
+  }
+
   @override
   Widget build(BuildContext context) {
     final contractProvider = Provider.of<GetContractApi>(context);
     final dashboardApi = Provider.of<DashboardApi>(context);
     final isLoading = dashboardApi.loading;
-    final walletBalance = dashboardApi.data?.kwikLCBalance ?? 0.0;
+    final walletBalance = dashboardApi.data?.walletBalance ?? 0.0;
     final activeTickets = dashboardApi.activeKwikTicketsCount;
     final completed = dashboardApi.completedExportsCount;
     bool showBalance = true;
 
     // final exports= dashboardApi.data?.exports ?? [];
     final user = dashboardApi.data?.userProfile;
-    // final contractProvider = Provider.of<GetContractApi>(context);
-    // final session = loadUserSessionFromPrefs();
+
     return WillPopScope(
       onWillPop: () async {
         // Return false to prevent going back
@@ -190,10 +302,88 @@ class _DashboardState extends State<Dashboard> {
                         ),
                       ),
                       SizedBox(height: 18),
+
+                      // Procurement container
+                      // if (showProcurement)
                       if (widget.kwikticket != null && showProcurement)
                         procurementContainer(),
                       if (widget.kwikticket != null && showProcurement)
-                        SizedBox(height: 25),
+                        if (showProcurement) SizedBox(height: 25),
+                      if (showContinueJourney)
+                        Container(
+                          height: 70,
+                          width: double.infinity,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12.0,
+                            vertical: 8.0,
+                          ),
+                          decoration: BoxDecoration(
+                            border: Border.all(
+                              width: 1.2,
+                              color: colorCodes.antiFlashWhite,
+                            ),
+                            borderRadius: BorderRadius.circular(6),
+                            color: colorCodes.white,
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Row(
+                                children: [
+                                  Image.asset(
+                                    "assets/images/clock_awaits.png",
+                                    height: 40,
+                                    width: 40,
+                                  ),
+                                  const SizedBox(width: 10),
+                                  Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Text(
+                                        "Export Journey In Progress",
+                                        style: kwikTextStlye(
+                                          12.0,
+                                          FontWeight.w300,
+                                          colorCodes.graniteGrey,
+                                        ),
+                                      ),
+                                      Text(
+                                        "Continue your export journey",
+                                        style: kwikTextStlye(
+                                          12.0,
+                                          FontWeight.w500,
+                                          colorCodes.black,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                              SizedBox(
+                                height: 23,
+                                child: elevatedbutton(
+                                  "Continue",
+                                  () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder:
+                                            (context) => ExportJourneyScreen(
+                                              kwikticket: widget.kwikticket,
+                                              exporterContractId:
+                                                  exportContractId!,
+                                            ),
+                                      ),
+                                    );
+                                  },
+                                  backgroundcolor: colorCodes.portlandOrange,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
 
                       Align(
                         alignment: Alignment.centerLeft,
@@ -252,15 +442,6 @@ class _DashboardState extends State<Dashboard> {
                                   builder: (context) => ContractScreen(),
                                 ),
                               );
-                              // Navigator.push(
-                              //   context,
-                              //   MaterialPageRoute(
-                              //     builder:
-                              //         (context) => ExportJourneyScreen(
-                              //           kwikticket: widget.kwikticket,
-                              //         ),
-                              //   ),
-                              // );
                             },
                             child: Text(
                               "See All",

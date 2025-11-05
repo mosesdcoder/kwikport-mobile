@@ -249,8 +249,9 @@ class _ContractDetailsScreenState extends State<ContractDetailsScreen>
                           SizedBox(height: 20),
                           contractDetailHeadingAndSubtitle(
                             "Buyer",
-                            "${widget.contract.buyerSpecification?.buyerName ?? "N/A"}",
                             "Destination",
+                            "${widget.contract.buyerSpecification?.buyerName ?? "N/A"}",
+
                             widget.contract.destinationCountry,
                           ),
                           SizedBox(height: 20),
@@ -347,7 +348,11 @@ class _ContractDetailsScreenState extends State<ContractDetailsScreen>
                                 decoration: BoxDecoration(
                                   border: Border.all(
                                     width: 1.2,
-                                    color: colorCodes.mediumSeaGreen,
+                                    color:
+                                        widget.contract.contractStatus ==
+                                                "Active"
+                                            ? colorCodes.mediumSeaGreen
+                                            : colorCodes.portlandOrange,
                                   ),
                                   borderRadius: BorderRadius.circular(22),
                                   color: colorCodes.aeroblue,
@@ -359,11 +364,15 @@ class _ContractDetailsScreenState extends State<ContractDetailsScreen>
                                       "assets/images/icons/tick-circle.png",
                                       height: 16,
                                       width: 16,
+                                      color:
+                                          widget.contract.contractStatus ==
+                                                  "Active"
+                                              ? colorCodes.mediumSeaGreen
+                                              : colorCodes.portlandOrange,
                                     ),
+
                                     Text(
-                                      widget.contract.contractStatus == 0
-                                          ? "Open"
-                                          : "Closed",
+                                      "${widget.contract.contractStatus}",
                                       style: kwikTextStlye(
                                         10.0,
                                         FontWeight.w500,

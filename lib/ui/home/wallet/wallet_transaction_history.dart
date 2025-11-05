@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:kwik_port/colors/color.dart';
+import 'package:kwik_port/ui/home/wallet/wallet_tabbar.dart';
 import 'package:kwik_port/utils/text/textstyle.dart';
 import 'package:kwik_port/utils/textFields/search_field.dart';
 
@@ -11,7 +12,15 @@ class WalletTransactionHistory extends StatefulWidget {
       _WalletTransactionHistoryState();
 }
 
-class _WalletTransactionHistoryState extends State<WalletTransactionHistory> {
+class _WalletTransactionHistoryState extends State<WalletTransactionHistory>
+    with SingleTickerProviderStateMixin {
+  late TabController _tabController;
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: 5, vsync: this);
+  }
+
   TextEditingController searcTransactioncontroller = TextEditingController();
   @override
   Widget build(BuildContext context) {
@@ -40,13 +49,74 @@ class _WalletTransactionHistoryState extends State<WalletTransactionHistory> {
             "Search transactions...",
           ),
           SizedBox(height: 20),
-          transactionHistoryContainer(
-            "Cashew Export Earnings ",
-            "Successful",
-            "05 Sep 2025",
-            "10:00 pm",
-            "+\$2,000",
-            () {},
+          transactionHistoryTabBar(_tabController),
+          Expanded(
+            // height: 314,
+            child: TabBarView(
+              controller: _tabController,
+              children: [
+                Column(
+                  children: [
+                    transactionHistoryContainer(
+                      "Cashew Export Earnings ",
+                      "Successful",
+                      "05 Sep 2025",
+                      "10:00 pm",
+                      "+\$2,000",
+                      () {},
+                    ),
+                  ],
+                ),
+                Column(
+                  children: [
+                    transactionHistoryContainer(
+                      "Cashew Export Earnings ",
+                      "Successful",
+                      "05 Sep 2025",
+                      "10:00 pm",
+                      "+\$2,000",
+                      () {},
+                    ),
+                  ],
+                ),
+                Column(
+                  children: [
+                    transactionHistoryContainer(
+                      "Cashew Export Earnings ",
+                      "Successful",
+                      "05 Sep 2025",
+                      "10:00 pm",
+                      "+\$2,000",
+                      () {},
+                    ),
+                  ],
+                ),
+                Column(
+                  children: [
+                    transactionHistoryContainer(
+                      "Cashew Export Earnings ",
+                      "Successful",
+                      "05 Sep 2025",
+                      "10:00 pm",
+                      "+\$2,000",
+                      () {},
+                    ),
+                  ],
+                ),
+                Column(
+                  children: [
+                    transactionHistoryContainer(
+                      "Cashew Export Earnings ",
+                      "Successful",
+                      "05 Sep 2025",
+                      "10:00 pm",
+                      "+\$2,000",
+                      () {},
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
         ],
       ),
@@ -67,6 +137,7 @@ class _WalletTransactionHistoryState extends State<WalletTransactionHistory> {
         height: 75,
         width: 352,
         padding: EdgeInsets.symmetric(horizontal: 10, vertical: 1),
+        alignment: Alignment.topCenter,
         decoration: BoxDecoration(
           color: colorCodes.white,
           borderRadius: BorderRadius.circular(8),
@@ -80,7 +151,7 @@ class _WalletTransactionHistoryState extends State<WalletTransactionHistory> {
           ],
         ),
         child: Row(
-          // mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          // mainAxisAlignment: MainAxisAlignment.start,
           children: [
             Row(
               children: [

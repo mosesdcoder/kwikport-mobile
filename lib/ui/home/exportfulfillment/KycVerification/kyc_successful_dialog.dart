@@ -172,39 +172,39 @@ class _KycSuccessfulDialogState extends State<KycSuccessfulDialog> {
                   kwikbutton("Proceed to Kwikprocure", () {
                     setState(() => fundTicketApi.loading = true);
 
-                    fundTicketApi.fundTicket(
-                      kwikTicketId: widget.kwikticket.id.toString(),
-                      exporterId: widget.kwikticket.exporter!.id.toString(),
-                      // dashboardApi.data!.e, //.toString(),
-                    );
+                    // fundTicketApi.fundTicket(
+                    //   kwikTicketId: widget.kwikticket.id.toString(),
+                    //   exporterId: widget.kwikticket.exporter!.id.toString(),
+                    //   // dashboardApi.data!.e, //.toString(),
+                    // );
 
-                    setState(() => fundTicketApi.loading = false);
+                    // setState(() => fundTicketApi.loading = false);
 
-                    if (fundTicketApi.isSuccessful == true &&
-                        fundTicketApi.authorizationUrl != null) {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder:
-                              (_) => FundExportContract(
-                                kwikticket: widget.kwikticket,
-                                url: fundTicketApi.authorizationUrl!,
-                                kwikTicketId: widget.kwikticket.id,
-                                referenceNumber:
-                                    fundTicketApi.paymentReference!,
-                                paymentMethod: fundTicketApi.provider!,
-                              ),
-                        ),
-                      );
-                    } else {
-                      showToastContainer(
-                        "Fund Ticket",
-                        fundTicketApi.message,
-                        colorCodes.mistyRose,
-                        colorCodes.portlandOrange,
-                        context,
-                      );
-                    }
+                    // if (fundTicketApi.isSuccessful == true &&
+                    //     fundTicketApi.authorizationUrl != null) {
+                    //   Navigator.push(
+                    //     context,
+                    //     MaterialPageRoute(
+                    //       builder:
+                    //           (_) => FundExportContract(
+                    //             kwikticket: widget.kwikticket,
+                    //             url: fundTicketApi.authorizationUrl!,
+                    //             kwikTicketId: widget.kwikticket.id,
+                    //             referenceNumber:
+                    //                 fundTicketApi.paymentReference!,
+                    //             paymentMethod: fundTicketApi.provider!,
+                    //           ),
+                    //     ),
+                    //   );
+                    // } else {
+                    //   showToastContainer(
+                    //     "Fund Ticket",
+                    //     fundTicketApi.message,
+                    //     colorCodes.mistyRose,
+                    //     colorCodes.portlandOrange,
+                    //     context,
+                    //   );
+                    // }
                     // Navigator.push(
                     //   context,
                     //   MaterialPageRoute(

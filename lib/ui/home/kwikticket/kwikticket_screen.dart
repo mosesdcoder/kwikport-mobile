@@ -134,7 +134,7 @@ class _KwikticketScreenState extends State<KwikticketScreen> {
                     contractDetailHeadingAndSubtitletwo(
                       "Selected Capacity",
                       "Commodity Cost",
-                      "${widget.kwikticket.contract?.totalQuantity} Tons",
+                      "${widget.kwikticket.quantityToFulfill} Tons",
                       "${widget.kwikticket.kwikTicketAmount}",
                       // "20.5 tons",
                       // "₦246,000,000",
@@ -181,7 +181,7 @@ class _KwikticketScreenState extends State<KwikticketScreen> {
                               width: 16,
                             ),
                             Text(
-                              "${widget.kwikticket.contract?.projectedIncome}%",
+                              "${widget.kwikticket.grossEarning}%",
                               style: kwikTextStlye(
                                 14.0,
                                 FontWeight.w600,
