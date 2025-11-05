@@ -225,13 +225,13 @@ class _LoginScreenState extends State<LoginScreen> {
                   builder: (context) => LoginSuccessfulScreen(),
                 ),
               );
-              showToastContainer(
-                "Login Successful",
-                loginProvider.message,
-                colorCodes.pigmentGreen,
-                colorCodes.mediumSeaGreen,
-                context,
-              );
+              // showToastContainer(
+              //   "Login Successful",
+              //   loginProvider.message,
+              //   colorCodes.pigmentGreen,
+              //   colorCodes.mediumSeaGreen,
+              //   context,
+              // );
               currentIndex = 1;
             } else {
               showToastContainer(
