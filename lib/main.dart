@@ -16,12 +16,14 @@ import 'package:kwik_port/api/controller/authApi/verifyEmailApi.dart';
 import 'package:kwik_port/api/controller/contractsApi/calculate_commodity_cost.dart';
 import 'package:kwik_port/api/controller/contractsApi/get_contract_api.dart';
 import 'package:kwik_port/api/controller/contractsApi/publishedcontractsApi.dart';
+import 'package:kwik_port/api/controller/fund_wallet_api.dart';
 import 'package:kwik_port/api/controller/home/dashboard_api.dart';
 import 'package:kwik_port/api/controller/kwikTickets/create_kwikticket_api.dart';
 import 'package:kwik_port/api/controller/kwikTickets/fund_ticket_api.dart';
 import 'package:kwik_port/api/controller/kwikTickets/get_kwik_ticket_api.dart';
 import 'package:kwik_port/api/controller/kwikTickets/update_kwikticket_status_api.dart';
 import 'package:kwik_port/api/controller/kwikTickets/verify_payment.dart';
+import 'package:kwik_port/api/controller/verify_fund_payment.dart';
 import 'package:kwik_port/api/model/userModel.dart';
 import 'package:kwik_port/colors/color.dart';
 import 'package:kwik_port/ui/onboarding/splash_screen.dart';
@@ -58,8 +60,9 @@ void main() async {
           ChangeNotifierProvider(create: (_) => CalculateCommodityCostApi()),
           ChangeNotifierProvider(create: (_) => VerifyPaymentApi()),
           ChangeNotifierProvider(create: (_) => ExportJourneyProvider()),
-              ChangeNotifierProvider(create: (_) => SelectedAgencyProvider()),
-
+          ChangeNotifierProvider(create: (_) => SelectedAgencyProvider()),
+          ChangeNotifierProvider(create: (_) => FundWalletApi()),
+          ChangeNotifierProvider(create: (_) => VerifyFundPayment()),
         ],
         child: const MyApp(),
       ),
