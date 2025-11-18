@@ -818,7 +818,7 @@ class _ContractDetailsDeliveredScreenState
           SizedBox(height: 35),
         ],
       ),
-      bottomNavigationBar: Bottomnavigationbar(2),
+      bottomNavigationBar: Bottomnavigationbar(5),
     );
   }
 

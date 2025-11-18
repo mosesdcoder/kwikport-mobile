@@ -268,7 +268,7 @@ class _GenerateContractTicketDialogState
                     volumeController.text,
                   ),
                   SizedBox(height: 24),
-                  kwikbutton("Generate Ticket", () async {
+                  kwikbutton("Generate Tickets", () async {
                     if (volumeController.text.isNotEmpty) {
                       await createTicketApi
                           .createKwikTicket(
