@@ -3,10 +3,12 @@ import 'package:hexcolor/hexcolor.dart';
 import 'package:kwik_port/colors/color.dart';
 import 'package:kwik_port/utils/button/kwik_button.dart';
 import 'package:kwik_port/utils/text/textstyle.dart';
+import 'package:kwik_port/utils/toast.dart';
 
 class ExportAccordion extends StatefulWidget {
   final title, statusbtntxt, statusbtnFunc, statusbackgroundColor;
   final child;
+  final bool canExpand;
 
   const ExportAccordion({
     super.key,
@@ -15,6 +17,7 @@ class ExportAccordion extends StatefulWidget {
     required this.statusbackgroundColor,
     required this.statusbtnFunc,
     required this.child,
+    this.canExpand = true,
   });
 
   @override
@@ -43,6 +46,16 @@ class _ExportAccordionState extends State<ExportAccordion> {
           ),
           child: InkWell(
             onTap: () {
+              if (!widget.canExpand) {
+                showToastContainer(
+                  "Locked Stage 🚧",
+                  "Complete the previous stage to unlock this one.",
+                  colorCodes.sunset,
+                  colorCodes.white,
+                  context,
+                );
+                return;
+              }
               setState(() {
                 isExpanded = !isExpanded;
               });
@@ -157,7 +170,10 @@ class _ExportAccordionState extends State<ExportAccordion> {
                   isExpanded
                       ? Icons.expand_less_rounded
                       : Icons.expand_more_rounded,
-                  color: colorCodes.graniteGrey,
+                  color:
+                      widget.canExpand
+                          ? colorCodes.black
+                          : colorCodes.graniteGrey,
                   size: 26,
                 ),
               ],

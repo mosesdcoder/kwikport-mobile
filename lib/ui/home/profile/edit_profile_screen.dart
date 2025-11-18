@@ -72,7 +72,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         fullnameController.text =
             "${userDataVar?.firstName ?? ''} ${userDataVar?.lastName ?? ''}";
         phoneNumberController.text = userDataVar?.phoneNumber ?? '';
-        _selectedImage = null; // always use network image unless user picks new
+        // _selectedImage?? = null; // always use network image unless user picks new
+        // _selectedImage =
+        //     _selectedImage ?? (userDataVar?.image != null ? null : null);
       });
     }
   }
@@ -168,6 +170,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                             _selectedImage = null;
                             userDataVar = userDataVar?.copyWith(image: null);
                           });
+                          await updateUserSessionWithImage(
+                            null,
+                          ); // persist removal
 
                           await prefs.setString(
                             'userSession',
@@ -191,68 +196,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                           );
                         }
                       },
-                      // () async {
-                      //   final prefs = await SharedPreferences.getInstance();
-                      //   final dashboardApi = Provider.of<DashboardApi>(
-                      //     context,
-                      //     listen: false,
-                      //   );
-                      //   final dashboardUserId =
-                      //       dashboardApi.data?.userProfile?.id;
 
-                      //   showDialog(
-                      //     context: context,
-                      //     builder: (_) => LoadingDialog(),
-                      //   );
-
-                      //   final updateUserProvider = Provider.of<UpdateUserApi>(
-                      //     context,
-                      //     listen: false,
-                      //   );
-
-                      // await updateUserProvider.updateUser(
-                      //   id: dashboardUserId ?? '',
-                      //   firstName: fullnameController.text.split(' ').first,
-                      //   lastName:
-                      //       fullnameController.text.split(' ').length > 1
-                      //           ? fullnameController.text.split(' ').last
-                      //           : '',
-                      //   phoneNumber: phoneNumberController.text,
-                      //   email: emailController.text,
-                      //   image: "", // 👈 send empty image to remove
-                      // );
-
-                      // Navigator.pop(context);
-
-                      // if (updateUserProvider.success) {
-                      //   // ✅ Clear local image
-                      //   setState(() {
-                      //     _selectedImage = null;
-                      //     userDataVar = userDataVar?.copyWith(image: null);
-                      //   });
-
-                      //   await prefs.setString(
-                      //     'userSession',
-                      //     jsonEncode(userDataVar?.toJson()),
-                      //   );
-
-                      //   showToastContainer(
-                      //     "Profile Picture Removed",
-                      //     "Your profile picture has been removed.",
-                      //     colorCodes.mintCream,
-                      //     colorCodes.mediumSeaGreen,
-                      //     context,
-                      //   );
-                      //   } else {
-                      //     showToastContainer(
-                      //       "Remove Failed",
-                      //       updateUserProvider.message,
-                      //       colorCodes.mistyRose,
-                      //       colorCodes.portlandOrange,
-                      //       context,
-                      //     );
-                      //   }
-                      // },
                       colorCodes.portlandOrange,
                       colorCodes.portlandOrange,
                       textColor: colorCodes.white,
@@ -382,9 +326,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
     if (updateUserProvider.success) {
       final updatedUrl = updateUserProvider.updatedUser?.image ?? '';
-
+      await updateUserSessionWithImage(updatedUrl);
       setState(() {
-        _selectedImage = null;
+        // _selectedImage = null;
         userDataVar = userDataVar?.copyWith(
           firstName: fullnameController.text.split(' ').first,
           lastName:

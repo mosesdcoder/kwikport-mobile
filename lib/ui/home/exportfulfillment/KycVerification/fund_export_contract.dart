@@ -164,6 +164,7 @@ class _FundExportContractState extends State<FundExportContract> {
 
   @override
   Widget build(BuildContext context) {
+    final dashboardApi = Provider.of<DashboardApi>(context, listen: false);
     final fundTicketApi = Provider.of<FundKwikticketApi>(
       context,
       listen: false,
@@ -332,7 +333,7 @@ class _FundExportContractState extends State<FundExportContract> {
                                         ],
                                       ),
                                       Text(
-                                        "${widget.kwikticket.projectedIncomeInDollars}",
+                                        "${widget.kwikticket.grossEarning}",
                                         textAlign: TextAlign.start,
                                         style: kwikTextStlye(
                                           12.0,
@@ -374,7 +375,7 @@ class _FundExportContractState extends State<FundExportContract> {
                       SizedBox(height: 15),
                       paymentContainer(
                         "KwikBalance",
-                        "Available: \$125,000.00",
+                        "Available: \$${dashboardApi.data!.walletBalance}",
                         selectKwikBalance,
                         () {
                           setState(() {
@@ -388,8 +389,8 @@ class _FundExportContractState extends State<FundExportContract> {
                       ),
                       SizedBox(height: 12),
                       paymentContainer(
-                        "Others",
-                        "Visa, MasterCard, Verve",
+                        "Direct funding",
+                        "Visa, MasterCard, Transfer",
 
                         selectCardTransfer,
                         () {
@@ -522,6 +523,77 @@ class _FundExportContractState extends State<FundExportContract> {
                           )
                           : Container(),
                       SizedBox(height: 30),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          InkWell(
+                            onTap: () {
+                              setState(() {
+                                checkterms = !checkterms;
+                              });
+                            },
+                            child:
+                                checkterms == true
+                                    ? Image.asset(
+                                      "assets/images/icons/dashboard/Checkbox (1).png",
+                                      height: 25,
+                                      width: 25,
+                                    )
+                                    : Container(
+                                      height: 20,
+                                      width: 20,
+                                      alignment: Alignment.center,
+                                      decoration: BoxDecoration(
+                                        border: Border.all(
+                                          color: colorCodes.frenchSkyBlue,
+                                          width: 1.5,
+                                        ),
+
+                                        color: colorCodes.white,
+                                        borderRadius: BorderRadius.circular(
+                                          6,
+                                        ), // rounded corners
+                                      ),
+                                    ),
+                          ),
+                          SizedBox(width: 5),
+                          SizedBox(
+                            width: MediaQuery.of(context).size.width - 100,
+                            child: RichText(
+                              textAlign: TextAlign.start,
+                              text: TextSpan(
+                                style: TextStyle(
+                                  fontFamily: "Poppins",
+                                  fontSize: 12.0,
+                                  fontWeight: FontWeight.w300,
+                                  color: colorCodes.black,
+                                ),
+                                children: [
+                                  TextSpan(text: "I agree to the "),
+                                  TextSpan(
+                                    text: "Terms and Conditions. ",
+                                    style: TextStyle(
+                                      color: colorCodes.azureBlue,
+                                    ),
+                                  ),
+                                  TextSpan(text: "and "),
+                                  TextSpan(
+                                    text: "Privacy Policy.",
+                                    style: TextStyle(
+                                      color: colorCodes.azureBlue,
+                                    ),
+                                  ),
+                                  TextSpan(
+                                    text:
+                                        " I understand that this payment will fund my export contract and acknowledge the associated risks and returns.",
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: 30),
                       kwikbutton(
                         "Pay ₦${widget.kwikticket.kwikTicketAmount}",
                         () async {
@@ -577,16 +649,7 @@ class _FundExportContractState extends State<FundExportContract> {
                                                   () => _isLoading = true,
                                                 );
 
-                                                final uri = Uri.parse(url);
-                                              },
-                                              onPageFinished: (url) {
-                                                debugPrint(
-                                                  "✅ Finished loading: $url",
-                                                );
-
-                                                setState(
-                                                  () => _isLoading = false,
-                                                );
+                                                // final uri = Uri.parse(url);
                                                 final uri = Uri.parse(url);
                                                 final reference =
                                                     uri.queryParameters["reference"] ??
@@ -598,6 +661,15 @@ class _FundExportContractState extends State<FundExportContract> {
                                                         .paymentReference!,
                                                   );
                                                 } else {}
+                                              },
+                                              onPageFinished: (url) {
+                                                debugPrint(
+                                                  "✅ Finished loading: $url",
+                                                );
+
+                                                setState(
+                                                  () => _isLoading = false,
+                                                );
                                               },
                                             ),
                                           )
@@ -626,82 +698,8 @@ class _FundExportContractState extends State<FundExportContract> {
                         },
                         fontFamily: "",
                       ),
-                      selectBankTransfer == true
-                          ? SizedBox(height: 20)
-                          : SizedBox(height: 1),
 
-                      SizedBox(height: 30),
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          InkWell(
-                            onTap: () {
-                              setState(() {
-                                checkterms = !checkterms;
-                              });
-                            },
-                            child:
-                                checkterms == true
-                                    ? Image.asset(
-                                      "assets/images/icons/dashboard/Checkbox (1).png",
-                                      height: 25,
-                                      width: 25,
-                                    )
-                                    : Container(
-                                      height: 20,
-                                      width: 20,
-                                      alignment: Alignment.center,
-                                      decoration: BoxDecoration(
-                                        border: Border.all(
-                                          color: colorCodes.frenchSkyBlue,
-                                          width: 1.5,
-                                        ),
-
-                                        color: colorCodes.white,
-                                        borderRadius: BorderRadius.circular(
-                                          6,
-                                        ), // rounded corners
-                                      ),
-                                    ),
-                          ),
-                          SizedBox(width: 5),
-                          SizedBox(
-                            width: 250,
-                            child: RichText(
-                              textAlign: TextAlign.start,
-                              text: TextSpan(
-                                style: TextStyle(
-                                  fontFamily: "Poppins",
-                                  fontSize: 12.0,
-                                  fontWeight: FontWeight.w300,
-                                  color: colorCodes.black,
-                                ),
-                                children: [
-                                  TextSpan(text: "I agree to the "),
-                                  TextSpan(
-                                    text: "Terms and Conditions. ",
-                                    style: TextStyle(
-                                      color: colorCodes.azureBlue,
-                                    ),
-                                  ),
-                                  TextSpan(text: "and "),
-                                  TextSpan(
-                                    text: "Privacy Policy.",
-                                    style: TextStyle(
-                                      color: colorCodes.azureBlue,
-                                    ),
-                                  ),
-                                  TextSpan(
-                                    text:
-                                        " I understand that this payment will fund my export contract and acknowledge the associated risks and returns.",
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: 20),
+                      SizedBox(height: 25),
                     ],
                   ),
                 ],

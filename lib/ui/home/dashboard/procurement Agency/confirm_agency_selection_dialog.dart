@@ -196,14 +196,16 @@ class _ConfirmAgencySelectionDialogState
                         ),
                         SizedBox(height: 20),
                         kwikbutton("Confirm Selection", () async {
+                          if (!mounted) return;
                           // Navigator.pop(context);
                           debugPrint(
                             '🛠 ExporterContractId: ${dashboardApi.data?.exports.last.id}', //widget.kwikticket?.exporter?.
                           );
                           // widget.kwikticket?.exporter?.id
                           //dashboardApi.data?.userProfile?.
+                          final parentContext = context;
                           showDialog(
-                            context: context,
+                            context: parentContext,
                             barrierDismissible: false,
                             builder: (_) => kwikportloader(),
                           );
@@ -213,7 +215,7 @@ class _ConfirmAgencySelectionDialogState
                               exports
                                   .where(
                                     (exp) =>
-                                        exp.exportContractStageEnum ==
+                                        exp.exportContractStage ==
                                             "CommoditySourcing" &&
                                         exp.contractFulfilmentMethod ==
                                             "KwikProcure",
@@ -225,16 +227,16 @@ class _ConfirmAgencySelectionDialogState
                             //  => DateTime.parse(
                             //   b.createdDate,
                             // ).compareTo(DateTime.parse(a.createdDate)),
-                            final aDate = a.createdDate ?? DateTime(1970);
-                            final bDate = b.createdDate ?? DateTime(1970);
+                            final aDate = a.createdAt ?? DateTime(1970);
+                            final bDate = b.createdAt ?? DateTime(1970);
                             return bDate.compareTo(aDate);
                           });
 
                           // Pick the most recent export
                           final selectedExport =
                               activeExports.isNotEmpty
-                                  ? activeExports.first
-                                  : exports.first;
+                                  ? activeExports.last
+                                  : exports.last;
                           final exportId = selectedExport.id;
 
                           debugPrint("✅ Selected Export ID: $exportId");
@@ -251,25 +253,32 @@ class _ConfirmAgencySelectionDialogState
                                 stageType: 2,
                               )
                               .then((_) async {
-                                Navigator.pop(context);
+                                if (!mounted) return;
+                                Navigator.pop(parentContext);
                                 if (selectagencyProvider.success) {
                                   final prefs =
                                       await SharedPreferences.getInstance();
+
+                                  // 🧹 Clear any previous ongoing journey data (override step)
+                                  await prefs.remove('journeyInProgress');
+                                  await prefs.remove('activeExportContractId');
+                                  await prefs.remove('activeKwikTicket');
+                                  await prefs.remove('procurementCompleted');
+                                  await prefs.remove('procurementInProgress');
+
+                                  // 💾 Save the current ongoing journey
                                   await prefs.setBool(
-                                    'procurementInProgress',
+                                    'journeyInProgress',
                                     true,
                                   );
-                                  await prefs.setBool(
-                                    'procurementCompleted',
-                                    false,
-                                  );
-                                  // final contractId =
-                                  //     widget.kwikticket?.exportContractId;
-
                                   await prefs.setString(
                                     'activeExportContractId',
                                     exportId ?? '',
                                   );
+                                  // await prefs.setString(
+                                  //   'activeKwikTicket',
+                                  //   widget.kwikticket ?? '',
+                                  // );
                                   await prefs.setBool(
                                     'procurementInProgress',
                                     true,
@@ -283,9 +292,44 @@ class _ConfirmAgencySelectionDialogState
                                     DateTime.now().millisecondsSinceEpoch,
                                   );
 
+                                  debugPrint(
+                                    '✅ Journey data saved locally: '
+                                    'Contract ID = $exportId | Ticket = ${widget.kwikticket}',
+                                  );
+
+                                  // final prefs =
+                                  //     await SharedPreferences.getInstance();
+                                  // await prefs.setBool(
+                                  //   'procurementInProgress',
+                                  //   true,
+                                  // );
+                                  // await prefs.setBool(
+                                  //   'procurementCompleted',
+                                  //   false,
+                                  // );
+                                  // final contractId =
+                                  //     widget.kwikticket?.exportContractId;
+
+                                  // await prefs.setString(
+                                  //   'activeExportContractId',
+                                  //   exportId ?? '',
+                                  // );
+                                  // await prefs.setBool(
+                                  //   'procurementInProgress',
+                                  //   true,
+                                  // );
+                                  // await prefs.setBool(
+                                  //   'procurementCompleted',
+                                  //   false,
+                                  // );
+                                  // await prefs.setInt(
+                                  //   'procurementStartTime',
+                                  //   DateTime.now().millisecondsSinceEpoch,
+                                  // );
+                                  if (!mounted) return;
                                   showDialog(
                                     barrierDismissible: false,
-                                    context: context,
+                                    context: parentContext,
                                     builder: (BuildContext context) {
                                       return AgencySelectionConfirmedDialog(
                                         serviceFee: "${widget.serviceFee}",
@@ -307,19 +351,7 @@ class _ConfirmAgencySelectionDialogState
                                                     // '',
                                                   ),
                                             ),
-                                            // (Route<dynamic> route) => false,
                                           );
-                                          // Navigator.push(
-                                          //   context,
-                                          //   MaterialPageRoute(
-                                          //     builder:
-                                          //         (context) => ExportJourneyScreen(
-                                          //           kwikticket: widget.kwikticket,
-                                          //           //     ?.exportContractId ??
-                                          //           // "Unknown id",
-                                          //         ),
-                                          //   ),
-                                          // );
                                         },
                                         agencyName: widget.agencyName,
                                       );

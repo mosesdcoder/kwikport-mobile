@@ -21,7 +21,7 @@ class ForgotPasswordApi extends ChangeNotifier {
       if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
         var body = {"email": email};
         print(body);
-        final response = await HttpService.postRequest(
+        final response = await HttpService.postRequestNoAuth(
           '/Access/forgot-password',
           body,
         );

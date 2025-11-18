@@ -94,17 +94,5 @@ class DashboardApi extends ChangeNotifier {
       _data?.kwikTickets.where((t) => t.isActive == true).length ?? 0;
 
   int get completedExportsCount =>
-      _data?.exports
-          .where((e) => (e.contractStatus ?? '') == 'completed')
-          .length ??
-      0;
-
-
-  int get getActiveExportsCount =>
-      _data?.exports
-          .where((e) => (e.contractStatus ?? '') != 'completed')
-          .length ??
-          0;
-
-
+      _data?.exports.where((e) => e.completedAt != null).length ?? 0;
 }

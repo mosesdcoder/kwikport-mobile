@@ -14,6 +14,7 @@ import 'package:kwik_port/ui/home/contracts/contract_details_screen.dart';
 import 'package:kwik_port/ui/home/contracts/contract_screen.dart';
 import 'package:kwik_port/ui/home/contracts/request_contract_screen.dart';
 import 'package:kwik_port/ui/home/dashboard/exportJourney/export_journey_screen.dart';
+import 'package:kwik_port/ui/home/dashboard/myexports/my_exports_screen.dart';
 import 'package:kwik_port/ui/home/dashboard/name_and_notif_headng.dart';
 import 'package:kwik_port/ui/home/dashboard/notifcation/notification_screen.dart';
 import 'package:kwik_port/ui/home/dashboard/procurement%20Agency/select_procurement_agency_screen.dart';
@@ -39,6 +40,7 @@ class _DashboardState extends State<Dashboard> {
   bool notificationExist = true;
   bool showProcurement = true; // <--- add this
   DateTime? procurementShownTime;
+
   int itemCount = 3;
   final ScrollController _scrollController = ScrollController();
   bool isLoading = false;
@@ -76,7 +78,8 @@ class _DashboardState extends State<Dashboard> {
     // });
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       await _loadProcurementState();
-      _loadJourneyState();
+      // _loadJourneyState();
+      await _checkOngoingJourney();
       Provider.of<DashboardApi>(context, listen: false).fetchDashboard();
       final api = Provider.of<GetContractApi>(context, listen: false);
       api.fetchContracts(); // PageIndex=1, PageSize=20, version=1
@@ -153,18 +156,69 @@ class _DashboardState extends State<Dashboard> {
 
   bool showContinueJourney = false;
   String? exportContractId;
+  String? kwikticket;
+  // Future<void> _loadJourneyState() async {
+  //   final prefs = await SharedPreferences.getInstance();
+  //   final inProgress = prefs.getBool('journeyInProgress') ?? false;
+  //   final savedId = prefs.getString('activeExportContractId');
 
-  Future<void> _loadJourneyState() async {
+  //   if (inProgress && savedId != null) {
+  //     // Only show the continue journey if the journey still exists
+  //     // You could optionally validate savedId with the server here
+  //     setState(() {
+  //       showContinueJourney = true;
+  //       exportContractId = savedId;
+  //     });
+  //   } else {
+  //     setState(() {
+  //       showContinueJourney = false;
+  //       exportContractId = null;
+  //     });
+  //   }
+  // }
+
+  // Future<void> _loadJourneyState() async {
+  //   final prefs = await SharedPreferences.getInstance();
+  //   final inProgress = prefs.getBool('journeyInProgress') ?? false;
+  //   final savedId = prefs.getString('activeExportContractId');
+
+  //   if (inProgress && savedId != null) {
+  //     setState(() {
+  //       showContinueJourney = true;
+  //       exportContractId = savedId;
+  //     });
+  //   }
+  // }
+  // Start a new export journey
+  Future<void> startNewJourney(String newExporterContractId) async {
     final prefs = await SharedPreferences.getInstance();
-    final inProgress = prefs.getBool('journeyInProgress') ?? false;
-    final savedId = prefs.getString('activeExportContractId');
 
-    if (inProgress && savedId != null) {
-      setState(() {
-        showContinueJourney = true;
-        exportContractId = savedId;
-      });
-    }
+    // Clear any previous data
+    await prefs.remove('activeExportContractId');
+    await prefs.remove('journeyInProgress');
+
+    // Save new journey details
+    await prefs.setString('activeExportContractId', newExporterContractId);
+    await prefs.setBool('journeyInProgress', true);
+
+    // Update UI state
+    setState(() {
+      exportContractId = newExporterContractId;
+      // showContinueJourney = true;
+    });
+  }
+
+  // Complete the current journey
+  Future<void> completeJourney() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('activeExportContractId');
+    await prefs.remove('journeyInProgress');
+
+    // Update UI
+    setState(() {
+      // showContinueJourney = false;
+      exportContractId = null;
+    });
   }
 
   // Future<void> _loadProcurementState() async {
@@ -204,6 +258,19 @@ class _DashboardState extends State<Dashboard> {
   //   }
   // }
 
+  Future<void> _checkOngoingJourney() async {
+    final prefs = await SharedPreferences.getInstance();
+    final inProgress = prefs.getBool('journeyInProgress') ?? false;
+    final contractId = prefs.getString('activeExportContractId');
+    final ticket = prefs.getString('activeKwikTicket');
+
+    setState(() {
+      showContinueJourney = inProgress;
+      exportContractId = contractId;
+      kwikticket = ticket;
+    });
+  }
+
   Future<void> _hideProcurement() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setInt('procurementShownTime', 0);
@@ -221,7 +288,9 @@ class _DashboardState extends State<Dashboard> {
     print('Total Export Contract Balance: $totalExportContractBalance');
 
     final activeTickets = dashboardApi.activeKwikTicketsCount;
-    final activeContracts = dashboardApi.getActiveExportsCount;
+    // final activeContracts = dashboardApi.getActiveExportsCount;
+    final exportWalletBalance =
+        dashboardApi.data?.totalExportContractBalance ?? 0.0;
     final completed = dashboardApi.completedExportsCount;
     bool showBalance = true;
 
@@ -287,12 +356,23 @@ class _DashboardState extends State<Dashboard> {
                               children: [
                                 activityProgressContainer(
                                   "assets/images/icons/kwik_tickets.png",
-                                  "Active Kwiktickets",
-                                  //"1",
-                                  activeContracts.toString().padLeft(2, '0'),
+                                  "My Exports", // "Active Kwiktickets",
+                                  activeTickets.toString().padLeft(2, '0'),
 
                                   // "01",
                                   context,
+                                  () {
+                                    currentIndex = 1;
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder:
+                                            (context) => MyExportsScreen(
+                                              // kwikticket: widget.kwikticket,
+                                            ),
+                                      ),
+                                    );
+                                  },
                                 ),
                                 SizedBox(height: 5),
                                 activityProgressContainer(
@@ -301,6 +381,7 @@ class _DashboardState extends State<Dashboard> {
                                   completed.toString().padLeft(2, '0'),
                                   // "15",
                                   context,
+                                  () {},
                                 ),
                               ],
                             ),
@@ -315,7 +396,7 @@ class _DashboardState extends State<Dashboard> {
                         procurementContainer(),
                       if (widget.kwikticket != null && showProcurement)
                         if (showProcurement) SizedBox(height: 25),
-                      if (showContinueJourney)
+                      if (showContinueJourney && exportContractId != null)
                         Container(
                           height: 70,
                           width: double.infinity,
@@ -371,7 +452,8 @@ class _DashboardState extends State<Dashboard> {
                                 height: 23,
                                 child: elevatedbutton(
                                   "Continue",
-                                  () {
+                                  () async {
+                                    // await startNewJourney(exportContractId!);
                                     Navigator.push(
                                       context,
                                       MaterialPageRoute(

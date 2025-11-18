@@ -1,11 +1,16 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:kwik_port/api/controller/agency/export_substage_api.dart';
+// import 'package:kwik_port/api/model/agency_model.dart';
+import 'package:kwik_port/api/model/export_substage_model.dart';
 import 'package:kwik_port/api/model/dashboard_model.dart';
 import 'package:kwik_port/colors/color.dart';
 import 'package:kwik_port/main.dart';
 import 'package:kwik_port/ui/home/dashboard/dashboard.dart';
 import 'package:kwik_port/ui/home/dashboard/exportJourney/export_complete_screen.dart';
+import 'package:kwik_port/ui/home/dashboard/exportJourney/journey_Subtitle_list.dart';
 import 'package:kwik_port/ui/home/dashboard/exportJourney/journey_check_list.dart';
 import 'package:kwik_port/ui/home/dashboard/exportJourney/packaging_and_documentation.dart';
 import 'package:kwik_port/ui/home/profile/export_accordion.dart';
@@ -37,51 +42,12 @@ class ExportJourneyScreen extends StatefulWidget {
 enum StageStatus { pending, selectAgency, inProgress, completed }
 
 class _ExportJourneyScreenState extends State<ExportJourneyScreen> {
-  Timer? _autoCompleteTimer;
-  void _startAutoCompleteTimer(int currentStageIndex) {
-    // Only first stage should auto-complete
-    if (currentStageIndex != 0) return;
-
-    _autoCompleteTimer?.cancel();
-
-    _autoCompleteTimer = Timer(const Duration(minutes: 1), () {
-      setState(() {
-        stageStates[currentStageIndex] = StageStatus.completed;
-
-        // Unlock next stage to "Select Agency"
-        if (currentStageIndex + 1 < stageStates.length) {
-          stageStates[currentStageIndex + 1] = StageStatus.selectAgency;
-        }
-      });
-
-      showToastContainer(
-        "Stage Completed Automatically 🎉",
-        "${_stageTitles[currentStageIndex]} marked as complete after 5 minutes.",
-        colorCodes.azureBlue,
-        colorCodes.mediumSeaGreen,
-        context,
-      );
-    });
-    // Unlock next stage
-    // _unlockNextStage(
-    //   currentStageIndex + 2,
-    // ); // +1 for next stage, +1 because index is 0-based
-    // });
-  }
-
   bool checkterms = false;
   int itemCount = 5;
   String packagingButtonText = "Select Packaging Agency";
   bool agencySelected = false;
   bool isLoading = true;
 
-  List progressTitle = [
-    "Agency Assigned ",
-    "Sourcing in progress 🔍",
-    "Quality Grading & Checks ⚖ ️",
-    "Goods Ready for Next Stage 📦",
-    "Procurement complete 🎯",
-  ];
   List<String> statusTexts = [
     "Pending", // Procurement
     "Pending", // Packaging
@@ -89,21 +55,14 @@ class _ExportJourneyScreenState extends State<ExportJourneyScreen> {
     "Pending", // Freight Forwarding
     "Pending", // Final Export
   ];
-  List progressSubTitle = [
-    "Your selected procurement agency is now responsible for sourcing your goods",
-    "Your agency is sourcing the required commodity from verified suppliers.",
-    "Your goods are being graded and inspected at the point of purchase.",
-    "Your goods are ready and awaiting packaging & documentation.",
-    "Your goods are ready and awaiting packaging & documentation.",
+  final List<List<String>> stageSubTitles = [
+    procurementSubTitles,
+    packagingSubTitles,
+    logisticsSubTitles,
+    freightSubTitles,
+    finalExportSubTitles,
   ];
-  List<List<bool>> isCheckedSections = [
-    List.filled(5, false), // Procurement
-    List.filled(5, false), // Packaging, Quality Control & Documentation
-    List.filled(5, false), // Logistics
-    List.filled(5, false), // Freight Forwarding
-    List.filled(5, false), // Final Export
-  ];
-  List<bool> isChecked = [false, false, false, false, false];
+
   // int selectedMainStage = 1; // you can change depending on stage
 
   final List<String> _stageTitles = [
@@ -116,25 +75,13 @@ class _ExportJourneyScreenState extends State<ExportJourneyScreen> {
 
   late List<StageStatus> stageStates;
   int selectedMainStage = 2;
-  void _updateSectionCompletion(int sectionIndex) {
-    final allChecked = isCheckedSections[sectionIndex].every((v) => v);
-    if (allChecked) {
-      setState(() {
-        stageStates[sectionIndex] = StageStatus.completed;
-      });
-      showToastContainer(
-        "Stage Complete 🎉",
-        "${_stageTitles[sectionIndex]} marked as complete.",
-        colorCodes.azureBlue,
-        colorCodes.mediumSeaGreen,
-        context,
-      );
-    }
-  }
 
+  Timer? _autoRefreshTimer;
   @override
   void initState() {
     super.initState();
+
+    // _initJourney();
     stageStates = [
       StageStatus.inProgress, // Procurement
       StageStatus.pending, // Packaging
@@ -150,71 +97,184 @@ class _ExportJourneyScreenState extends State<ExportJourneyScreen> {
         'activeExportContractId',
         widget.exporterContractId,
       );
+      // await prefs.setString('activeKwikTicket', widget.kwikticket ?? '');
+
       await prefs.setBool('procurementCompleted', true);
       await prefs.setBool('procurementInProgress', false);
       await prefs.remove('procurementStartTime');
 
-      // _startAutoCompleteTimer(currentIndex); // 0 = Procurement stage
-      _fetchStage(selectedMainStage);
+      // Initial load
+      for (int stage = 2; stage <= _stageTitles.length + 1; stage++) {
+        await _fetchStage(stage);
+      }
+      setState(() => isLoading = false);
+
+      // 🔄 Start auto-refresh every 30 seconds
+      _autoRefreshTimer = Timer.periodic(const Duration(seconds: 30), (
+        _,
+      ) async {
+        debugPrint("⏱ Auto-refreshing export substages...");
+        await _autoRefresh();
+      });
     });
+  }
+
+  /// Initialize journey, clear old data, and fetch stages
+  Future<void> _initJourney() async {
+    await _resetJourneyPersistency();
+    _resetUIState();
+    await _fetchAllStages();
+
+    // Start auto-refresh every 30s
+    _autoRefreshTimer = Timer.periodic(const Duration(seconds: 30), (_) async {
+      await _autoRefreshIncompleteStages();
+    });
+
+    setState(() => isLoading = false);
+  }
+
+  /// Clear old journey data from SharedPreferences
+  Future<void> _resetJourneyPersistency() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('activeExportContractId');
+    await prefs.remove('journeyInProgress');
+    await prefs.remove('procurementCompleted');
+    await prefs.remove('procurementInProgress');
+    await prefs.remove('packagingCompleted');
+    await prefs.remove('packagingInProgress');
+    await prefs.remove('procurementStartTime');
+
+    // Save the new exporter ID
+    await prefs.setString('activeExportContractId', widget.exporterContractId);
+    await prefs.setBool('journeyInProgress', true);
+  }
+
+  /// Reset UI state and provider
+  void _resetUIState() {
+    stageStates = [
+      StageStatus.inProgress,
+      StageStatus.pending,
+      StageStatus.pending,
+      StageStatus.pending,
+      StageStatus.pending,
+    ];
+    stageSubStages.clear();
+
+    final exportProvider = Provider.of<ExportSubStageApi>(
+      context,
+      listen: false,
+    );
+    exportProvider.subStages = [];
+  }
+
+  /// Fetch all stages for current exporter
+  Future<void> _fetchAllStages() async {
+    for (int stage = 2; stage <= _stageTitles.length + 1; stage++) {
+      await _fetchStage(stage);
+    }
+  }
+
+  /// Only refresh incomplete stages
+  Future<void> _autoRefreshIncompleteStages() async {
+    for (int stage = 2; stage <= _stageTitles.length + 1; stage++) {
+      if (stageStates[stage - 2] != StageStatus.completed) {
+        await _fetchStage(stage);
+      }
+    }
   }
 
   @override
   void dispose() {
-    // _autoCompleteTimer?.cancel();
+    _autoRefreshTimer?.cancel();
     super.dispose();
   }
 
-  Future<void> _fetchStage(int mainStage) async {
-    final api = Provider.of<ExportSubStageApi>(context, listen: false);
-    await api.getSubStages(
-      exporterContractId: widget.exporterContractId ?? "",
-      mainStage: mainStage,
-      // await Provider.of<ExportSubStageApi>(context, listen: false).getSubStages(
-      //   exporterContractId: widget.exporterContractId,
-      //   mainStage: mainStage,
-    );
-    // Determine status of current stage
-    final allCompleted = api.subStages.every((s) => s.isCompleted);
-
-    if (mainStage == 2 && allCompleted) {
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setBool('procurementCompleted', true);
-      await prefs.setBool('procurementInProgress', false);
-      _unlockNextStage(3);
-      setState(() {
-        stageStates[0] = StageStatus.completed; // Procurement done
-      });
+  Future<void> _autoRefresh() async {
+    // Only refresh stages that are NOT completed
+    for (int stage = 2; stage <= _stageTitles.length; stage++) {
+      if (stageStates[stage - 1] != StageStatus.completed) {
+        await _fetchStage(stage);
+      }
     }
-    if (mainStage == 3 && allCompleted) {
-      _unlockNextStage(4);
-    }
-    if (mainStage == 4 && allCompleted) {
-      _unlockNextStage(5);
-    }
-    if (mainStage == 5 && allCompleted) {
-      _unlockNextStage(6);
-    }
-    setState(() {});
   }
 
-  // void _unlockNextStage(int nextStage) {
-  //   if (nextStage <= stageStates.length) {
-  //     setState(() {
-  //       stageStates[nextStage - 1] = StageStatus.selectAgency;
-  //     });
-  //   }
-  // }
-  void _unlockNextStage(int nextStage) {
-    if (nextStage <= stageStates.length) {
+  Map<int, List<ExportSubStageModel>> stageSubStages = {};
+  Future<void> _fetchStage(int mainStage) async {
+    final api = Provider.of<ExportSubStageApi>(context, listen: false);
+
+    // ⬅️ Get the response directly from the function
+    final fetchedSubStages = await api.getSubStages(
+      exporterContractId: widget.exporterContractId,
+      mainStage: mainStage,
+    );
+    fetchedSubStages.forEach((s) {
+      debugPrint("${s.subStageName}: isCompleted=${s.isCompleted}");
+    });
+
+    final substagesForStage = stageSubStages[mainStage] ?? [];
+    print('Stage $mainStage has ${substagesForStage.length} substages');
+    if (fetchedSubStages == null || fetchedSubStages.isEmpty) {
+      debugPrint('Stage $mainStage returned no substages.');
       setState(() {
-        stageStates[nextStage - 1] = StageStatus.selectAgency;
+        stageSubStages[mainStage] = [];
       });
+      return;
+    }
+
+    debugPrint('Stage $mainStage fetched ${fetchedSubStages.length} substages');
+
+    setState(() {
+      stageSubStages[mainStage] = fetchedSubStages;
+      // exportSubStageProvider.subStages = fetchedSubStages; // Update provider
+      debugPrint(
+        "Raw JSON for stage $mainStage: ${jsonEncode(fetchedSubStages)}",
+      );
+    });
+
+    final allCompleted = fetchedSubStages.every((s) => s.isCompleted ?? false);
+    final anyActive = fetchedSubStages.any((s) => s.isActive ?? false);
+    final index = mainStage - 2; // because backend stages start at 2
+    if (index >= 0 && index < stageStates.length) {
+      setState(() {
+        if (allCompleted) {
+          stageStates[index] = StageStatus.completed;
+          _unlockNextStage(mainStage + 1);
+        } else if (anyActive) {
+          stageStates[index] = StageStatus.inProgress;
+        } else {
+          stageStates[index] = StageStatus.pending;
+        }
+      });
+    }
+
+    // setState(() {
+    //   if (allCompleted) {
+    //     //  stageStates[mainStage - 1]
+    //     stageStates[mainStage - 2] = StageStatus.completed;
+    //     _unlockNextStage(mainStage + 1);
+    //   } else if (anyActive) {
+    //     stageStates[mainStage - 2] = StageStatus.inProgress;
+    //   } else {
+    //     stageStates[mainStage - 2] = StageStatus.pending;
+    //   }
+    // });
+  }
+
+  void _unlockNextStage(int nextStage) {
+    final index = nextStage - 2; // align backend to UI
+    if (index >= 0 && index < stageStates.length) {
+      if (stageStates[index] == StageStatus.pending) {
+        setState(() {
+          stageStates[index] = StageStatus.selectAgency;
+        });
+      }
     }
   }
 
   Future<void> _refresh() async {
-    await _fetchStage(selectedMainStage);
+    for (int stage = 2; stage <= _stageTitles.length; stage++) {
+      await _fetchStage(stage);
+    }
   }
 
   String _getButtonText(StageStatus status) {
@@ -260,10 +320,7 @@ class _ExportJourneyScreenState extends State<ExportJourneyScreen> {
     } else {
       packagingBtnText = "In Progress";
     }
-    //  onWillPop: () async {
-    //   // Return false to prevent going back
-    //   return false;
-    // },
+
     return Scaffold(
       extendBody: true,
       appBar: PreferredSize(
@@ -308,49 +365,78 @@ class _ExportJourneyScreenState extends State<ExportJourneyScreen> {
                   ),
                   child: Column(
                     children: [
-                      _overallProgress(
-                        // procurementCompleted,
-                        // packagingCompleted,
-                      ),
+                      _overallProgress(stageStates),
 
                       SizedBox(height: 20),
                       Column(
                         children: List.generate(_stageTitles.length, (index) {
+                          final mainStage = index + 2;
+                          final substagesForStage =
+                              stageSubStages[mainStage] ?? [];
+                          bool canExpand =
+                              index == 0 ||
+                              stageStates[index - 1] == StageStatus.completed ||
+                              stageStates[index] == StageStatus.selectAgency;
+                          final subTitles = stageSubTitles[index];
+
                           return Padding(
                             padding: const EdgeInsets.only(bottom: 10),
+                            // child: SizedBox(),
                             child: _accordionStage(
                               title: _stageTitles[index],
                               status: stageStates[index],
-                              child: SizedBox(
-                                height: 450,
-                                child: ListView.separated(
-                                  shrinkWrap: true,
-                                  physics: const NeverScrollableScrollPhysics(),
-                                  separatorBuilder:
-                                      (_, __) => const SizedBox(height: 10),
-                                  itemCount: itemCount,
-                                  itemBuilder: (ctx, subIndex) {
-                                    return checkContainer(
-                                      progressTitle[subIndex],
-                                      isCheckedSections[index],
-                                      isChecked[subIndex],
-                                      progressSubTitle[subIndex],
-                                      false,
-                                      "",
-                                      () {
-                                        setState(() {
-                                          isCheckedSections[index][subIndex] =
-                                              !isCheckedSections[index][subIndex];
-                                        });
-                                        _updateSectionCompletion(index);
-                                      },
-                                    );
-                                  },
-                                ),
-                              ),
+                              // child: SizedBox(),
+                              child:
+                                  canExpand
+                                      ? SizedBox(
+                                        height: 450,
+                                        child: ListView.separated(
+                                          shrinkWrap: true,
+                                          physics:
+                                              const NeverScrollableScrollPhysics(),
+                                          separatorBuilder:
+                                              (_, __) =>
+                                                  const SizedBox(height: 10),
+
+                                          itemCount: substagesForStage.length,
+                                          // itemCount: subStages.length,
+                                          itemBuilder: (ctx, subIndex) {
+                                            final sub =
+                                                substagesForStage[subIndex];
+                                            final isChecked =
+                                                sub.isCompleted ?? false;
+                                            final isActive =
+                                                sub.isActive ?? false;
+                                            final subTitle =
+                                                subTitles[subIndex];
+                                            return checkContainer(
+                                              sub.subStageName, // progressTitle[subIndex],
+                                              // sub.isCompleted, //  isCheckedSections[index],
+                                              isChecked, // isChecked[subIndex],
+                                              subTitle,
+                                              false,
+                                              "",
+                                            );
+                                          },
+                                        ),
+                                      )
+                                      : const SizedBox.shrink(), // 🚫 don’t show substages when locked
+
                               onButtonPressed: () async {
+                                if (!canExpand) {
+                                  showToastContainer(
+                                    "Locked Stage 🚧",
+                                    "Complete the previous stage to unlock this one.",
+                                    colorCodes.sunset,
+                                    colorCodes.white,
+                                    context,
+                                  );
+                                  return;
+                                }
+                                // await _fetchStage(mainStage);
                                 await _handleStageButton(index);
                               },
+                              canExpand: canExpand,
                             ),
                           );
                         }),
@@ -426,50 +512,19 @@ class _ExportJourneyScreenState extends State<ExportJourneyScreen> {
                   ),
                 ),
                 SizedBox(height: 15),
-                // kwikbutton(
-                //   "Select Packaging Agency",
-                //   () {
-                // Navigator.push(
-                //   context,
-                //   MaterialPageRoute(
-                //     builder:
-                //         (context) =>
-                //             PackagingAndDocumentation(kwikticket: null,stageType: currentStage, ),
-                //   ),
-                // );
-                // },
-                // buttonChild: Row(
-                //   mainAxisAlignment: MainAxisAlignment.center,
-                // children: [
-                //   Text(
-                //     "Select Packaging Agency",
-                //     style: kwikTextStlye(
-                //       14.0,
-                //       FontWeight.w600,
-                // enabled == true
-                //     ?
-                // colorCodes.whiteSmoke,
-                // : colorCodes.aluminium,
-                //         ),
-                //       ),
-                //       SizedBox(width: 8),
-                //       Image.asset(
-                //         "assets/images/icons/arrow-right.png",
-                //         height: 18,
-                //         width: 18,
-                //       ),
-                //     ],
-                //   ),
-                // ),
-                // SizedBox(height: 10),
+
                 kwikbutton("Complete Export", () async {
                   final prefs = await SharedPreferences.getInstance();
-                  await prefs.setBool('journeyInProgress', false);
+                  await prefs.remove('journeyInProgress');
                   await prefs.remove('activeExportContractId');
+                  await prefs.remove('activeKwikTicket');
                   // final prefs = await SharedPreferences.getInstance();
+                  // await prefs.setBool('journeyInProgress', false);
+                  // await prefs.remove('activeExportContractId');
+                  // // final prefs = await SharedPreferences.getInstance();
                   await prefs.remove('procurementCompleted');
                   await prefs.remove('procurementInProgress');
-
+                  // await completeJourney();
                   Navigator.push(
                     context,
                     MaterialPageRoute(
@@ -490,57 +545,105 @@ class _ExportJourneyScreenState extends State<ExportJourneyScreen> {
     );
   }
 
-  double _calculateOverallProgress() {
-    int totalStages = stageStates.length;
-    int completedStages =
-        stageStates.where((s) => s == StageStatus.completed).length;
-
-    // Calculate completion as a fraction (e.g., 2/5 = 0.4)
-    double progress = completedStages / totalStages;
-    return progress;
-  }
-
-  Widget _overallProgress() {
-    // double progress = 0.0;
-    // if (procurementDone) progress += 0.3;
-    // if (packagingDone) progress += 0.3;
-    double progress = _calculateOverallProgress();
+  Widget checkContainer(
+    title,
+    // isCheckedSection,
+    checkterms,
+    subtitle,
+    delay,
+    delaydate,
+    // checkFunc,
+  ) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 20),
+      height: 75,
+      width: 335,
+      padding: EdgeInsets.symmetric(horizontal: 5, vertical: 5),
       decoration: BoxDecoration(
-        color: colorCodes.white,
-        borderRadius: BorderRadius.circular(16),
+        color: colorCodes.whiteSmoke,
+        borderRadius: BorderRadius.circular(10),
       ),
-      child: Column(
+      child: Row(
+        // mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                "Overall Progress",
-                style: kwikTextStlye(
-                  12.0,
-                  FontWeight.w300,
-                  colorCodes.darkGrey,
+          // InkWell(
+          //   // onTap: checkFunc,
+          //   child:
+          checkterms == true
+              ? Image.asset(
+                "assets/images/icons/dashboard/Checkbox (1).png",
+                height: 23,
+                width: 23,
+              )
+              : Container(
+                height: 20,
+                width: 20,
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  border: Border.all(
+                    color: colorCodes.frenchSkyBlue,
+                    width: 1.5,
+                  ),
+
+                  color: colorCodes.white,
+                  borderRadius: BorderRadius.circular(6), // rounded corners
                 ),
               ),
-              Text(
-                "${(progress * 100).toInt()}% Complete",
-                style: kwikTextStlye(
-                  12.0,
-                  FontWeight.w300,
-                  colorCodes.darkGrey,
+          // ),
+          SizedBox(width: 5),
+          SizedBox(
+            width: 220,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      title,
+                      textAlign: TextAlign.start,
+                      style: kwikTextStlye(
+                        10.0,
+                        FontWeight.w500,
+                        colorCodes.black,
+                      ),
+                    ),
+                    delay == true
+                        ? Container(
+                          width: 57,
+                          height: 20,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 5,
+                            vertical: 3,
+                          ),
+                          decoration: BoxDecoration(
+                            color: colorCodes.white,
+                            borderRadius: BorderRadius.circular(22.03),
+                            border: Border.all(
+                              color: colorCodes.antiFlashWhite,
+                              width: 1, // border-width
+                            ),
+                          ),
+                          child: Text(
+                            delaydate,
+                            style: kwikTextStlye(
+                              10.0,
+                              FontWeight.w400,
+                              colorCodes.textBlack,
+                            ),
+                          ),
+                        )
+                        : SizedBox(width: 10),
+                  ],
                 ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 10),
-          LinearProgressIndicator(
-            backgroundColor: HexColor("#D6E7FF"),
-            minHeight: 8,
-            value: progress,
-            borderRadius: BorderRadius.circular(12),
-            color: colorCodes.azureBlue,
+                // SizedBox(height: 2),
+                Text(
+                  subtitle,
+                  textAlign: TextAlign.start,
+                  style: kwikTextStlye(10.0, FontWeight.w300, colorCodes.black),
+                ),
+              ],
+            ),
           ),
         ],
       ),
@@ -549,17 +652,17 @@ class _ExportJourneyScreenState extends State<ExportJourneyScreen> {
 
   Future<void> _handleStageButton(int index) async {
     // final currentStage = index + 1;
-    final currentStage = index + 2;
-    if (index == 0) {
-      showToastContainer(
-        "Procurement Stage",
-        "Procurement agency already assigned. Monitoring in progress 🕓",
-        colorCodes.azureBlue,
-        colorCodes.mediumSeaGreen,
-        context,
-      );
-      return;
-    }
+    final currentStage = index;
+    // if (index == 0) {
+    //   showToastContainer(
+    //     "Procurement Stage",
+    //     "Procurement agency already assigned. Monitoring in progress 🕓",
+    //     colorCodes.azureBlue,
+    //     colorCodes.mediumSeaGreen,
+    //     context,
+    //   );
+    //   return;
+    // }
     if (stageStates[index] == StageStatus.pending) {
       showToastContainer(
         "Locked Stage 🚧",
@@ -602,16 +705,6 @@ class _ExportJourneyScreenState extends State<ExportJourneyScreen> {
         colorCodes.mediumSeaGreen,
         context,
       );
-      // ScaffoldMessenger.of(context).showSnackBar(
-      //   SnackBar(
-      //     content: Text(
-      //       stageStates[index] == StageStatus.pending
-      //           ? "This stage is not unlocked yet 🚧"
-      //           : "Stage already in progress or completed ✅",
-      //     ),
-      //     backgroundColor: Colors.grey,
-      //   ),
-      // );
     }
   }
 
@@ -621,6 +714,7 @@ class _ExportJourneyScreenState extends State<ExportJourneyScreen> {
     required Widget child,
     VoidCallback? onButtonPressed,
     bool expanded = false,
+    bool canExpand = true,
   }) {
     String btnText = _getButtonText(status);
     Color btnColor = _getButtonColor(status);
@@ -630,6 +724,56 @@ class _ExportJourneyScreenState extends State<ExportJourneyScreen> {
       statusbtnFunc: onButtonPressed,
       statusbackgroundColor: btnColor,
       child: child,
+      canExpand: canExpand,
     );
   }
+}
+
+double _calculateOverallProgress(stageStates) {
+  int totalStages = stageStates.length;
+  int completedStages =
+      stageStates.where((s) => s == StageStatus.completed).length;
+
+  // Calculate completion as a fraction (e.g., 2/5 = 0.4)
+  double progress = completedStages / totalStages;
+  return progress;
+}
+
+Widget _overallProgress(stageStates) {
+  // double progress = 0.0;
+  // if (procurementDone) progress += 0.3;
+  // if (packagingDone) progress += 0.3;
+  double progress = _calculateOverallProgress(stageStates);
+  return Container(
+    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 20),
+    decoration: BoxDecoration(
+      color: colorCodes.white,
+      borderRadius: BorderRadius.circular(16),
+    ),
+    child: Column(
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              "Overall Progress",
+              style: kwikTextStlye(12.0, FontWeight.w300, colorCodes.darkGrey),
+            ),
+            Text(
+              "${(progress * 100).toInt()}% Complete",
+              style: kwikTextStlye(12.0, FontWeight.w300, colorCodes.darkGrey),
+            ),
+          ],
+        ),
+        const SizedBox(height: 10),
+        LinearProgressIndicator(
+          backgroundColor: HexColor("#D6E7FF"),
+          minHeight: 8,
+          value: progress,
+          borderRadius: BorderRadius.circular(12),
+          color: colorCodes.azureBlue,
+        ),
+      ],
+    ),
+  );
 }

@@ -7,6 +7,7 @@ import 'package:kwik_port/ui/home/dashboard/name_and_notif_headng.dart';
 import 'package:kwik_port/ui/home/dashboard/notifcation/notification_screen.dart';
 import 'package:kwik_port/ui/home/dashboard/wallet_balance_container.dart';
 import 'package:kwik_port/ui/home/wallet/fund_wallet_bottomsheet.dart';
+import 'package:kwik_port/ui/home/wallet/fund_wallet_screen.dart';
 import 'package:kwik_port/ui/home/wallet/wallet_balance_container.dart';
 import 'package:kwik_port/ui/home/wallet/wallet_transaction_history.dart';
 import 'package:kwik_port/utils/button/bottom_navigatior_bar.dart';
@@ -39,6 +40,7 @@ class _WalletScreenState extends State<WalletScreen> {
   @override
   Widget build(BuildContext context) {
     final dashboardApi = Provider.of<DashboardApi>(context);
+    final walletBalance = dashboardApi.data?.walletBalance ?? 0.0;
 
     final user = dashboardApi.data?.userProfile;
     return Scaffold(
@@ -72,6 +74,8 @@ class _WalletScreenState extends State<WalletScreen> {
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 6.0),
                       child: walletBalanceContainer(
+                        walletBalance.toString(),
+
                         "Kwik Balance",
                         colorCodes.eigengrau,
                         colorCodes.eigengrau,
@@ -82,6 +86,7 @@ class _WalletScreenState extends State<WalletScreen> {
                       ),
                     ),
                     walletBalanceContainer(
+                      walletBalance.toString(),
                       "Export Wallet",
                       colorCodes.blackPurple,
                       colorCodes.blackPurple,
@@ -117,19 +122,12 @@ class _WalletScreenState extends State<WalletScreen> {
                       "assets/images/icons/add_funds.png",
                       "Add Funds",
                       () {
-                        // showModalBottomSheet(
-                        //   shape: const RoundedRectangleBorder(
-                        //     borderRadius: BorderRadius.only(
-                        //       topLeft: Radius.circular(32),
-                        //       topRight: Radius.circular(32),
-                        //     ),
-                        //   ),
-                        //   backgroundColor: Colors.transparent,
-                        //   context: context,
-                        //   builder: (BuildContext context) {
-                        //     return FundWalletBottomsheet();
-                        //   },
-                        // );
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => FundWalletScreen(),
+                          ),
+                        );
                       },
                       width: 70.0,
                     ),

@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:kwik_port/api/controller/kwikTickets/get_kwik_ticket_api.dart';
 import 'package:kwik_port/colors/color.dart';
 import 'package:kwik_port/main.dart';
@@ -15,6 +16,19 @@ class AllKwikTicketScreen extends StatefulWidget {
 
   @override
   State<AllKwikTicketScreen> createState() => _AllKwikTicketScreenState();
+}
+
+enum KwikTicketStatusEnum {
+  active(1),
+  awaitingPayment(2),
+
+  completed(3),
+  expired(4),
+  paid(5),
+  cancelled(6);
+
+  final int value;
+  const KwikTicketStatusEnum(this.value);
 }
 
 class _AllKwikTicketScreenState extends State<AllKwikTicketScreen>
@@ -64,11 +78,13 @@ class _AllKwikTicketScreenState extends State<AllKwikTicketScreen>
           // Adjust filtering based on your backend status codes
           switch (statusFilter) {
             case "awaiting":
-              return t.kwikTicketStatus == 1;
+              return t.kwikTicketStatus ==
+                  KwikTicketStatusEnum.awaitingPayment.value;
             case "active":
-              return t.kwikTicketStatus == 2;
+              return t.kwikTicketStatus == KwikTicketStatusEnum.active.value;
+
             case "fulfilled":
-              return t.kwikTicketStatus == 4;
+              return t.kwikTicketStatus == KwikTicketStatusEnum.paid.value;
             default:
               return true;
           }
@@ -134,6 +150,7 @@ class _AllKwikTicketScreenState extends State<AllKwikTicketScreen>
                           ticketProvider,
                           statusFilter: "active",
                         ),
+
                         _buildTicketList(
                           ticketProvider,
                           statusFilter: "fulfilled",
@@ -204,6 +221,7 @@ class _AllKwikTicketScreenState extends State<AllKwikTicketScreen>
         tabs: [
           Tab(text: "Awaiting"),
           Tab(text: "Active"),
+
           Tab(text: "Fulfilled"),
         ],
       ),
@@ -232,21 +250,50 @@ class _AllKwikTicketScreenState extends State<AllKwikTicketScreen>
           // Adjust filtering based on your backend status codes
           switch (statusFilter) {
             case "awaiting":
-              return t.kwikTicketStatus == 1;
+              return t.kwikTicketStatus ==
+                  KwikTicketStatusEnum.awaitingPayment.value;
             case "active":
-              return t.kwikTicketStatus == 2;
+              return t.kwikTicketStatus == KwikTicketStatusEnum.active.value;
+
             case "fulfilled":
-              return t.kwikTicketStatus == 4;
+              return t.kwikTicketStatus == KwikTicketStatusEnum.paid.value;
             default:
               return true;
           }
         }).toList();
     // final allTickets = provider.tickets;
 
+    // if (filteredTickets.isEmpty) {
+    //   return const Center(child: Text("No tickets found"));
+    // }
+    // ✅ If no tickets match this category
     if (filteredTickets.isEmpty) {
-      return const Center(child: Text("No tickets found"));
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.only(top: 50),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Image.asset(
+                'assets/images/icons/empty_box.png', // optional placeholder icon
+                height: 100,
+                color: Colors.grey.shade400,
+              ),
+              const SizedBox(height: 16),
+              Text(
+                'No tickets found in this category.',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.grey.shade600,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
+        ),
+      );
     }
-
     return ListView.separated(
       shrinkWrap: true,
       physics: NeverScrollableScrollPhysics(),
@@ -279,7 +326,7 @@ class _AllKwikTicketScreenState extends State<AllKwikTicketScreen>
           // ticket.contract?.totalAmount ?? "",
           // ticket.contract?.buyerSpecification?.buyerPricePerUnit ?? "",
           // ticket.contract?.projectedIncome ?? "",
-          "",
+          DateFormat('yyyy-MM-dd').format(ticket.createdAt ?? DateTime.now()),
           ticket.kwikTicketStatus,
           context,
         );
