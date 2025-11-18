@@ -2,65 +2,21 @@
 import 'package:kwik_port/api/model/userModel.dart'; // for ExporterModel
 import 'package:kwik_port/api/model/contractModel.dart'; // for PublishedContractModel
 
-// class DashboardModel {
-//   final UserProfile? userProfile;
-//   final double walletBalance;
-//   final double kwikLCBalance;
-//   final List<KwikTicketModel> kwikTickets;
-//   final List<ContractModel> exports;
-
-//   DashboardModel({
-//     required this.userProfile,
-//     required this.walletBalance,
-//     required this.kwikLCBalance,
-//     required this.kwikTickets,
-//     required this.exports,
-//   });
-
-//   factory DashboardModel.fromJson(Map<String, dynamic> json) {
-//     return DashboardModel(
-//       userProfile:
-//           json['userProfile'] != null
-//               ? UserProfile.fromJson(json['userProfile'])
-//               : null,
-//       walletBalance: (json['walletBalance'] ?? 0).toDouble(),
-//       kwikLCBalance: (json['kwikLCBalance'] ?? 0).toDouble(),
-//       kwikTickets:
-//           (json['kwikTickets'] as List<dynamic>?)
-//               ?.map((e) => KwikTicketModel.fromJson(e as Map<String, dynamic>))
-//               .toList() ??
-//           [],
-//       exports:
-//           (json['exports'] as List<dynamic>?)
-//               ?.map((e) => ContractModel.fromJson(e as Map<String, dynamic>))
-//               .toList() ??
-//           [],
-//     );
-//   }
-//   Map<String, dynamic> toJson() {
-//     return {
-//       'userProfile': userProfile?.toJson(),
-//       'walletBalance': walletBalance,
-//       'kwikLCBalance': kwikLCBalance,
-//       'kwikTickets': kwikTickets.map((e) => e.toJson()).toList(),
-//       'exports': exports.map((e) => e.toJson()).toList(),
-//     };
-//   }
-// }
-
 class DashboardModel {
   final UserProfile? userProfile;
   final double walletBalance;
   final bool canWithdraw;
   final double kwikLCBalance;
+  final double totalExportContractBalance;
   final List<KwikTicketModel> kwikTickets;
-  final List<ContractModel> exports;
+  final List<ExportSummaryModel> exports;
 
   DashboardModel({
     required this.userProfile,
     required this.walletBalance,
     required this.canWithdraw,
     required this.kwikLCBalance,
+    required this.totalExportContractBalance,
     required this.kwikTickets,
     required this.exports,
   });
@@ -76,6 +32,8 @@ class DashboardModel {
       walletBalance: (walletData['walletBalance'] ?? 0).toDouble(),
       canWithdraw: walletData['canWithdraw'] ?? false,
       kwikLCBalance: (json['kwikLCBalance'] ?? 0).toDouble(),
+      totalExportContractBalance:
+          (json['totalExportContractBalance'] ?? 0).toDouble(),
       kwikTickets:
           (json['kwikTickets'] as List<dynamic>?)
               ?.map((e) => KwikTicketModel.fromJson(e as Map<String, dynamic>))
@@ -83,7 +41,9 @@ class DashboardModel {
           [],
       exports:
           (json['exports'] as List<dynamic>?)
-              ?.map((e) => ContractModel.fromJson(e as Map<String, dynamic>))
+              ?.map(
+                (e) => ExportSummaryModel.fromJson(e as Map<String, dynamic>),
+              )
               .toList() ??
           [],
     );
@@ -601,4 +561,69 @@ class CommodityCostModel {
       totalCost: (json['totalCost'] ?? 0).toDouble(),
     );
   }
+}
+
+class ExportSummaryModel {
+  final String id;
+  final String contractId;
+  final String exporterId;
+  final String commodityName;
+  final double totalQuantity;
+  final double contractTotal;
+  final double grossEarning;
+  final double totalAmountSpent;
+  final String contractFulfilmentMethod;
+  final String exportContractStage;
+  final DateTime createdAt;
+  final DateTime? completedAt;
+
+  ExportSummaryModel({
+    required this.id,
+    required this.contractId,
+    required this.exporterId,
+    required this.commodityName,
+    required this.totalQuantity,
+    required this.contractTotal,
+    required this.grossEarning,
+    required this.totalAmountSpent,
+    required this.contractFulfilmentMethod,
+    required this.exportContractStage,
+    required this.createdAt,
+    this.completedAt,
+  });
+
+  factory ExportSummaryModel.fromJson(Map<String, dynamic> json) {
+    return ExportSummaryModel(
+      id: json['id'] ?? '',
+      contractId: json['contractId'] ?? '',
+      exporterId: json['exporterId'] ?? '',
+      commodityName: json['commodityName'] ?? '',
+      totalQuantity: (json['totalQuantity'] ?? 0).toDouble(),
+      contractTotal: (json['contractTotal'] ?? 0).toDouble(),
+      grossEarning: (json['grossEarning'] ?? 0).toDouble(),
+      totalAmountSpent: (json['totalAmountSpent'] ?? 0).toDouble(),
+      contractFulfilmentMethod: json['contractFulfilmentMethod'] ?? '',
+      exportContractStage: json['exportContractStage'] ?? '',
+      createdAt: DateTime.tryParse(json['createdAt'] ?? '') ?? DateTime.now(),
+      completedAt:
+          json['completedAt'] != null
+              ? DateTime.tryParse(json['completedAt'])
+              : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+    'id': id,
+    'contractId': contractId,
+    'exporterId': exporterId,
+    'commodityName': commodityName,
+    'totalQuantity': totalQuantity,
+    'contractTotal': contractTotal,
+    'grossEarning': grossEarning,
+    'totalAmountSpent': totalAmountSpent,
+    'contractFulfilmentMethod': contractFulfilmentMethod,
+    'exportContractStage': exportContractStage,
+    'createdAt': createdAt.toIso8601String(),
+    'completedAt': completedAt?.toIso8601String(),
+  };
 }

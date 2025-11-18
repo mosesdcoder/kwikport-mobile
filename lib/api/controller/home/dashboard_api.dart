@@ -17,7 +17,6 @@ class DashboardApi extends ChangeNotifier {
   bool get loading => _loading;
   String get message => _message;
   DashboardModel? get data => _data;
-  
 
   Future<void> fetchDashboard({bool refresh = false}) async {
     if (_loading) return;
@@ -94,8 +93,5 @@ class DashboardApi extends ChangeNotifier {
       _data?.kwikTickets.where((t) => t.isActive == true).length ?? 0;
 
   int get completedExportsCount =>
-      _data?.exports
-          .where((e) => (e.contractStatus ?? '') == 'completed')
-          .length ??
-      0;
+      _data?.exports.where((e) => e.completedAt != null).length ?? 0;
 }

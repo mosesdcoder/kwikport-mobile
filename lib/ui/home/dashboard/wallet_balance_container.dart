@@ -68,41 +68,44 @@ Widget dashboardBalanceContainer(
   );
 }
 
-Widget activityProgressContainer(img, title, progress, context) {
+Widget activityProgressContainer(img, title, progress, context, func) {
   double width = MediaQuery.of(context).size.width / 2;
-  return Container(
-    height: 77,
-    width: width - 20, //165,
-    padding: const EdgeInsets.symmetric(horizontal: 9.0, vertical: 12.0),
-    decoration: BoxDecoration(
-      border: Border.all(width: 1.2, color: colorCodes.antiFlashWhite),
-      borderRadius: BorderRadius.circular(8),
-      color: colorCodes.white,
-    ),
-    child: Row(
-      children: [
-        Image.asset(img, height: 30, width: 30),
-        SizedBox(width: 7),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            Text(
-              title,
-              style: kwikTextStlye(
-                10.0,
-                FontWeight.w300,
-                colorCodes.graniteGrey,
+  return InkWell(
+    onTap: func,
+    child: Container(
+      height: 77,
+      width: width - 20, //165,
+      padding: const EdgeInsets.symmetric(horizontal: 9.0, vertical: 12.0),
+      decoration: BoxDecoration(
+        border: Border.all(width: 1.2, color: colorCodes.antiFlashWhite),
+        borderRadius: BorderRadius.circular(8),
+        color: colorCodes.white,
+      ),
+      child: Row(
+        children: [
+          Image.asset(img, height: 30, width: 30),
+          SizedBox(width: 7),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: kwikTextStlye(
+                  10.0,
+                  FontWeight.w300,
+                  colorCodes.graniteGrey,
+                ),
               ),
-            ),
-            SizedBox(height: 3),
-            Text(
-              progress,
-              style: kwikTextStlye(15.0, FontWeight.w600, colorCodes.black),
-            ),
-          ],
-        ),
-      ],
+              SizedBox(height: 3),
+              Text(
+                progress,
+                style: kwikTextStlye(15.0, FontWeight.w600, colorCodes.black),
+              ),
+            ],
+          ),
+        ],
+      ),
     ),
   );
 }

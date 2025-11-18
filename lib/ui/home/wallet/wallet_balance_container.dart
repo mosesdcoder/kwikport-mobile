@@ -4,6 +4,7 @@ import 'package:kwik_port/colors/color.dart';
 import 'package:kwik_port/utils/text/textstyle.dart';
 
 Widget walletBalanceContainer(
+  balance,
   walletTitle,
   backgroundColor,
   color1,
@@ -47,7 +48,7 @@ Widget walletBalanceContainer(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 Text(
-                  "N45,658.02",
+                  balance,
 
                   style: kwikTextStlye(
                     24.0,

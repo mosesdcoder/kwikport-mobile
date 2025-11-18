@@ -404,8 +404,6 @@ class _ContractScreenState extends State<ContractScreen>
         borderRadius: BorderRadius.circular(100),
       ),
       child: TabBar(
-        // indicatorColor: colorCodes.teaGreen,
-        // labelPadding: const EdgeInsets.symmetric(vertical: 12),
         indicatorSize: TabBarIndicatorSize.tab,
 
         labelColor: colorCodes.white,
@@ -419,13 +417,8 @@ class _ContractScreenState extends State<ContractScreen>
           fontFamily: 'Poppins',
           fontSize: 14.0,
           fontWeight: FontWeight.w500,
-          // color: colorCodes
         ),
 
-        // indicatorPadding: const EdgeInsets.symmetric(
-        //   vertical: 4,
-        //   horizontal: 4,
-        // ),
         indicator: BoxDecoration(
           borderRadius: BorderRadius.circular(100),
           border: Border.all(color: colorCodes.frenchSkyBlue),
