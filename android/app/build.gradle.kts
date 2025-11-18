@@ -9,7 +9,7 @@ android {
     namespace = "com.example.kwik_port"
     // compileSdk = flutter.compileSdkVersion
     // ndkVersion = flutter.ndkVersion
-      compileSdk = 35   // upgrade from 35 → 36
+      compileSdk = 36   // upgrade from 35 → 36
     ndkVersion = "27.0.12077973"
 
     compileOptions {

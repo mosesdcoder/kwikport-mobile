@@ -98,4 +98,13 @@ class DashboardApi extends ChangeNotifier {
           .where((e) => (e.contractStatus ?? '') == 'completed')
           .length ??
       0;
+
+
+  int get getActiveExportsCount =>
+      _data?.exports
+          .where((e) => (e.contractStatus ?? '') != 'completed')
+          .length ??
+          0;
+
+
 }

@@ -216,7 +216,12 @@ class _DashboardState extends State<Dashboard> {
     final dashboardApi = Provider.of<DashboardApi>(context);
     final isLoading = dashboardApi.loading;
     final walletBalance = dashboardApi.data?.walletBalance ?? 0.0;
+    final kwikLCBalance = dashboardApi.data?.kwikLCBalance ?? 0.0;
+    final totalExportContractBalance = dashboardApi.data?.totalExportContractBalance ?? 0.0;
+    print('Total Export Contract Balance: $totalExportContractBalance');
+
     final activeTickets = dashboardApi.activeKwikTicketsCount;
+    final activeContracts = dashboardApi.getActiveExportsCount;
     final completed = dashboardApi.completedExportsCount;
     bool showBalance = true;
 
@@ -267,7 +272,7 @@ class _DashboardState extends State<Dashboard> {
                           children: [
                             dashboardBalanceContainer(
                               showBalance == true
-                                  ? "\$$walletBalance"
+                                  ? "\$$totalExportContractBalance"
                                   : "••••••••",
                               showBalance,
                               () {
@@ -283,7 +288,8 @@ class _DashboardState extends State<Dashboard> {
                                 activityProgressContainer(
                                   "assets/images/icons/kwik_tickets.png",
                                   "Active Kwiktickets",
-                                  activeTickets.toString().padLeft(2, '0'),
+                                  //"1",
+                                  activeContracts.toString().padLeft(2, '0'),
 
                                   // "01",
                                   context,

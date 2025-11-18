@@ -207,7 +207,7 @@ class _KwikticketScreenState extends State<KwikticketScreen> {
                           ),
                         ),
                         Text(
-                          "Status",
+                          "Ticket Status",
                           style: kwikTextStlye(
                             12.0,
                             FontWeight.w300,
@@ -307,7 +307,7 @@ class _KwikticketScreenState extends State<KwikticketScreen> {
                 ),
               ),
               SizedBox(height: 20),
-              kwikbutton("Fulfill Ticket", () {
+              kwikbutton("Activate Ticket", () {
                 Navigator.push(
                   context,
                   MaterialPageRoute(

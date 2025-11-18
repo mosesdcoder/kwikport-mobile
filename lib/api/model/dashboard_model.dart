@@ -51,6 +51,7 @@ import 'package:kwik_port/api/model/contractModel.dart'; // for PublishedContrac
 class DashboardModel {
   final UserProfile? userProfile;
   final double walletBalance;
+  final double totalExportContractBalance;
   final bool canWithdraw;
   final double kwikLCBalance;
   final List<KwikTicketModel> kwikTickets;
@@ -59,6 +60,7 @@ class DashboardModel {
   DashboardModel({
     required this.userProfile,
     required this.walletBalance,
+    required this.totalExportContractBalance,
     required this.canWithdraw,
     required this.kwikLCBalance,
     required this.kwikTickets,
@@ -74,6 +76,8 @@ class DashboardModel {
               ? UserProfile.fromJson(json['userProfile'])
               : null,
       walletBalance: (walletData['walletBalance'] ?? 0).toDouble(),
+      totalExportContractBalance:
+          (json['totalExportContractBalance'] ?? 0).toDouble(),
       canWithdraw: walletData['canWithdraw'] ?? false,
       kwikLCBalance: (json['kwikLCBalance'] ?? 0).toDouble(),
       kwikTickets:
@@ -95,8 +99,10 @@ class DashboardModel {
       'walletBalance': {
         'walletBalance': walletBalance,
         'canWithdraw': canWithdraw,
+        'totalExportContractBalance': totalExportContractBalance,
       },
       'kwikLCBalance': kwikLCBalance,
+      'totalExportContractBalance': totalExportContractBalance,
       'kwikTickets': kwikTickets.map((e) => e.toJson()).toList(),
       'exports': exports.map((e) => e.toJson()).toList(),
     };
