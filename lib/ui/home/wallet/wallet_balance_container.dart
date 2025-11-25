@@ -12,6 +12,8 @@ Widget walletBalanceContainer(
   starimg,
   lastUpdated,
   walletId,
+  isVisible,
+  visibilityFunc,
 ) {
   return Container(
     height: 203,
@@ -59,6 +61,7 @@ Widget walletBalanceContainer(
                 ),
                 SizedBox(width: 4),
                 InkWell(
+                  onTap: visibilityFunc,
                   child: Container(
                     height: 27,
                     width: 27,
@@ -68,7 +71,9 @@ Widget walletBalanceContainer(
                       borderRadius: BorderRadius.circular(50),
                     ),
                     child: Image.asset(
-                      "assets/images/icons/eye-slash.png",
+                      isVisible == true
+                          ? 'assets/images/icons/eye.png'
+                          : "assets/images/icons/eye-slash.png",
                       height: 18,
                       width: 18,
                       color: colorCodes.white,

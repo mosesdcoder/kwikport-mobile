@@ -10,11 +10,14 @@ import 'package:shared_preferences/shared_preferences.dart';
 class FundWalletApi extends ChangeNotifier {
   bool loading = false;
   FundWalletResponse? fundWalletResponse;
-  String message = '';
-  bool success = false;
+  String _message = '';
+  String get message => _message;
+  bool? isSuccessful;
+  String? authorizationUrl;
+  String? provider;
+  String? paymentReference;
 
   Future<void> fundWallet({
-    required String version,
     required String exporterId,
     required double amount,
   }) async {
@@ -31,8 +34,8 @@ class FundWalletApi extends ChangeNotifier {
         final token = prefs.getString('accessToken') ?? '';
 
         if (token.isEmpty) {
-          message = "Authentication expired. Please log in again.";
-          success = false;
+          _message = "Authentication expired. Please log in again.";
+          isSuccessful = false;
           notifyListeners();
           return;
         }
@@ -44,17 +47,22 @@ class FundWalletApi extends ChangeNotifier {
         if (response.statusCode == 200) {
           final data = jsonDecode(response.body);
           fundWalletResponse = FundWalletResponse.fromJson(data);
-          success = fundWalletResponse?.isSuccessful ?? false;
-          message = fundWalletResponse?.message ?? 'Success';
+          isSuccessful = fundWalletResponse?.isSuccessful ?? false;
+          _message = fundWalletResponse?.message ?? 'Success';
+
+          // FIX: Save values
+          paymentReference = fundWalletResponse?.data?.paymentReference;
+          authorizationUrl = fundWalletResponse?.data?.authorizationUrl;
+          provider = fundWalletResponse?.data?.provider;
         } else {
-          success = false;
-          message = 'Request failed with status: ${response.statusCode}';
+          isSuccessful = false;
+          _message = 'Request failed with status: ${response.statusCode}';
         }
       }
     } catch (e) {
       debugPrint("Error funding KwikWallet: $e");
-      success = false;
-      message = e.toString();
+      isSuccessful = false;
+      _message = e.toString();
     }
 
     loading = false;

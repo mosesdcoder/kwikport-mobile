@@ -68,6 +68,7 @@ class DashboardModel {
 
 class UserProfile {
   final String id;
+  final String exporterId;
   final String firstName;
   final String lastName;
   final String email;
@@ -77,6 +78,7 @@ class UserProfile {
 
   UserProfile({
     required this.id,
+    required this.exporterId,
     required this.firstName,
     required this.lastName,
     required this.email,
@@ -89,6 +91,7 @@ class UserProfile {
     final created = json['createdAt'] ?? json['createdDate'];
     return UserProfile(
       id: json['id'] ?? '',
+      exporterId: json['exporterId'] ?? '',
       firstName: json['firstName'] ?? '',
       lastName: json['lastName'] ?? '',
       email: json['email'] ?? '',
@@ -100,6 +103,7 @@ class UserProfile {
   Map<String, dynamic> toJson() {
     return {
       'id': id,
+      'exporterId': exporterId,
       'firstName': firstName,
       'lastName': lastName,
       'email': email,
