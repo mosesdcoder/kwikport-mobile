@@ -321,7 +321,7 @@ class _KwikticketCreatedSuccessfullyState
                     ),
                     SizedBox(height: 20),
                     contractDetailHeadingAndSubtitle(
-                      "Duration ",
+                      "Contract Duration ",
                       "Time",
                       "${widget.kwikticket.deadline?.day} Days",
 
