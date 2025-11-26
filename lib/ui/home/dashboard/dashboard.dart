@@ -19,6 +19,7 @@ import 'package:kwik_port/ui/home/dashboard/name_and_notif_headng.dart';
 import 'package:kwik_port/ui/home/dashboard/notifcation/notification_screen.dart';
 import 'package:kwik_port/ui/home/dashboard/procurement%20Agency/select_procurement_agency_screen.dart';
 import 'package:kwik_port/ui/home/dashboard/wallet_balance_container.dart';
+import 'package:kwik_port/ui/home/wallet/fund_wallet_screen.dart';
 import 'package:kwik_port/utils/button/bottom_navigatior_bar.dart';
 import 'package:kwik_port/utils/button/elavated_button.dart';
 import 'package:kwik_port/utils/button/loading_dialog.dart';
@@ -284,7 +285,8 @@ class _DashboardState extends State<Dashboard> {
     final isLoading = dashboardApi.loading;
     final walletBalance = dashboardApi.data?.walletBalance ?? 0.0;
     final kwikLCBalance = dashboardApi.data?.kwikLCBalance ?? 0.0;
-    final totalExportContractBalance = dashboardApi.data?.totalExportContractBalance ?? 0.0;
+    final totalExportContractBalance =
+        dashboardApi.data?.totalExportContractBalance ?? 0.0;
     print('Total Export Contract Balance: $totalExportContractBalance');
 
     final activeTickets = dashboardApi.activeKwikTicketsCount;
@@ -491,7 +493,14 @@ class _DashboardState extends State<Dashboard> {
                           quickActionsContainer(
                             "assets/images/icons/dashboard/fundwallet_acction.png",
                             "Fund Wallet",
-                            () {},
+                            () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => FundWalletScreen(),
+                                ),
+                              );
+                            },
                           ),
                           SizedBox(width: 20),
                           quickActionsContainer(

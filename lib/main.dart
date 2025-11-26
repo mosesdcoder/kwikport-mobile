@@ -16,6 +16,7 @@ import 'package:kwik_port/api/controller/authApi/verifyEmailApi.dart';
 import 'package:kwik_port/api/controller/contractsApi/calculate_commodity_cost.dart';
 import 'package:kwik_port/api/controller/contractsApi/get_contract_api.dart';
 import 'package:kwik_port/api/controller/contractsApi/publishedcontractsApi.dart';
+import 'package:kwik_port/api/controller/contractsApi/request_contract_api.dart';
 import 'package:kwik_port/api/controller/fund_wallet_api.dart';
 import 'package:kwik_port/api/controller/home/dashboard_api.dart';
 import 'package:kwik_port/api/controller/kwikTickets/create_kwikticket_api.dart';
@@ -63,6 +64,7 @@ void main() async {
           ChangeNotifierProvider(create: (_) => SelectedAgencyProvider()),
           ChangeNotifierProvider(create: (_) => FundWalletApi()),
           ChangeNotifierProvider(create: (_) => VerifyFundPayment()),
+          ChangeNotifierProvider(create: (_) => RequestContractApi()),
         ],
         child: const MyApp(),
       ),

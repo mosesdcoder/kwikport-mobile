@@ -481,7 +481,7 @@ class _ContractDetailsScreenState extends State<ContractDetailsScreen>
                                 MainAxisAlignment.spaceBetween,
                                 children: [
                                   Text(
-                                    "${widget.contract.buyerSpecification?.buyerPricePerUnit ?? "N/A"}",
+                                    "${widget.contract.pricePerUnitInNGN ?? "N/A"}",
                                     style: TextStyle(
                                       fontSize: 14.0,
                                       fontWeight: FontWeight.w600,
@@ -489,7 +489,7 @@ class _ContractDetailsScreenState extends State<ContractDetailsScreen>
                                     ),
                                   ),
                                   Text(
-                                    "${widget.contract.pricePerUnitInUSD}",
+                                    "${widget.contract.pricePerUnitInNGN}",
                                     style: kwikTextStlye(
                                       14.0,
                                       FontWeight.w600,
