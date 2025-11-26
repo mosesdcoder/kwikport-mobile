@@ -27,6 +27,7 @@ class KwikticketScreen extends StatefulWidget {
 }
 
 class _KwikticketScreenState extends State<KwikticketScreen> {
+  
   @override
   Widget build(BuildContext context) {
     return Scaffold(

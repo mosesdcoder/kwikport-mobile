@@ -580,6 +580,7 @@ class ExportSummaryModel {
   final String exportContractStage;
   final DateTime createdAt;
   final DateTime? completedAt;
+  final KwikTicketModel? kwikTickets;
 
   ExportSummaryModel({
     required this.id,
@@ -594,6 +595,7 @@ class ExportSummaryModel {
     required this.exportContractStage,
     required this.createdAt,
     this.completedAt,
+    required this.kwikTickets,
   });
 
   factory ExportSummaryModel.fromJson(Map<String, dynamic> json) {
@@ -613,6 +615,10 @@ class ExportSummaryModel {
           json['completedAt'] != null
               ? DateTime.tryParse(json['completedAt'])
               : null,
+      kwikTickets:
+          json['kwikTickets'] != null
+              ? KwikTicketModel.fromJson(json['kwikTickets'])
+              : null,
     );
   }
 
@@ -629,5 +635,6 @@ class ExportSummaryModel {
     'exportContractStage': exportContractStage,
     'createdAt': createdAt.toIso8601String(),
     'completedAt': completedAt?.toIso8601String(),
+    'kwikTickets': kwikTickets?.toJson(),
   };
 }

@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:kwik_port/api/controller/agency/export_stage_api.dart';
@@ -216,9 +218,10 @@ class _ConfirmAgencySelectionDialogState
                                   .where(
                                     (exp) =>
                                         exp.exportContractStage ==
-                                            "CommoditySourcing" &&
-                                        exp.contractFulfilmentMethod ==
-                                            "KwikProcure",
+                                        "CommoditySourcing",
+                                    //     &&
+                                    // exp.contractFulfilmentMethod ==
+                                    //     "KwikProcure",
                                   )
                                   .toList();
 
@@ -235,8 +238,8 @@ class _ConfirmAgencySelectionDialogState
                           // Pick the most recent export
                           final selectedExport =
                               activeExports.isNotEmpty
-                                  ? activeExports.last
-                                  : exports.last;
+                                  ? activeExports.first
+                                  : exports.first;
                           final exportId = selectedExport.id;
 
                           debugPrint("✅ Selected Export ID: $exportId");
@@ -260,11 +263,11 @@ class _ConfirmAgencySelectionDialogState
                                       await SharedPreferences.getInstance();
 
                                   // 🧹 Clear any previous ongoing journey data (override step)
-                                  await prefs.remove('journeyInProgress');
-                                  await prefs.remove('activeExportContractId');
-                                  await prefs.remove('activeKwikTicket');
-                                  await prefs.remove('procurementCompleted');
-                                  await prefs.remove('procurementInProgress');
+                                  // await prefs.remove('journeyInProgress');
+                                  // await prefs.remove('activeExportContractId');
+                                  // await prefs.remove('activeKwikTicket');
+                                  // await prefs.remove('procurementCompleted');
+                                  // await prefs.remove('procurementInProgress');
 
                                   // 💾 Save the current ongoing journey
                                   await prefs.setBool(
@@ -275,10 +278,13 @@ class _ConfirmAgencySelectionDialogState
                                     'activeExportContractId',
                                     exportId ?? '',
                                   );
-                                  // await prefs.setString(
-                                  //   'activeKwikTicket',
-                                  //   widget.kwikticket ?? '',
-                                  // );
+                                  await prefs.setString(
+                                    'activeKwikTicket',
+                                    jsonEncode(widget.kwikticket!.toJson()),
+                                  );
+                                  debugPrint(
+                                    "💾 Saving KwikTicket: ${jsonEncode(widget.kwikticket!.toJson())}",
+                                  );
                                   await prefs.setBool(
                                     'procurementInProgress',
                                     true,
@@ -339,7 +345,7 @@ class _ConfirmAgencySelectionDialogState
                                             "${widget.kwikticket?.kwikTicketAmount}",
                                         continueFunc: () async {
                                           Navigator.push(
-                                            context,
+                                            parentContext,
                                             MaterialPageRoute(
                                               builder:
                                                   (_) => ExportJourneyScreen(
@@ -368,7 +374,7 @@ class _ConfirmAgencySelectionDialogState
                                   );
                                 }
                               });
-                          Navigator.pop(context);
+                          // Navigator.pop(context);
                         }),
                         SizedBox(height: 12),
                         kwikbutton(

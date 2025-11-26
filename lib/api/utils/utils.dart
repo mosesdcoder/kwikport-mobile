@@ -11,7 +11,7 @@ import 'package:kwik_port/main.dart';
 import 'package:kwik_port/ui/onboarding/auth/login_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-const String baseUrl = 'http://api-user.kwikports.com/v1';
+const String baseUrl = 'https://api-user.kwikports.com/v1';
 
 // http://api-user.kwikports.com/swagger/index.html
 class HttpService {
