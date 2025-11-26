@@ -9,6 +9,7 @@ import 'package:kwik_port/colors/color.dart';
 import 'package:kwik_port/main.dart';
 import 'package:kwik_port/ui/home/kwikticket/kwikticket_screen.dart';
 import 'package:kwik_port/ui/home/dashboard/dashboard.dart';
+import 'package:kwik_port/ui/home/kwikticket/save_pending_ticket.dart';
 import 'package:kwik_port/utils/button/backNav_button.dart';
 import 'package:kwik_port/utils/button/bottom_navigatior_bar.dart';
 import 'package:kwik_port/utils/button/kwik_button.dart';
@@ -38,6 +39,11 @@ class _KwikticketCreatedSuccessfullyState
     extends State<KwikticketCreatedSuccessfully> {
   Uint8List? bytes;
   final screenshotController = ScreenshotController();
+  @override
+  void initState() {
+    super.initState();
+    savePendingTicket(widget.kwikticket.uniqueId!);
+  }
 
   Future<void> _downloadReceipt(context) async {
     await screenshotController.capture(delay: Duration(milliseconds: 10)).then((
@@ -333,6 +339,8 @@ class _KwikticketCreatedSuccessfullyState
               ),
               SizedBox(height: 24),
               kwikbutton("View Kwickticket", () {
+                savePendingTicket(widget.kwikticket.uniqueId!);
+
                 Navigator.push(
                   context,
                   MaterialPageRoute(

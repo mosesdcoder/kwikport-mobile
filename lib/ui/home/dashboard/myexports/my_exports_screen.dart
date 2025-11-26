@@ -247,14 +247,15 @@ class _MyExportsScreenState extends State<MyExportsScreen>
                 .toList();
         return exporttDetailContainer(
           // "", //
-          export?.contractId ?? "Unknown",
+          export?.kwikTickets?.contract?.contractId ?? "Unknown",
           // "", //
           export?.commodityName ?? "Unknown Commodity",
-          "", //
-          //  (export?.contractType == 1 ? "International Buyer" : "Local Buyer"),
-          "", //
-          // (export?.fulfilledQuantity?.toString() ?? "0"),
-          "", // export?.destinationCountry ?? "N/A",
+          (export?.kwikTickets?.contract?.contractType == 1
+              ? "International Buyer"
+              : "Local Buyer"),
+          // "", //
+          (export?.kwikTickets?.quantityToFulfill.toString() ?? "0"),
+          export?.kwikTickets?.contract?.destinationCountry ?? "N/A",
           "", // (export?.totalAmountSpent?.toString() ?? ""),
           "", // // "", //          ticket.kwikTicketAmount.toString()),
           "", // (export?.buyerSpecification?.buyerName?.toString() ?? "N/A"),

@@ -18,6 +18,7 @@ Widget ticketDetailContainer(
   projectedIncome,
   timeadded,
   kwiticketStatus,
+  payforticketFunc,
   context,
 ) {
   return Container(
@@ -184,31 +185,50 @@ Widget ticketDetailContainer(
             ],
           ),
         ),
-        SizedBox(height: 20),
+        SizedBox(height: 10),
         SizedBox(
           width: 342,
           child: Divider(thickness: 1.0, color: colorCodes.aluminium),
         ),
-        SizedBox(height: 20),
+        SizedBox(height: 10),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Row(
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Image.asset(
-                  "assets/images/icons/calendar.png",
-                  height: 15,
-                  width: 15,
+                Row(
+                  children: [
+                    Image.asset(
+                      "assets/images/icons/calendar.png",
+                      height: 15,
+                      width: 15,
+                    ),
+                    SizedBox(width: 5),
+                    Text(
+                      timeadded,
+                      style: kwikTextStlye(
+                        12.0,
+                        FontWeight.w500,
+                        colorCodes.graniteGrey,
+                      ),
+                    ),
+                  ],
                 ),
-                SizedBox(width: 5),
-                Text(
-                  timeadded,
-                  style: kwikTextStlye(
-                    12.0,
-                    FontWeight.w500,
-                    colorCodes.graniteGrey,
-                  ),
-                ),
+                SizedBox(height: 5),
+                kwiticketStatus == 2
+                    ? SizedBox(
+                      width: 125,
+                      height: 22,
+                      child: kwikbutton(
+                        "Make payment",
+                        payforticketFunc,
+                        fontSize: 12.0,
+                      ),
+                    )
+                    : SizedBox(height: 2),
               ],
             ),
 
@@ -496,43 +516,6 @@ Widget exporttDetailContainer(
               width: 80,
               child: kwikbutton("View Export", viewexportFunc, fontSize: 10.0),
             ),
-            // Container(
-            //   height: 24,
-            //   width: 64,
-            //   alignment: Alignment.center,
-            //   decoration: BoxDecoration(
-            //     border: Border.all(
-            //       width: 1.2,
-            //       color:
-            //           kwiticketStatus == 1
-            //               ? colorCodes.bluetiful
-            //               : kwiticketStatus == 2
-            //               ? HexColor("#FFAA33")
-            //               : kwiticketStatus == 5
-            //               ? colorCodes.pigmentGreen
-            //               : HexColor("#FFAA33"),
-            //     ),
-            //     borderRadius: BorderRadius.circular(22),
-            //     color:
-            //         kwiticketStatus == 1
-            //             ? colorCodes.bluetiful
-            //             : kwiticketStatus == 2
-            //             ? HexColor("#FFAA33")
-            //             : kwiticketStatus == 5
-            //             ? colorCodes.pigmentGreen
-            //             : HexColor("#FFAA33"),
-            //   ),
-            //   child: Text(
-            //     kwiticketStatus == 1
-            //         ? "Active"
-            //         : kwiticketStatus == 2
-            //         ? "Awaiting"
-            //         : kwiticketStatus == 5
-            //         ? "Fulfilled"
-            //         : "Cancelled",
-            //     style: kwikTextStlye(10.0, FontWeight.w500, colorCodes.white),
-            //   ),
-            // ),
           ],
         ),
       ],

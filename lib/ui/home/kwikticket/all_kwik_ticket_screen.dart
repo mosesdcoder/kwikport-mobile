@@ -3,8 +3,10 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:kwik_port/api/controller/kwikTickets/get_kwik_ticket_api.dart';
+import 'package:kwik_port/api/model/dashboard_model.dart';
 import 'package:kwik_port/colors/color.dart';
 import 'package:kwik_port/main.dart';
+import 'package:kwik_port/ui/home/exportfulfillment/KycVerification/fund_export_contract.dart';
 import 'package:kwik_port/ui/home/kwikticket/ticket_details_container.dart';
 import 'package:kwik_port/utils/button/back_nav_header.dart';
 import 'package:kwik_port/utils/button/bottom_navigatior_bar.dart';
@@ -12,7 +14,14 @@ import 'package:provider/provider.dart';
 import 'package:swipe_refresh/swipe_refresh.dart';
 
 class AllKwikTicketScreen extends StatefulWidget {
-  const AllKwikTicketScreen({super.key});
+  final KwikTicketModel? kwikticket;
+  final String? pendingKwikticketId;
+
+  const AllKwikTicketScreen({
+    super.key,
+    this.kwikticket,
+    this.pendingKwikticketId,
+  });
 
   @override
   State<AllKwikTicketScreen> createState() => _AllKwikTicketScreenState();
@@ -247,20 +256,25 @@ class _AllKwikTicketScreenState extends State<AllKwikTicketScreen>
 
     final filteredTickets =
         provider.tickets.where((t) {
-          // Adjust filtering based on your backend status codes
           switch (statusFilter) {
             case "awaiting":
               return t.kwikTicketStatus ==
                   KwikTicketStatusEnum.awaitingPayment.value;
             case "active":
               return t.kwikTicketStatus == KwikTicketStatusEnum.active.value;
-
             case "fulfilled":
               return t.kwikTicketStatus == KwikTicketStatusEnum.paid.value;
             default:
               return true;
           }
         }).toList();
+
+    // 🔥 Sort newest ticket on top
+    // filteredTickets.sort((a, b) {
+    //   final dateA = a.createdAt ?? DateTime(2000);
+    //   final dateB = b.createdAt ?? DateTime(2000);
+    //   return dateB.compareTo(dateA);
+    // });
     // final allTickets = provider.tickets;
 
     // if (filteredTickets.isEmpty) {
@@ -317,17 +331,21 @@ class _AllKwikTicketScreenState extends State<AllKwikTicketScreen>
               ticket.kwikTicketAmount.toString()),
           (buyerSpec?.buyerPricePerUnit?.toString() ?? "N/A"),
           (ticket?.grossEarning?.toString() ?? "N/A"),
-          // ticket.contract?.contractType == 1
-          //     ? "International Buyer"
-          //     : "Local Buyer" ?? "",
-          // ticket.contract?.totalQuantity.toString() ?? "",
-          // ticket.contract?.destinationCountry ?? "",
 
-          // ticket.contract?.totalAmount ?? "",
-          // ticket.contract?.buyerSpecification?.buyerPricePerUnit ?? "",
-          // ticket.contract?.projectedIncome ?? "",
           DateFormat('yyyy-MM-dd').format(ticket.createdAt ?? DateTime.now()),
           ticket.kwikTicketStatus,
+          () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder:
+                    (context) => FundExportContract(
+                      kwikticket: ticket,
+                      kwikTicketId: ticket.id!,
+                    ),
+              ),
+            );
+          },
           context,
         );
       },

@@ -97,7 +97,10 @@ class _ExportJourneyScreenState extends State<ExportJourneyScreen> {
         'activeExportContractId',
         widget.exporterContractId,
       );
-      // await prefs.setString('activeKwikTicket', widget.kwikticket ?? '');
+      await prefs.setString(
+        'activeKwikTicket',
+        jsonEncode(widget.kwikticket!.toJson()),
+      );
 
       await prefs.setBool('procurementCompleted', true);
       await prefs.setBool('procurementInProgress', false);
@@ -518,10 +521,7 @@ class _ExportJourneyScreenState extends State<ExportJourneyScreen> {
                   await prefs.remove('journeyInProgress');
                   await prefs.remove('activeExportContractId');
                   await prefs.remove('activeKwikTicket');
-                  // final prefs = await SharedPreferences.getInstance();
-                  // await prefs.setBool('journeyInProgress', false);
-                  // await prefs.remove('activeExportContractId');
-                  // // final prefs = await SharedPreferences.getInstance();
+
                   await prefs.remove('procurementCompleted');
                   await prefs.remove('procurementInProgress');
                   // await completeJourney();

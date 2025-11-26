@@ -312,22 +312,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       final prefs = await SharedPreferences.getInstance();
 
                       // Backup keys you want to keep
-                      // final inProgress = prefs.getBool('journeyInProgress');
-                      // final exportContractId = prefs.getString(
-                      //   'activeExportContractId',
-                      // );
+                      final inProgress = prefs.getBool('journeyInProgress');
+                      final exportContractId = prefs.getString(
+                        'activeExportContractId',
+                      );
 
-                      // // Clear all data
-                      // await prefs.clear();
+                      // Clear all data
+                      await prefs.clear();
 
-                      // // Restore only what you want to persist
-                      // if (inProgress != null)
-                      //   await prefs.setBool('journeyInProgress', inProgress);
-                      // if (exportContractId != null)
-                      //   await prefs.setString(
-                      //     'activeExportContractId',
-                      //     exportContractId,
-                      //   );
+                      // Restore only what you want to persist
+                      if (inProgress != null)
+                        await prefs.setBool('journeyInProgress', inProgress);
+                      if (exportContractId != null)
+                        await prefs.setString(
+                          'activeExportContractId',
+                          exportContractId,
+                        );
 
                       // final prefs = await SharedPreferences.getInstance();
                       final selected = prefs.getBool('procurementSelected');

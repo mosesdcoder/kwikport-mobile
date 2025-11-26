@@ -68,11 +68,16 @@ class _SelectProcurementAgencyScreenState
       final currentExportId = widget.kwikticket?.exportContractId;
 
       // 🧹 reset timer if this is a new export
-      if (savedExportId != currentExportId) {
+      // if (savedExportId != currentExportId) {
+      //   await prefs.remove('procurementStartTime');
+      //   await prefs.setString('activeExportContractId', currentExportId ?? '');
+      // }
+
+      if (savedExportId == null || savedExportId != currentExportId) {
         await prefs.remove('procurementStartTime');
-        await prefs.setString('activeExportContractId', currentExportId ?? '');
       }
 
+      await prefs.setString('activeExportContractId', currentExportId ?? '');
       // start fresh if missing
       final startTime =
           prefs.getInt('procurementStartTime') ??

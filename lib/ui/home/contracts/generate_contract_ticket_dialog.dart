@@ -7,6 +7,7 @@ import 'package:kwik_port/api/model/userModel.dart';
 import 'package:kwik_port/colors/color.dart';
 import 'package:kwik_port/main.dart';
 import 'package:kwik_port/ui/home/contracts/kwikticket_created_successfully.dart';
+import 'package:kwik_port/ui/home/kwikticket/save_pending_ticket.dart';
 import 'package:kwik_port/utils/button/kwik_button.dart';
 import 'package:kwik_port/utils/text/textstyle.dart';
 import 'package:kwik_port/utils/textFields/goods_volume_field.dart';
@@ -293,6 +294,7 @@ class _GenerateContractTicketDialogState
                               newTicket.quantityToFulfill = double.tryParse(
                                 volumeController.text,
                               );
+                              savePendingTicket(newTicket.uniqueId!);
 
                               Navigator.push(
                                 context,

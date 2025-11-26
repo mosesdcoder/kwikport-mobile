@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:kwik_port/api/controller/contractsApi/publishedcontractsApi.dart';
 import 'package:kwik_port/api/controller/home/dashboard_api.dart';
+import 'package:kwik_port/api/controller/kwikTickets/get_kwik_ticket_api.dart';
 import 'package:kwik_port/api/model/dashboard_model.dart';
 import 'package:kwik_port/api/model/userModel.dart';
 import 'package:kwik_port/colors/color.dart';
@@ -20,6 +21,8 @@ import 'package:kwik_port/ui/home/dashboard/notifcation/notification_screen.dart
 import 'package:kwik_port/ui/home/dashboard/procurement%20Agency/select_procurement_agency_screen.dart';
 import 'package:kwik_port/ui/home/dashboard/wallet_balance_container.dart';
 import 'package:kwik_port/ui/home/wallet/fund_wallet_screen.dart';
+import 'package:kwik_port/ui/home/kwikticket/all_kwik_ticket_screen.dart';
+import 'package:kwik_port/ui/home/kwikticket/save_pending_ticket.dart';
 import 'package:kwik_port/utils/button/bottom_navigatior_bar.dart';
 import 'package:kwik_port/utils/button/elavated_button.dart';
 import 'package:kwik_port/utils/button/loading_dialog.dart';
@@ -74,19 +77,84 @@ class _DashboardState extends State<Dashboard> {
     super.initState();
     currentIndex = 1;
     notificationExist;
-    // WidgetsBinding.instance.addPostFrameCallback((_) async {
 
-    // });
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       await _loadProcurementState();
       // _loadJourneyState();
       await _checkOngoingJourney();
       Provider.of<DashboardApi>(context, listen: false).fetchDashboard();
+      // if (dashboardApi.data?.exports.isEmpty ?? true) {
+      //   await completeJourney(); // clears SharedPreferences and UI state
+      // }
+
       final api = Provider.of<GetContractApi>(context, listen: false);
       api.fetchContracts(); // PageIndex=1, PageSize=20, version=1
       isLoading = true;
+
+      final ticketProvider = Provider.of<GetKwikTicketApi>(
+        context,
+        listen: false,
+      );
+
+      await ticketProvider.fetchKwikTickets(); // FIRST fetch
+
+      _checkPendingTicket(ticketProvider);
+
+      // Trigger fetch
+      // await ticketProvider.fetchKwikTickets();
     });
+
     _scrollController.addListener(_scrollListener);
+  }
+
+  Future<void> _checkPendingTicket(GetKwikTicketApi ticketProvider) async {
+    String? pendingTicketId = await getPendingTicket();
+    if (pendingTicketId == null) return;
+
+    if (ticketProvider.tickets.isEmpty) return;
+
+    final ticket = ticketProvider.tickets.firstWhere(
+      (t) =>
+          t.uniqueId == pendingTicketId &&
+          t.kwikTicketStatus == KwikTicketStatusEnum.awaitingPayment.value,
+    );
+
+    if (ticket == null) return;
+    if (!mounted) return;
+
+    Future.delayed(Duration(milliseconds: 80), () {
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder:
+            (context) => AlertDialog(
+              title: Text("Ticket Awaiting Payment"),
+              content: Text("You have a ticket awaiting payment. Continue?"),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: Text("Cancel"),
+                ),
+                TextButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder:
+                            (context) => AllKwikTicketScreen(
+                              kwikticket: ticket,
+                              pendingKwikticketId: ticket.uniqueId,
+                            ),
+                      ),
+                    );
+                  },
+                  child: Text("Continue"),
+                ),
+              ],
+            ),
+      );
+    });
   }
 
   Future<void> _startProcurementCountdown() async {
@@ -157,39 +225,8 @@ class _DashboardState extends State<Dashboard> {
 
   bool showContinueJourney = false;
   String? exportContractId;
-  String? kwikticket;
-  // Future<void> _loadJourneyState() async {
-  //   final prefs = await SharedPreferences.getInstance();
-  //   final inProgress = prefs.getBool('journeyInProgress') ?? false;
-  //   final savedId = prefs.getString('activeExportContractId');
+  KwikTicketModel? kwikticket;
 
-  //   if (inProgress && savedId != null) {
-  //     // Only show the continue journey if the journey still exists
-  //     // You could optionally validate savedId with the server here
-  //     setState(() {
-  //       showContinueJourney = true;
-  //       exportContractId = savedId;
-  //     });
-  //   } else {
-  //     setState(() {
-  //       showContinueJourney = false;
-  //       exportContractId = null;
-  //     });
-  //   }
-  // }
-
-  // Future<void> _loadJourneyState() async {
-  //   final prefs = await SharedPreferences.getInstance();
-  //   final inProgress = prefs.getBool('journeyInProgress') ?? false;
-  //   final savedId = prefs.getString('activeExportContractId');
-
-  //   if (inProgress && savedId != null) {
-  //     setState(() {
-  //       showContinueJourney = true;
-  //       exportContractId = savedId;
-  //     });
-  //   }
-  // }
   // Start a new export journey
   Future<void> startNewJourney(String newExporterContractId) async {
     final prefs = await SharedPreferences.getInstance();
@@ -205,7 +242,7 @@ class _DashboardState extends State<Dashboard> {
     // Update UI state
     setState(() {
       exportContractId = newExporterContractId;
-      // showContinueJourney = true;
+      showContinueJourney = true;
     });
   }
 
@@ -222,61 +259,37 @@ class _DashboardState extends State<Dashboard> {
     });
   }
 
-  // Future<void> _loadProcurementState() async {
-  //   final prefs = await SharedPreferences.getInstance();
-  //   final selected = prefs.getBool('procurementSelected') ?? false;
-  //   final startTime = prefs.getInt('procurementStartTime');
-
-  //   if (selected) {
-  //     // already chosen → never show again
-  //     setState(() => showProcurement = false);
-  //     return;
-  //   }
-
-  // if (startTime == null) {
-  //   // no timer yet → show container
-  //   setState(() => showProcurement = true);
-  //   return;
-  // }
-
-  // final startDate = DateTime.fromMillisecondsSinceEpoch(startTime);
-  // final diff = DateTime.now().difference(startDate);
-
-  // if (diff >= Duration(hours: 24)) {
-  //     // expired
-  //     await prefs.setBool('showProcurement', false);
-  //     setState(() => showProcurement = false);
-  //   } else {
-  //     final remaining = Duration(hours: 24) - diff;
-  //     setState(() => showProcurement = true);
-
-  //     Timer(remaining, () async {
-  //       if (mounted) {
-  //         setState(() => showProcurement = false);
-  //         await prefs.setBool('showProcurement', false);
-  //       }
-  //     });
-  //   }
-  // }
-
   Future<void> _checkOngoingJourney() async {
     final prefs = await SharedPreferences.getInstance();
     final inProgress = prefs.getBool('journeyInProgress') ?? false;
     final contractId = prefs.getString('activeExportContractId');
-    final ticket = prefs.getString('activeKwikTicket');
+    final ticketJson = prefs.getString('activeKwikTicket');
+
+    KwikTicketModel? loadedTicket;
+
+    if (ticketJson != null && ticketJson.isNotEmpty) {
+      loadedTicket = KwikTicketModel.fromJson(jsonDecode(ticketJson));
+    }
 
     setState(() {
       showContinueJourney = inProgress;
       exportContractId = contractId;
-      kwikticket = ticket;
+      kwikticket = loadedTicket; // ✅ FIXED
     });
   }
 
-  Future<void> _hideProcurement() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setInt('procurementShownTime', 0);
-    setState(() => showProcurement = false);
-  }
+  // Future<void> _checkOngoingJourney() async {
+  //   final prefs = await SharedPreferences.getInstance();
+  //   final inProgress = prefs.getBool('journeyInProgress') ?? false;
+  //   final contractId = prefs.getString('activeExportContractId');
+  //   final ticket = prefs.getString('activeKwikTicket');
+
+  //   setState(() {
+  //     showContinueJourney = inProgress;
+  //     exportContractId = contractId;
+  //     kwikticket = ticket;
+  //   });
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -298,7 +311,8 @@ class _DashboardState extends State<Dashboard> {
 
     // final exports= dashboardApi.data?.exports ?? [];
     final user = dashboardApi.data?.userProfile;
-
+    final first = user?.firstName ?? "";
+    final last = user?.lastName ?? "";
     return WillPopScope(
       onWillPop: () async {
         // Return false to prevent going back
@@ -309,14 +323,6 @@ class _DashboardState extends State<Dashboard> {
         backgroundColor: colorCodes.whiteSmoke,
         body: Stack(
           children: [
-            // ListView(
-            //   shrinkWrap: true,
-            //   physics: NeverScrollableScrollPhysics(),
-            //   padding: EdgeInsets.symmetric(horizontal: 10.0, vertical: 50.0),
-            //   children: [
-            //     SizedBox(
-            //       height: MediaQuery.of(context).size.height,
-            //       child:
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 10.0, vertical: 50.0),
               child: SwipeRefresh.adaptive(
@@ -329,8 +335,9 @@ class _DashboardState extends State<Dashboard> {
                     children: [
                       nameAndNotifHeading(
                         context,
-                        user != null
-                            ? "${user.firstName.toUpperCase()} ${user.lastName.toUpperCase()}"
+                        "$first $last".trim().isNotEmpty
+                            ? "${first.toUpperCase()} ${last.toUpperCase()}"
+                                .trim()
                             : "User",
                         notificationExist,
                         notificationFunc,
@@ -398,7 +405,8 @@ class _DashboardState extends State<Dashboard> {
                         procurementContainer(),
                       if (widget.kwikticket != null && showProcurement)
                         if (showProcurement) SizedBox(height: 25),
-                      if (showContinueJourney && exportContractId != null)
+                      if (showContinueJourney == true &&
+                          exportContractId != null)
                         Container(
                           height: 70,
                           width: double.infinity,
@@ -461,7 +469,7 @@ class _DashboardState extends State<Dashboard> {
                                       MaterialPageRoute(
                                         builder:
                                             (context) => ExportJourneyScreen(
-                                              kwikticket: widget.kwikticket,
+                                              kwikticket: kwikticket,
                                               exporterContractId:
                                                   exportContractId!,
                                             ),
