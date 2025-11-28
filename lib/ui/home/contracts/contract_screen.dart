@@ -275,11 +275,11 @@ class _ContractScreenState extends State<ContractScreen>
                               _buildContractList(contractProvider), // All
                               _buildContractList(
                                 contractProvider,
-                                statusFilter: 0,
+                                statusFilter: "Active",
                               ), // Open
                               _buildContractList(
                                 contractProvider,
-                                statusFilter: 1,
+                                statusFilter: "Closed",
                               ), // Closed
                             ],
                           ),
@@ -300,7 +300,7 @@ class _ContractScreenState extends State<ContractScreen>
 
   Widget _buildContractList(
     GetContractApi contractProvider, {
-    int? statusFilter,
+    String? statusFilter,
   }) {
     if (contractProvider.loading) {
       return Center(child: kwikportloader());
@@ -364,11 +364,11 @@ class _ContractScreenState extends State<ContractScreen>
             contract.commodityName,
             "assets/images/icons/tick-circle.png",
             contract.contractStatus, //== 0 ? "Active" : "Closed",
-            "100 tons",
+            contract.totalQuantity,// "100 tons",
             "assets/images/icons/Country.png",
             contract.destinationCountry,
-            "20 tons",
-            "100 tons",
+            "${contract.fulfilledQuantity}", // "20 tons",
+             "${contract.totalQuantity}", //100 tons",
             "20%",
             "${contract.totalAmount}",
             "assets/images/icons/Trending up.png",
@@ -404,8 +404,6 @@ class _ContractScreenState extends State<ContractScreen>
         borderRadius: BorderRadius.circular(100),
       ),
       child: TabBar(
-        // indicatorColor: colorCodes.teaGreen,
-        // labelPadding: const EdgeInsets.symmetric(vertical: 12),
         indicatorSize: TabBarIndicatorSize.tab,
 
         labelColor: colorCodes.white,
@@ -419,13 +417,8 @@ class _ContractScreenState extends State<ContractScreen>
           fontFamily: 'Poppins',
           fontSize: 14.0,
           fontWeight: FontWeight.w500,
-          // color: colorCodes
         ),
 
-        // indicatorPadding: const EdgeInsets.symmetric(
-        //   vertical: 4,
-        //   horizontal: 4,
-        // ),
         indicator: BoxDecoration(
           borderRadius: BorderRadius.circular(100),
           border: Border.all(color: colorCodes.frenchSkyBlue),

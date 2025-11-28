@@ -27,6 +27,7 @@ class KwikticketScreen extends StatefulWidget {
 }
 
 class _KwikticketScreenState extends State<KwikticketScreen> {
+  
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -134,7 +135,7 @@ class _KwikticketScreenState extends State<KwikticketScreen> {
                     contractDetailHeadingAndSubtitletwo(
                       "Selected Capacity",
                       "Commodity Cost",
-                      "${widget.kwikticket.contract?.totalQuantity} Tons",
+                      "${widget.kwikticket.quantityToFulfill} Tons",
                       "${widget.kwikticket.kwikTicketAmount}",
                       // "20.5 tons",
                       // "₦246,000,000",
@@ -181,7 +182,7 @@ class _KwikticketScreenState extends State<KwikticketScreen> {
                               width: 16,
                             ),
                             Text(
-                              "${widget.kwikticket.contract?.projectedIncome}%",
+                              "${widget.kwikticket.grossEarning}%",
                               style: kwikTextStlye(
                                 14.0,
                                 FontWeight.w600,
@@ -207,7 +208,7 @@ class _KwikticketScreenState extends State<KwikticketScreen> {
                           ),
                         ),
                         Text(
-                          "Status",
+                          "Ticket Status",
                           style: kwikTextStlye(
                             12.0,
                             FontWeight.w300,
@@ -307,7 +308,7 @@ class _KwikticketScreenState extends State<KwikticketScreen> {
                 ),
               ),
               SizedBox(height: 20),
-              kwikbutton("Fulfill Ticket", () {
+              kwikbutton("Activate Ticket", () {
                 Navigator.push(
                   context,
                   MaterialPageRoute(

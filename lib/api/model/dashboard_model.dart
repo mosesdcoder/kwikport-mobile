@@ -2,63 +2,19 @@
 import 'package:kwik_port/api/model/userModel.dart'; // for ExporterModel
 import 'package:kwik_port/api/model/contractModel.dart'; // for PublishedContractModel
 
-// class DashboardModel {
-//   final UserProfile? userProfile;
-//   final double walletBalance;
-//   final double kwikLCBalance;
-//   final List<KwikTicketModel> kwikTickets;
-//   final List<ContractModel> exports;
-
-//   DashboardModel({
-//     required this.userProfile,
-//     required this.walletBalance,
-//     required this.kwikLCBalance,
-//     required this.kwikTickets,
-//     required this.exports,
-//   });
-
-//   factory DashboardModel.fromJson(Map<String, dynamic> json) {
-//     return DashboardModel(
-//       userProfile:
-//           json['userProfile'] != null
-//               ? UserProfile.fromJson(json['userProfile'])
-//               : null,
-//       walletBalance: (json['walletBalance'] ?? 0).toDouble(),
-//       kwikLCBalance: (json['kwikLCBalance'] ?? 0).toDouble(),
-//       kwikTickets:
-//           (json['kwikTickets'] as List<dynamic>?)
-//               ?.map((e) => KwikTicketModel.fromJson(e as Map<String, dynamic>))
-//               .toList() ??
-//           [],
-//       exports:
-//           (json['exports'] as List<dynamic>?)
-//               ?.map((e) => ContractModel.fromJson(e as Map<String, dynamic>))
-//               .toList() ??
-//           [],
-//     );
-//   }
-//   Map<String, dynamic> toJson() {
-//     return {
-//       'userProfile': userProfile?.toJson(),
-//       'walletBalance': walletBalance,
-//       'kwikLCBalance': kwikLCBalance,
-//       'kwikTickets': kwikTickets.map((e) => e.toJson()).toList(),
-//       'exports': exports.map((e) => e.toJson()).toList(),
-//     };
-//   }
-// }
-
 class DashboardModel {
   final UserProfile? userProfile;
   final double walletBalance;
+  final double totalExportContractBalance;
   final bool canWithdraw;
   final double kwikLCBalance;
   final List<KwikTicketModel> kwikTickets;
-  final List<ContractModel> exports;
+  final List<ExportSummaryModel> exports;
 
   DashboardModel({
     required this.userProfile,
     required this.walletBalance,
+    required this.totalExportContractBalance,
     required this.canWithdraw,
     required this.kwikLCBalance,
     required this.kwikTickets,
@@ -74,8 +30,11 @@ class DashboardModel {
               ? UserProfile.fromJson(json['userProfile'])
               : null,
       walletBalance: (walletData['walletBalance'] ?? 0).toDouble(),
+
       canWithdraw: walletData['canWithdraw'] ?? false,
       kwikLCBalance: (json['kwikLCBalance'] ?? 0).toDouble(),
+      totalExportContractBalance:
+          (json['totalExportContractBalance'] ?? 0).toDouble(),
       kwikTickets:
           (json['kwikTickets'] as List<dynamic>?)
               ?.map((e) => KwikTicketModel.fromJson(e as Map<String, dynamic>))
@@ -83,7 +42,9 @@ class DashboardModel {
           [],
       exports:
           (json['exports'] as List<dynamic>?)
-              ?.map((e) => ContractModel.fromJson(e as Map<String, dynamic>))
+              ?.map(
+                (e) => ExportSummaryModel.fromJson(e as Map<String, dynamic>),
+              )
               .toList() ??
           [],
     );
@@ -95,8 +56,10 @@ class DashboardModel {
       'walletBalance': {
         'walletBalance': walletBalance,
         'canWithdraw': canWithdraw,
+        'totalExportContractBalance': totalExportContractBalance,
       },
       'kwikLCBalance': kwikLCBalance,
+      'totalExportContractBalance': totalExportContractBalance,
       'kwikTickets': kwikTickets.map((e) => e.toJson()).toList(),
       'exports': exports.map((e) => e.toJson()).toList(),
     };
@@ -105,6 +68,7 @@ class DashboardModel {
 
 class UserProfile {
   final String id;
+  final String exporterId;
   final String firstName;
   final String lastName;
   final String email;
@@ -114,6 +78,7 @@ class UserProfile {
 
   UserProfile({
     required this.id,
+    required this.exporterId,
     required this.firstName,
     required this.lastName,
     required this.email,
@@ -126,6 +91,7 @@ class UserProfile {
     final created = json['createdAt'] ?? json['createdDate'];
     return UserProfile(
       id: json['id'] ?? '',
+      exporterId: json['exporterId'] ?? '',
       firstName: json['firstName'] ?? '',
       lastName: json['lastName'] ?? '',
       email: json['email'] ?? '',
@@ -137,6 +103,7 @@ class UserProfile {
   Map<String, dynamic> toJson() {
     return {
       'id': id,
+      'exporterId': exporterId,
       'firstName': firstName,
       'lastName': lastName,
       'email': email,
@@ -164,9 +131,14 @@ class KwikTicketModel {
   final String uniqueId;
   final double kwikTicketAmount;
   final int? kwikTicketStatus;
+
   final double? projectedIncomeInDollars;
   final double? totalQuantity;
   final DateTime? createdAt;
+  final double? profitRatio;
+  double? quantityToFulfill;
+  final double? grossEarning;
+  final String? profitRatioDisplay;
   final ExporterModel? exporter;
   final ContractModel? contract;
   final Commodity? commodity;
@@ -192,6 +164,10 @@ class KwikTicketModel {
     this.projectedIncomeInDollars,
     this.totalQuantity,
     this.createdAt,
+    this.profitRatio,
+    this.quantityToFulfill,
+    this.grossEarning,
+    this.profitRatioDisplay,
     this.exporter,
     this.contract,
     this.commodity,
@@ -233,6 +209,10 @@ class KwikTicketModel {
           json['createdAt'] != null
               ? DateTime.tryParse(json['createdAt'])
               : null,
+      profitRatio: (json['profitRatio'] as num?)?.toDouble(),
+      quantityToFulfill: (json['quantityToFulfill'] as num?)?.toDouble(),
+      grossEarning: (json['grossEarning'] as num?)?.toDouble(),
+      profitRatioDisplay: json['profitRatioDisplay'],
       exporter:
           json['exporter'] != null
               ? ExporterModel.fromJson(json['exporter'])
@@ -272,6 +252,10 @@ class KwikTicketModel {
       'projectedIncomeInDollars': projectedIncomeInDollars,
       'totalQuantity': totalQuantity,
       'createdAt': createdAt?.toIso8601String(),
+      'profitRatio': profitRatio,
+      'quantityToFulfill': quantityToFulfill,
+      'grossEarning': grossEarning,
+      'profitRatioDisplay': profitRatioDisplay,
       'exporter': exporter?.toJson(),
       'contract': contract?.toJson(),
       'commodity': commodity?.toJson(),
@@ -401,6 +385,13 @@ class BuyerSpecification {
 
 class ContractModel {
   final String id;
+  final String? createdBy;
+  final String? createdByIp;
+  final DateTime? createdDate;
+  final String? modifiedBy;
+  final String? modifiedByIp;
+  final DateTime? modifiedDate;
+  final bool? isDeleted;
   final String contractId;
   final String destinationCountry;
   final double? totalQuantity;
@@ -408,6 +399,7 @@ class ContractModel {
   final double? totalAmountSpent;
   final double? projectedIncome;
   final double? pricePerUnitInUSD;
+  final double? pricePerUnitInNGN;
   final double? fulfilledQuantity;
   final String? contractStatus;
   final int? exportStage;
@@ -418,8 +410,8 @@ class ContractModel {
   final String commodityId;
   final String commodityName;
   final String? commodityImage; // fixed
-  final int? exportContractStageEnum;
-  final int? contractFulfilmentMethod;
+  final String? exportContractStageEnum;
+  final String? contractFulfilmentMethod;
   final int? contractType;
   final int? contractCategory;
   final int? contractDuration;
@@ -428,6 +420,13 @@ class ContractModel {
 
   ContractModel({
     required this.id,
+    this.createdBy,
+    this.createdByIp,
+    this.createdDate,
+    this.modifiedBy,
+    this.modifiedByIp,
+    this.modifiedDate,
+    this.isDeleted,
     required this.contractId,
     required this.destinationCountry,
     this.totalQuantity,
@@ -435,6 +434,7 @@ class ContractModel {
     this.totalAmountSpent,
     this.projectedIncome,
     this.pricePerUnitInUSD,
+    this.pricePerUnitInNGN,
     this.fulfilledQuantity,
     this.contractStatus,
     this.exportStage,
@@ -457,6 +457,19 @@ class ContractModel {
   factory ContractModel.fromJson(Map<String, dynamic> json) {
     return ContractModel(
       id: json['id'] ?? '',
+      createdBy: json['createdBy'],
+      createdByIp: json['createdByIp'],
+      createdDate:
+          json['createdDate'] != null
+              ? DateTime.tryParse(json['createdDate'])
+              : null,
+      modifiedBy: json['modifiedBy'],
+      modifiedByIp: json['modifiedByIp'],
+      modifiedDate:
+          json['modifiedDate'] != null
+              ? DateTime.tryParse(json['modifiedDate'])
+              : null,
+      isDeleted: json['isDeleted'],
       contractId: json['contractId'] ?? '',
       destinationCountry: json['destinationCountry'] ?? '',
       totalQuantity: (json['totalQuantity'] as num?)?.toDouble(),
@@ -464,6 +477,7 @@ class ContractModel {
       totalAmountSpent: (json['totalAmountSpent'] as num?)?.toDouble(),
       projectedIncome: (json['projectedIncome'] as num?)?.toDouble(),
       pricePerUnitInUSD: (json['pricePerUnitInUSD'] as num?)?.toDouble(),
+      pricePerUnitInNGN: (json['pricePerUnitInNGN'] as num?)?.toDouble(),
       fulfilledQuantity: (json['fulfilledQuantity'] as num?)?.toDouble(),
       contractStatus: (json['contractStatus']?.toString() ?? ''),
       exportStage: int.tryParse(json['exportStage']?.toString() ?? ''),
@@ -474,12 +488,13 @@ class ContractModel {
       commodityId: json['commodityId'] ?? '',
       commodityName: json['commodityName'] ?? '',
       commodityImage: json['commodityImage'], // ✅ null-safe
-      exportContractStageEnum: int.tryParse(
-        json['exportContractStageEnum']?.toString() ?? '',
-      ),
-      contractFulfilmentMethod: int.tryParse(
-        json['contractFulfilmentMethod']?.toString() ?? '',
-      ),
+      exportContractStageEnum:
+          json['exportContractStageEnum']?.toString() ?? '',
+
+      contractFulfilmentMethod:
+          // int.tryParse(
+          json['contractFulfilmentMethod']?.toString() ?? '',
+      // ),
       contractType: int.tryParse(json['contractType']?.toString() ?? ''),
       contractCategory: int.tryParse(
         json['contractCategory']?.toString() ?? '',
@@ -498,6 +513,13 @@ class ContractModel {
 
   Map<String, dynamic> toJson() => {
     'id': id,
+    'createdBy': createdBy,
+    'createdByIp': createdByIp,
+    'createdDate': createdDate?.toIso8601String(),
+    'modifiedBy': modifiedBy,
+    'modifiedByIp': modifiedByIp,
+    'modifiedDate': modifiedDate?.toIso8601String(),
+    'isDeleted': isDeleted,
     'contractId': contractId,
     'destinationCountry': destinationCountry,
     'totalQuantity': totalQuantity,
@@ -505,6 +527,7 @@ class ContractModel {
     'totalAmountSpent': totalAmountSpent,
     'projectedIncome': projectedIncome,
     'pricePerUnitInUSD': pricePerUnitInUSD,
+    'pricePerUnitInNGN':pricePerUnitInNGN,
     'fulfilledQuantity': fulfilledQuantity,
     'contractStatus': contractStatus,
     'exportStage': exportStage,
@@ -549,4 +572,76 @@ class CommodityCostModel {
       totalCost: (json['totalCost'] ?? 0).toDouble(),
     );
   }
+}
+
+class ExportSummaryModel {
+  final String id;
+  final String contractId;
+  final String exporterId;
+  final String commodityName;
+  final double totalQuantity;
+  final double contractTotal;
+  final double grossEarning;
+  final double totalAmountSpent;
+  final String contractFulfilmentMethod;
+  final String exportContractStage;
+  final DateTime createdAt;
+  final DateTime? completedAt;
+  final KwikTicketModel? kwikTickets;
+
+  ExportSummaryModel({
+    required this.id,
+    required this.contractId,
+    required this.exporterId,
+    required this.commodityName,
+    required this.totalQuantity,
+    required this.contractTotal,
+    required this.grossEarning,
+    required this.totalAmountSpent,
+    required this.contractFulfilmentMethod,
+    required this.exportContractStage,
+    required this.createdAt,
+    this.completedAt,
+    required this.kwikTickets,
+  });
+
+  factory ExportSummaryModel.fromJson(Map<String, dynamic> json) {
+    return ExportSummaryModel(
+      id: json['id'] ?? '',
+      contractId: json['contractId'] ?? '',
+      exporterId: json['exporterId'] ?? '',
+      commodityName: json['commodityName'] ?? '',
+      totalQuantity: (json['totalQuantity'] ?? 0).toDouble(),
+      contractTotal: (json['contractTotal'] ?? 0).toDouble(),
+      grossEarning: (json['grossEarning'] ?? 0).toDouble(),
+      totalAmountSpent: (json['totalAmountSpent'] ?? 0).toDouble(),
+      contractFulfilmentMethod: json['contractFulfilmentMethod'] ?? '',
+      exportContractStage: json['exportContractStage'] ?? '',
+      createdAt: DateTime.tryParse(json['createdAt'] ?? '') ?? DateTime.now(),
+      completedAt:
+          json['completedAt'] != null
+              ? DateTime.tryParse(json['completedAt'])
+              : null,
+      kwikTickets:
+          json['kwikTickets'] != null
+              ? KwikTicketModel.fromJson(json['kwikTickets'])
+              : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+    'id': id,
+    'contractId': contractId,
+    'exporterId': exporterId,
+    'commodityName': commodityName,
+    'totalQuantity': totalQuantity,
+    'contractTotal': contractTotal,
+    'grossEarning': grossEarning,
+    'totalAmountSpent': totalAmountSpent,
+    'contractFulfilmentMethod': contractFulfilmentMethod,
+    'exportContractStage': exportContractStage,
+    'createdAt': createdAt.toIso8601String(),
+    'completedAt': completedAt?.toIso8601String(),
+    'kwikTickets': kwikTickets?.toJson(),
+  };
 }

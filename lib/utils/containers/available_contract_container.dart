@@ -60,7 +60,7 @@ Widget avaiableontractContainer(
                     ),
                     SizedBox(height: 4),
                     Text(
-                      "Total volume - $totalVolume",
+                      "Total volumes - $totalVolume",
                       style: kwikTextStlye(
                         12.0,
                         FontWeight.w400,

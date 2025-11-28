@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:kwik_port/api/controller/agency/export_stage_api.dart';
 import 'package:kwik_port/api/controller/agency/get_agency_api.dart';
+import 'package:kwik_port/api/controller/agency/selected_agency.dart';
 import 'package:kwik_port/api/model/dashboard_model.dart';
 import 'package:kwik_port/colors/color.dart';
 import 'package:kwik_port/ui/home/dashboard/exportJourney/export_journey_screen.dart';
@@ -17,11 +18,13 @@ import 'package:provider/provider.dart';
 class PackagingAndDocumentation extends StatefulWidget {
   final KwikTicketModel? kwikticket;
   final int stageType;
+  final String exporterContractId;
 
   const PackagingAndDocumentation({
     super.key,
     required this.kwikticket,
     required this.stageType,
+    required this.exporterContractId,
   });
 
   @override
@@ -31,8 +34,8 @@ class PackagingAndDocumentation extends StatefulWidget {
 
 class _PackagingAndDocumentationState extends State<PackagingAndDocumentation> {
   int itemCount = 5;
-  String? selectedAgencyId;
-  String? selectedAgencyName;
+  // String? selectedAgencyId;
+  // String? selectedAgencyName;
 
   @override
   void initState() {
@@ -164,7 +167,7 @@ class _PackagingAndDocumentationState extends State<PackagingAndDocumentation> {
                       // "${daysToHours(int.tryParse(days) ?? 0)}hours",
                       "Phytosanitary Cert", //Not done
                       2,
-                      false,
+                      true,
 
                       () async {
                         // if (selectedAgencyId == null) {
@@ -178,6 +181,10 @@ class _PackagingAndDocumentationState extends State<PackagingAndDocumentation> {
 
                         //   return;
                         // }
+                        setState(() {
+                          // selectedAgencyId = agency.id;
+                          // selectedAgencyName = agency.name;
+                        });
                         showDialog(
                           context: context,
                           builder: (BuildContext context) {
@@ -185,60 +192,49 @@ class _PackagingAndDocumentationState extends State<PackagingAndDocumentation> {
                           },
                         );
                         await exportStageApi.selectAgency(
-                          exporterContractId:
-                              widget.kwikticket?.exporter?.id ?? '',
-                          agencyId: agency.id!,
+                          exporterContractId: widget.exporterContractId,
+                          // widget.kwikticket?.exporter?.id ?? '',
+                          agencyId: agency.id,
                           stageType: widget.stageType,
                         );
-
+                        // Store selected agency in provider
+                        context
+                            .read<SelectedAgencyProvider>()
+                            .setSelectedAgency(agency.id!, agency.name!);
                         Navigator.pop(context);
                         if (exportStageApi.success) {
                           // ✅ On success — show confirmation flow
                           showDialog(
-                            barrierDismissible: false,
                             context: context,
+                            barrierDismissible: false,
                             builder: (BuildContext context) {
-                              return ConfirmAgencySelectionDialog(
-                                serviceFee: "\$50",
-                                totalcostTons: "20.5",
-                                totalCost: "₦246,000,000",
-                                agencyName: selectedAgencyName ?? "",
-                                kwikticket: widget.kwikticket,
-                                // confirmFunc: () {
-                                // Navigator.pop(context); // close confirmation dialog
+                              return AgencySelectionConfirmedDialog(
+                                serviceFee: "₦$fee",
+                                totalcostTons:
+                                    "${widget.kwikticket?.totalQuantity ?? '0'} tons",
+                                totalCost:
+                                    "₦${widget.kwikticket?.kwikTicketAmount ?? '0'}",
+                                continueFunc: () {
+                                  Navigator.pop(
+                                    context,
+                                  ); // close confirmation dialog
+                                  // Navigator.pop(context, true);
 
-                                // showDialog(
-                                //   barrierDismissible: false,
-                                //   context: context,
-                                //   builder: (BuildContext context) {
-                                //     return AgencySelectionConfirmedDialog(
-                                //       serviceFee: "\$50",
-                                //       totalcostTons: "20.5",
-                                //       totalCost: "₦246,000,000",
-                                //       continueFunc: () {
-                                //         Navigator.pop(
-                                //           context,
-                                //         ); // close success dialog
-
-                                // // ✅ Go to ExportJourneyScreen and make it UNPOPABLE
-                                // Navigator.pushAndRemoveUntil(
-                                //   context,
-                                //   MaterialPageRoute(
-                                //     builder:
-                                //         (_) => ExportJourneyScreen(
-                                //           kwikticket: widget.kwikticket,
-                                //           // ?.exporterContractId ??
-                                //           // '',
-                                //         ),
-                                //             ),
-                                //             (Route<dynamic> route) => false,
-                                //           );
-                                //         },
-                                //       );
-                                //     },
-                                //   );
-                                // },
-                                agencyId: selectedAgencyId!,
+                                  // ✅ Go back to ExportJourneyScreen and refresh
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder:
+                                          (_) => ExportJourneyScreen(
+                                            kwikticket: widget.kwikticket,
+                                            exporterContractId:
+                                                widget.exporterContractId,
+                                          ),
+                                    ),
+                                    //   (Route<dynamic> route) => false,
+                                  );
+                                },
+                                agencyName: agency.name,
                               );
                             },
                           );

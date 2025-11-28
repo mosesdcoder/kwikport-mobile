@@ -9,6 +9,7 @@ import 'package:kwik_port/colors/color.dart';
 import 'package:kwik_port/main.dart';
 import 'package:kwik_port/ui/home/kwikticket/kwikticket_screen.dart';
 import 'package:kwik_port/ui/home/dashboard/dashboard.dart';
+import 'package:kwik_port/ui/home/kwikticket/save_pending_ticket.dart';
 import 'package:kwik_port/utils/button/backNav_button.dart';
 import 'package:kwik_port/utils/button/bottom_navigatior_bar.dart';
 import 'package:kwik_port/utils/button/kwik_button.dart';
@@ -38,6 +39,11 @@ class _KwikticketCreatedSuccessfullyState
     extends State<KwikticketCreatedSuccessfully> {
   Uint8List? bytes;
   final screenshotController = ScreenshotController();
+  @override
+  void initState() {
+    super.initState();
+    savePendingTicket(widget.kwikticket.uniqueId!);
+  }
 
   Future<void> _downloadReceipt(context) async {
     await screenshotController.capture(delay: Duration(milliseconds: 10)).then((
@@ -193,7 +199,7 @@ class _KwikticketCreatedSuccessfullyState
                     contractDetailHeadingAndSubtitletwo(
                       "Selected Capacity",
                       "Commodity Cost",
-                      "${widget.kwikticket.contract?.totalQuantity}",
+                      "${widget.kwikticket.quantityToFulfill} tons",
                       "${widget.kwikticket.kwikTicketAmount}",
                       // "20.5 tons",
                       // "₦246,000,000",
@@ -240,7 +246,7 @@ class _KwikticketCreatedSuccessfullyState
                               width: 16,
                             ),
                             Text(
-                              "${widget.kwikticket.contract?.projectedIncome}%",
+                              "${widget.kwikticket.grossEarning}%",
                               style: kwikTextStlye(
                                 14.0,
                                 FontWeight.w600,
@@ -321,7 +327,7 @@ class _KwikticketCreatedSuccessfullyState
                     ),
                     SizedBox(height: 20),
                     contractDetailHeadingAndSubtitle(
-                      "Duration ",
+                      "Contract Duration ",
                       "Time",
                       "${widget.kwikticket.deadline?.day} Days",
 
@@ -333,6 +339,8 @@ class _KwikticketCreatedSuccessfullyState
               ),
               SizedBox(height: 24),
               kwikbutton("View Kwickticket", () {
+                savePendingTicket(widget.kwikticket.uniqueId!);
+
                 Navigator.push(
                   context,
                   MaterialPageRoute(

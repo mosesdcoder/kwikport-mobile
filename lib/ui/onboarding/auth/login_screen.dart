@@ -96,7 +96,7 @@ class _LoginScreenState extends State<LoginScreen> {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              backnavButton(context),
+             // backnavButton(context),
               SizedBox(height: 27),
               Text(
                 'Welcome Back!',
@@ -225,13 +225,13 @@ class _LoginScreenState extends State<LoginScreen> {
                   builder: (context) => LoginSuccessfulScreen(),
                 ),
               );
-              showToastContainer(
-                "Login Successful",
-                loginProvider.message,
-                colorCodes.pigmentGreen,
-                colorCodes.mediumSeaGreen,
-                context,
-              );
+              // showToastContainer(
+              //   "Login Successful",
+              //   loginProvider.message,
+              //   colorCodes.pigmentGreen,
+              //   colorCodes.mediumSeaGreen,
+              //   context,
+              // );
               currentIndex = 1;
             } else {
               showToastContainer(

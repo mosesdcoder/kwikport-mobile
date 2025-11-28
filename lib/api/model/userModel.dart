@@ -16,6 +16,7 @@ class UserSession {
   String? otherNames;
   String? email;
   String? phoneNumber;
+  String? image;
   ExporterModel? exporter;
   // List<ContractModel>? contracts;
 
@@ -26,6 +27,7 @@ class UserSession {
     this.otherNames,
     this.email,
     this.phoneNumber,
+    this.image,
     this.exporter,
     // this.contracts,
   });
@@ -37,6 +39,7 @@ class UserSession {
     'otherNames': otherNames,
     'email': email,
     'phoneNumber': phoneNumber,
+    'image': image,
     'exporter': exporter?.toJson(),
     // 'contracts': contracts?.map((c) => c.toJson()).toList(),
   };
@@ -49,6 +52,7 @@ class UserSession {
       otherNames: json['otherNames'],
       email: json['email'],
       phoneNumber: json['phoneNumber'],
+      image: json['image'] ?? json['imageUrl'] ?? '',
       exporter:
           json['exporter'] != null
               ? ExporterModel.fromJson(json['exporter'])
@@ -68,6 +72,7 @@ class UserSession {
     String? otherNames,
     String? email,
     String? phoneNumber,
+    String? image,
     ExporterModel? exporter,
   }) {
     return UserSession(
@@ -77,6 +82,7 @@ class UserSession {
       otherNames: otherNames ?? this.otherNames,
       email: email ?? this.email,
       phoneNumber: phoneNumber ?? this.phoneNumber,
+      image: image ?? this.image,
       exporter: exporter ?? this.exporter,
     );
   }
@@ -268,6 +274,16 @@ Future<void> clearUserSession() async {
   final prefs = await SharedPreferences.getInstance();
   await prefs.remove('userSession');
   userDataVar = null;
+}
+
+Future<void> updateUserSessionWithImage(String? imageUrl) async {
+  final prefs = await SharedPreferences.getInstance();
+  final existing = userDataVar ?? UserSession();
+
+  final updated = existing.copyWith(image: imageUrl ?? existing.image);
+
+  await prefs.setString('userSession', jsonEncode(updated.toJson()));
+  userDataVar = updated;
 }
 
 /// ✅ Save everything after successful login

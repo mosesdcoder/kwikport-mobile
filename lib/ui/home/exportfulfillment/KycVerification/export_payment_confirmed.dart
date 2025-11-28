@@ -34,24 +34,28 @@ class ExportPaymentConfirmed extends StatefulWidget {
 class _ExportPaymentConfirmedState extends State<ExportPaymentConfirmed> {
   @override
   void initState() {
-    Timer(Duration(seconds: 2), () async {
-      showDialog(
-        barrierDismissible: false,
-        context: context,
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Future.delayed(Duration(seconds: 2), () {
+        if (!mounted) return;
+        // Timer(Duration(seconds: 2), () async {
+        showDialog(
+          barrierDismissible: false,
+          context: context,
 
-        builder: (BuildContext context) {
-          return ExportPaymentSucessfulDialog(kwikticket: widget.kwikticket);
-        },
-      );
-      // } else {
-      //   showToastContainer(
-      //     "Ticket Status",
-      //     updateApi.message,
-      //     colorCodes.mistyRose,
-      //     colorCodes.portlandOrange,
-      //     context,
-      //   );
-      // }
+          builder: (BuildContext context) {
+            return ExportPaymentSucessfulDialog(kwikticket: widget.kwikticket);
+          },
+        );
+        // } else {
+        //   showToastContainer(
+        //     "Ticket Status",
+        //     updateApi.message,
+        //     colorCodes.mistyRose,
+        //     colorCodes.portlandOrange,
+        //     context,
+        //   );
+        // }
+      });
     });
     super.initState();
   }

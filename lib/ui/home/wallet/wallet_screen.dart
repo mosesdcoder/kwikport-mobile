@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:kwik_port/api/controller/home/dashboard_api.dart';
@@ -7,10 +9,12 @@ import 'package:kwik_port/ui/home/dashboard/name_and_notif_headng.dart';
 import 'package:kwik_port/ui/home/dashboard/notifcation/notification_screen.dart';
 import 'package:kwik_port/ui/home/dashboard/wallet_balance_container.dart';
 import 'package:kwik_port/ui/home/wallet/fund_wallet_bottomsheet.dart';
+import 'package:kwik_port/ui/home/wallet/fund_wallet_screen.dart';
 import 'package:kwik_port/ui/home/wallet/wallet_balance_container.dart';
 import 'package:kwik_port/ui/home/wallet/wallet_transaction_history.dart';
 import 'package:kwik_port/utils/button/bottom_navigatior_bar.dart';
 import 'package:provider/provider.dart';
+import 'package:swipe_refresh/swipe_refresh.dart';
 
 class WalletScreen extends StatefulWidget {
   const WalletScreen({super.key});
@@ -22,11 +26,31 @@ class WalletScreen extends StatefulWidget {
 class _WalletScreenState extends State<WalletScreen> {
   bool notificationExist = true;
   int itemCount = 3;
+  final ScrollController _scrollController = ScrollController();
+  bool isLoading = false;
+  bool showKwikwalletBalance = false;
+  bool showKwikexportBalance = false;
+
+  final _controller = StreamController<SwipeRefreshState>.broadcast();
+  Stream<SwipeRefreshState> get _stream => _controller.stream;
+  Future<void> _refresh() async {
+    final api = Provider.of<DashboardApi>(context, listen: false);
+    await api.fetchDashboard();
+    _controller.sink.add(SwipeRefreshState.hidden);
+    // _controller.sink.add(SwipeRefreshState.hidden);
+  }
+
   @override
   void initState() {
     super.initState();
     currentIndex = 4;
     notificationExist;
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      Provider.of<DashboardApi>(context, listen: false).fetchDashboard();
+
+      isLoading = true;
+    });
+    // _scrollController.addListener(_scrollListener);
   }
 
   int currentPage = 0;
@@ -39,123 +63,139 @@ class _WalletScreenState extends State<WalletScreen> {
   @override
   Widget build(BuildContext context) {
     final dashboardApi = Provider.of<DashboardApi>(context);
+    final walletBalance = dashboardApi.data?.walletBalance ?? 0.0;
+    final exportWalletBalance =
+        dashboardApi.data?.totalExportContractBalance ?? 0.0;
 
     final user = dashboardApi.data?.userProfile;
     return Scaffold(
       extendBody: true,
       backgroundColor: colorCodes.whiteSmoke,
-      body: ListView(
-        shrinkWrap: true,
-        physics: RangeMaintainingScrollPhysics(),
-        padding: EdgeInsets.symmetric(horizontal: 10.0, vertical: 50.0),
+      body: SwipeRefresh.adaptive(
+        // physics: NeverScrollableScrollPhysics(),
+        stateStream: _stream,
+        onRefresh: _refresh,
         children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
+          ListView(
+            shrinkWrap: true,
+            physics: RangeMaintainingScrollPhysics(),
+            padding: EdgeInsets.symmetric(horizontal: 10.0, vertical: 50.0),
             children: [
-              nameAndNotifHeading2(
-                context,
-                user != null
-                    ? "${user.firstName.toUpperCase()} ${user.lastName.toUpperCase()}"
-                    : "User",
-                notificationExist,
-                notificationFunc,
-              ),
-              SizedBox(height: 30),
-              SizedBox(
-                height: 210, // * itemCount.toDouble(),
-                child: PageView(
-                  controller: _pageController,
-                  scrollDirection: Axis.horizontal,
-                  // itemCount: 2,
-                  // itemBuilder: (BuildContext context, int position) {
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 6.0),
-                      child: walletBalanceContainer(
-                        "Kwik Balance",
-                        colorCodes.eigengrau,
-                        colorCodes.eigengrau,
-                        HexColor("#061042"),
-                        "assets/images/icons/dashboard/Union.png",
-                        "2mins ago",
-                        "******KWP-2024-001",
-                      ),
-                    ),
-                    walletBalanceContainer(
-                      "Export Wallet",
-                      colorCodes.blackPurple,
-                      colorCodes.blackPurple,
-                      colorCodes.eggPlantPurple,
-                      "assets/images/icons/dashboard/Union (1).png",
-                      "2mins ago",
-                      "******KWP-2024-001",
-                    ),
-                  ],
-                  // },
-                  onPageChanged: (value) => {setCurrentPage(value)},
-                ),
-              ),
-              SizedBox(height: 15),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  nameAndNotifHeading2(
+                    context,
+                    user != null
+                        ? "${user.firstName.toUpperCase()} ${user.lastName.toUpperCase()}"
+                        : "User",
+                    notificationExist,
+                    notificationFunc,
+                  ),
+                  SizedBox(height: 30),
+                  SizedBox(
+                    height: 210, // * itemCount.toDouble(),
+                    child: PageView(
+                      controller: _pageController,
+                      scrollDirection: Axis.horizontal,
+                      // itemCount: 2,
+                      // itemBuilder: (BuildContext context, int position) {
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 6.0),
+                          child: walletBalanceContainer(
+                            showKwikwalletBalance == true
+                                ? "\$${walletBalance.toString()}"
+                                : "••••••••",
 
-                children: List.generate(2, (index) => getIndicator(index)),
-              ),
-              SizedBox(height: 19),
-              Container(
-                height: 94,
-                width: 390,
-                // padding: EdgeInsets.symmetric(horizontal: 10),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(16),
-                  color: colorCodes.white,
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    quickActionsContainer(
-                      "assets/images/icons/add_funds.png",
-                      "Add Funds",
-                      () {
-                        showModalBottomSheet(
-                          shape: const RoundedRectangleBorder(
-                            borderRadius: BorderRadius.only(
-                              topLeft: Radius.circular(32),
-                              topRight: Radius.circular(32),
-                            ),
+                            "Kwik Balance",
+                            colorCodes.eigengrau,
+                            colorCodes.eigengrau,
+                            HexColor("#061042"),
+                            "assets/images/icons/dashboard/Union.png",
+                            "2mins ago",
+                            "******KWP-2024-001",
+                            showKwikwalletBalance,
+                            () {
+                              setState(() {
+                                showKwikwalletBalance = !showKwikwalletBalance;
+                              });
+                            },
                           ),
-                          backgroundColor: Colors.transparent,
-                          context: context,
-                          builder: (BuildContext context) {
-                            return FundWalletBottomsheet();
+                        ),
+                        walletBalanceContainer(
+                          exportWalletBalance.toString(),
+                          "Export Wallet",
+                          colorCodes.blackPurple,
+                          colorCodes.blackPurple,
+                          colorCodes.eggPlantPurple,
+                          "assets/images/icons/dashboard/Union (1).png",
+                          "2mins ago",
+                          "******KWP-2024-001",
+                          showKwikexportBalance,
+                          () {},
+                        ),
+                      ],
+                      // },
+                      onPageChanged: (value) => {setCurrentPage(value)},
+                    ),
+                  ),
+                  SizedBox(height: 15),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+
+                    children: List.generate(2, (index) => getIndicator(index)),
+                  ),
+                  SizedBox(height: 19),
+                  Container(
+                    height: 94,
+                    width: 390,
+                    // padding: EdgeInsets.symmetric(horizontal: 10),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(16),
+                      color: colorCodes.white,
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [
+                        quickActionsContainer(
+                          "assets/images/icons/add_funds.png",
+                          "Add Funds",
+                          () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => FundWalletScreen(),
+                              ),
+                            );
                           },
-                        );
-                      },
-                      width: 70.0,
+                          width: 70.0,
+                        ),
+                        quickActionsContainer(
+                          "assets/images/icons/withdrawal.png",
+                          "Withdrawal",
+                          () {},
+                          width: 72.0,
+                        ),
+                        quickActionsContainer(
+                          "assets/images/icons/request.png",
+                          "Request",
+                          () {},
+                          width: 70.0,
+                        ),
+                        quickActionsContainer(
+                          "assets/images/icons/scan.png",
+                          "Scan",
+                          () {},
+                          width: 70.0,
+                        ),
+                      ],
                     ),
-                    quickActionsContainer(
-                      "assets/images/icons/withdrawal.png",
-                      "Withdrawal",
-                      () {},
-                      width: 72.0,
-                    ),
-                    quickActionsContainer(
-                      "assets/images/icons/request.png",
-                      "Request",
-                      () {},
-                      width: 70.0,
-                    ),
-                    quickActionsContainer(
-                      "assets/images/icons/scan.png",
-                      "Scan",
-                      () {},
-                      width: 70.0,
-                    ),
-                  ],
-                ),
+                  ),
+                  SizedBox(height: 9),
+                  WalletTransactionHistory(),
+                ],
               ),
-              SizedBox(height: 9),
-              WalletTransactionHistory(),
             ],
           ),
         ],

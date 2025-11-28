@@ -47,48 +47,7 @@ class ExportStageApi extends ChangeNotifier {
     } catch (e) {
       _success = false;
       _message = 'Error selecting agency: $e';
-    } finally {
-      loading = false;
-      notifyListeners();
-    }
-  }
-
-  /// Select procurement agency (separate endpoint)
-  selectProcurementAgency({
-    required String exporterContractId,
-    required String agencyId,
-  }) async {
-    if (loading) return;
-    loading = true;
-    notifyListeners();
-
-    try {
-      final body = {
-        'exporterContractId': exporterContractId,
-        'agencyId': agencyId,
-      };
-
-      final response = await HttpService.postRequest(
-        '/ExportStage/select-procurement-agency',
-        body,
-      );
-
-      debugPrint(
-        'select-procurement-agency: ${response.statusCode}, ${response.body}',
-      );
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body);
-        _success = data['isSuccessful'] == true;
-        _message = data['message'] ?? '';
-      } else {
-        _success = false;
-        _message =
-            'Failed to select procurement agency. (${response.statusCode})';
-      }
-    } catch (e) {
-      _success = false;
-      _message = 'Error selecting procurement agency: $e';
-    } finally {
+    } finally { 
       loading = false;
       notifyListeners();
     }

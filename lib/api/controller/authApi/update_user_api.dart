@@ -90,7 +90,7 @@ class UpdateUserApi extends ChangeNotifier {
               lastName: userData['lastName'] ?? session.lastName,
               phoneNumber: userData['phoneNumber'] ?? session.phoneNumber,
               email: userData['email'] ?? session.email,
-              // imageUrl: userData['imageUrl'] ?? session.imageUrl,
+              image: userData['imageUrl'] ?? session.image,
             );
 
             await saveUserSession(updatedSession);

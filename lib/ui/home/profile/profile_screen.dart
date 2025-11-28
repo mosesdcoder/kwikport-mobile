@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:kwik_port/api/controller/home/dashboard_api.dart';
@@ -15,6 +17,7 @@ import 'package:kwik_port/utils/button/kwik_button.dart';
 import 'package:kwik_port/utils/text/contract_detail_heading_and_subtitle.dart';
 import 'package:kwik_port/utils/text/textstyle.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -73,21 +76,46 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           ),
                         ),
                         child: Center(
-                          child: FittedBox(
-                            child: Text(
-                              _generateInitials(
-                                user != null
-                                    ? "${user.firstName.toUpperCase()} ${user.lastName.toUpperCase()}"
-                                    : "User",
-                              ),
-                              style: TextStyle(
-                                fontFamily: "Poppins",
-                                color: HexColor("#33B1FF"),
-                                fontWeight: FontWeight.w600,
-                                fontSize: 20,
-                              ),
-                            ),
-                          ),
+                          child:
+                              userDataVar?.image != null &&
+                                      userDataVar!.image!.isNotEmpty
+                                  ? Image.network(
+                                    userDataVar!.image!,
+                                    fit: BoxFit.cover,
+                                    width: 51,
+                                    height: 51,
+                                    errorBuilder: (context, error, stackTrace) {
+                                      // fallback to initials if network image fails
+                                      return FittedBox(
+                                        child: Text(
+                                          _generateInitials(
+                                            "${userDataVar?.firstName!.toUpperCase()} ${userDataVar?.lastName!.toUpperCase()}",
+                                          ),
+                                          style: TextStyle(
+                                            fontFamily: "Poppins",
+                                            color: HexColor("#33B1FF"),
+                                            fontWeight: FontWeight.w600,
+                                            fontSize: 20,
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                  )
+                                  : FittedBox(
+                                    child: Text(
+                                      _generateInitials(
+                                        user != null
+                                            ? "${user.firstName.toUpperCase()} ${user.lastName.toUpperCase()}"
+                                            : "User",
+                                      ),
+                                      style: TextStyle(
+                                        fontFamily: "Poppins",
+                                        color: HexColor("#33B1FF"),
+                                        fontWeight: FontWeight.w600,
+                                        fontSize: 20,
+                                      ),
+                                    ),
+                                  ),
                         ),
                       ),
                     ),
@@ -160,9 +188,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             ),
                           ).then((value) async {
                             // 🧠 Refresh user data after editing profile
-                            setState(() {
-                              //  userDataVar =  fetchUserProfile();
-                            });
+                            final prefs = await SharedPreferences.getInstance();
+                            final userSessionStr = prefs.getString(
+                              'userSession',
+                            );
+                            if (userSessionStr != null) {
+                              setState(() {
+                                userDataVar = UserSession.fromJson(
+                                  jsonDecode(userSessionStr),
+                                );
+                              });
+                            }
                           });
                         },
                         textColor: colorCodes.textBlack,
@@ -272,7 +308,41 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   width: 358,
                   child: kwikbutton(
                     "Logout",
-                    () {
+                    () async {
+                      final prefs = await SharedPreferences.getInstance();
+
+                      // Backup keys you want to keep
+                      final inProgress = prefs.getBool('journeyInProgress');
+                      final exportContractId = prefs.getString(
+                        'activeExportContractId',
+                      );
+
+                      // Clear all data
+                      await prefs.clear();
+
+                      // Restore only what you want to persist
+                      if (inProgress != null)
+                        await prefs.setBool('journeyInProgress', inProgress);
+                      if (exportContractId != null)
+                        await prefs.setString(
+                          'activeExportContractId',
+                          exportContractId,
+                        );
+
+                      // final prefs = await SharedPreferences.getInstance();
+                      final selected = prefs.getBool('procurementSelected');
+                      final startTime = prefs.getInt('procurementStartTime');
+                      final showProcurement = prefs.getBool('showProcurement');
+
+                      // await prefs.clear();
+
+                      if (selected != null)
+                        await prefs.setBool('procurementSelected', selected);
+                      if (startTime != null)
+                        await prefs.setInt('procurementStartTime', startTime);
+                      if (showProcurement != null)
+                        await prefs.setBool('showProcurement', showProcurement);
+
                       Navigator.push(
                         context,
                         MaterialPageRoute(builder: (context) => LoginScreen()),

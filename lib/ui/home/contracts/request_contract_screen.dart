@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
+import 'package:kwik_port/api/controller/contractsApi/request_contract_api.dart';
+import 'package:kwik_port/api/model/request_contract_payload.dart';
 import 'package:kwik_port/colors/color.dart';
 import 'package:kwik_port/main.dart';
 import 'package:kwik_port/ui/home/contracts/request_submit_dialog.dart';
@@ -179,16 +182,71 @@ class _RequestContractScreenState extends State<RequestContractScreen> {
                 ),
               ),
               SizedBox(height: 10),
-              kwikbutton("Submit Request", () {
-                showDialog(
-                  barrierDismissible: false,
-                  context: context,
+              Consumer<RequestContractApi>(
+                builder: (context, api, child) {
+                  return kwikbutton(
+                    "Submit Request",
+                    api.isLoading
+                        ? null
+                        : () async {
+                            // Parse quantity - extracting the first number
+                            final quantityString = RegExp(r'\d+')
+                                    .firstMatch(productquantitycontroller.text)
+                                    ?.group(0) ??
+                                '0';
+                            final quantity = int.parse(quantityString);
 
-                  builder: (BuildContext context) {
-                    return RequestSubmitDialog();
-                  },
-                );
-              }),
+                            // Parse and format date
+                            DateTime availableDateTime;
+                            try {
+                              availableDateTime = DateFormat('dd/MM/yyyy')
+                                  .parse(availableDatecontroller.text);
+                            } catch (e) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                    content: Text(
+                                        'Invalid date format. Please use dd/MM/yyyy')),
+                              );
+                              return;
+                            }
+
+                            final payload = RequestContractPayload(
+                              productName: productNamecontroller.text,
+                              quantity: quantity,
+                              location: locationcontroller.text,
+                              availableDate: availableDateTime.toIso8601String(),
+                              contactChannel: contactChannelcontroller.text,
+                              additionalNotes: additionalNotescontroller.text,
+                            );
+
+                            await api.requestContract(payload);
+
+                            if (api.error == null && api.contractResponse != null) {
+                              if (api.contractResponse!.isSuccessful) {
+                                showDialog(
+                                  barrierDismissible: false,
+                                  context: context,
+                                  builder: (BuildContext context) {
+                                    return RequestSubmitDialog();
+                                  },
+                                );
+                              } else {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                      content: Text(
+                                          'Error: ${api.contractResponse!.message}')),
+                                );
+                              }
+                            } else if (api.error != null) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                    content: Text('An error occurred: ${api.error}')),
+                              );
+                            }
+                          },
+                  );
+                },
+              ),
               SizedBox(height: 15),
             ],
           ),
