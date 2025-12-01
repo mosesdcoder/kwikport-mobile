@@ -351,7 +351,6 @@ class _ContractScreenState extends State<ContractScreen>
                 .where((c) => c.contractCategory == selectedCategory!.value)
                 .toList();
       }
-
       return ListView.separated(
         physics: const NeverScrollableScrollPhysics(),
         shrinkWrap: true,
@@ -359,17 +358,24 @@ class _ContractScreenState extends State<ContractScreen>
         itemCount: filteredContracts.length,
         itemBuilder: (_, index) {
           final contract = filteredContracts[index];
+          var tonsRemaining =
+              contract.totalQuantity! - contract.fulfilledQuantity!;
+          var percentageLeft =
+              (tonsRemaining / contract.totalQuantity! ?? 0) * 100;
+          double progressValue = tonsRemaining / contract.totalQuantity!;
+
           return avaiableontractContainer(
             contract.commodityImage ?? "assets/images/cocoa.png",
             contract.commodityName,
             "assets/images/icons/tick-circle.png",
             contract.contractStatus, //== 0 ? "Active" : "Closed",
-            contract.totalQuantity,// "100 tons",
+            contract.totalQuantity, // "100 tons",
             "assets/images/icons/Country.png",
             contract.destinationCountry,
-            "${contract.fulfilledQuantity}", // "20 tons",
-             "${contract.totalQuantity}", //100 tons",
-            "20%",
+            progressValue,
+            "${tonsRemaining}", // "20 tons",
+            "${contract.totalQuantity}", //100 tons",
+            "${percentageLeft}% left",
             "${contract.totalAmount}",
             "assets/images/icons/Trending up.png",
             "${contract.projectedIncome?.toStringAsFixed(2) ?? '0.00'}%",

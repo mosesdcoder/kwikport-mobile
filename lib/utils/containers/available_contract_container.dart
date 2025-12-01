@@ -12,6 +12,7 @@ Widget avaiableontractContainer(
   totalVolume,
   countryFlag,
   country,
+  allocatedvolume,
   tonsRemaining,
   tonsAllocated,
   percentageLeft,
@@ -124,7 +125,7 @@ Widget avaiableontractContainer(
         LinearProgressIndicator(
           backgroundColor: HexColor("#D6E7FF"),
           minHeight: 8,
-          value: 0.21,
+          value: allocatedvolume,
           borderRadius: BorderRadius.circular(12),
           color: colorCodes.azureBlue,
         ),
@@ -150,7 +151,7 @@ Widget avaiableontractContainer(
               ),
             ),
             Text(
-              "$percentageLeft left",
+              "$percentageLeft",
               style: kwikTextStlye(
                 12.0,
                 FontWeight.w500,
