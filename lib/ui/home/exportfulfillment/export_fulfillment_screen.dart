@@ -66,7 +66,7 @@ class _ExportFulfillmentScreenState extends State<ExportFulfillmentScreen> {
               ),
               SizedBox(height: 40),
               Text(
-                "How would you like to fulfill your export?",
+                "How would you like to activate your export?",
                 style: kwikTextStlye(24.0, FontWeight.w600, colorCodes.black),
                 textAlign: TextAlign.center,
               ),

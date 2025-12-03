@@ -404,7 +404,8 @@ class _DashboardState extends State<Dashboard> {
                       if (widget.kwikticket != null && showProcurement)
                         procurementContainer(),
                       if (widget.kwikticket != null && showProcurement)
-                        if (showProcurement) SizedBox(height: 25),
+                        //if (showProcurement)
+                          SizedBox(height: 25),
                       if (showContinueJourney == true &&
                           exportContractId != null)
                         Container(
