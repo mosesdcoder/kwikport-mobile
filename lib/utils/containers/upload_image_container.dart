@@ -4,7 +4,7 @@ import 'package:kwik_port/colors/color.dart';
 import 'package:kwik_port/utils/button/kwik_button.dart';
 import 'package:kwik_port/utils/text/textstyle.dart';
 
-Widget uploadImageContainer(title, func) {
+Widget uploadImageContainer(title, func,) {
   return Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [

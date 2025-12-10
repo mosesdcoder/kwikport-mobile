@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:kwik_port/api/model/dashboard_model.dart';
 import 'package:kwik_port/colors/color.dart';
+import 'package:kwik_port/ui/home/dashboard/dashboard.dart';
 import 'package:kwik_port/ui/home/exportfulfillment/KycVerification/bussiness_informatin.dart';
 import 'package:kwik_port/ui/home/exportfulfillment/KycVerification/document_verification.dart';
 import 'package:kwik_port/ui/home/exportfulfillment/KycVerification/identity_verification.dart';
@@ -101,7 +102,7 @@ class _KycVerificationScreenState extends State<KycVerificationScreen> {
       // Code to execute if expression matches value1
 
       case 0.50:
-        return DocumentVerification(
+       return DocumentVerification(
           nextFunc: () {
             setState(() {
               linearValue += 0.25;

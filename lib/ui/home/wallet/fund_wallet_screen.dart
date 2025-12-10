@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hexcolor/hexcolor.dart';
 import 'package:intl/intl.dart';
 import 'package:kwik_port/api/controller/fund_wallet_api.dart';
 import 'package:kwik_port/api/controller/home/dashboard_api.dart';
@@ -101,18 +102,22 @@ class _FundWalletScreenState extends State<FundWalletScreen> {
     final fundWalletApi = Provider.of<FundWalletApi>(context);
     final isLoading = dashboardApi.loading;
     final walletBalance = dashboardApi.data?.walletBalance ?? 0.0;
-    
+    final amountsone = ["₦10,000", "₦25,000", "₦50,000"];
+    final valuesone = ["10000", "25000", "50000"];
+    final amountstwo = ["₦100,000", "₦250,000", "₦500,000"];
+    final valuestwo = ["100000", "250000", "500000"];
+    int selectedIndex = -1;
     final NumberFormat currencyFormat = NumberFormat("#,###");
 
     return Scaffold(
       extendBody: true,
       appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(85.0),
+        preferredSize: const Size.fromHeight(70.0),
         child: Padding(
           padding: const EdgeInsets.only(left: 20.0, top: 42.0, bottom: 15),
           child: Align(
             alignment: Alignment.centerLeft,
-            child: backNavRow(context, "Fund Wallet"),
+            child: backNavRow(context, "Fund your wallet"),
           ),
         ),
       ),
@@ -133,13 +138,242 @@ class _FundWalletScreenState extends State<FundWalletScreen> {
               : ListView(
                 shrinkWrap: true,
                 physics: RangeMaintainingScrollPhysics(),
-                padding: EdgeInsets.symmetric(horizontal: 10.0, vertical: 50.0),
+                padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 50.0),
                 children: [
                   Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      SizedBox(height: 35.0),
+                      Container(
+                        height: 88,
+
+                        width: 390,
+                        decoration: BoxDecoration(
+                          // color: backgroundColor,
+                          borderRadius: BorderRadius.circular(10),
+
+                          gradient: LinearGradient(
+                            colors: [
+                              HexColor("#243285"),
+                              HexColor("#061042"),
+
+                              // colorCodes.eigengrau,
+                            ],
+
+                            stops: [0.39, 0.50],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ),
+                        ),
+                        child: Stack(
+                          children: [
+                            Container(
+                              decoration: BoxDecoration(
+                                image: DecorationImage(
+                                  image: AssetImage(
+                                    "assets/images/Group 3016006.png",
+                                  ),
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
+                              child: Column(),
+                            ),
+                            Positioned(
+                              top: 0,
+                              right: 0,
+                              bottom: 1,
+                              child: Image.asset(
+                                "assets/images/icons/Union (2).png",
+                                height: 216,
+                                width: 216,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      SizedBox(height: 20.0),
+                      fundWalletColumn(
+                        "Enter Amount",
+                        "",
+                        fundAccountfield,
+                        "₦1000",
+                        (value) {
+                          // Remove commas
+                          String numericValue = value.replaceAll(",", "");
+
+                          if (numericValue.isEmpty) {
+                            fundAccountfield.value = TextEditingValue(
+                              text: "",
+                              selection: TextSelection.collapsed(offset: 0),
+                            );
+                            return;
+                          }
+
+                          // Format with commas
+                          final newValue = currencyFormat.format(
+                            int.parse(numericValue),
+                          );
+
+                          fundAccountfield.value = TextEditingValue(
+                            text: newValue,
+                            selection: TextSelection.collapsed(
+                              offset: newValue.length,
+                            ),
+                          );
+                        },
+                      ),
+                      SizedBox(height: 15.0),
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          "Quick Select",
+                          style: kwikTextStlye(
+                            14.0,
+                            FontWeight.w500,
+                            colorCodes.black,
+                          ),
+                        ),
+                      ),
+                      SizedBox(height: 10),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: List.generate(amountsone.length, (index) {
+                          final isSelected = selectedIndex == index;
+
+                          return quickSelectContainer(
+                            amountsone[index],
+                            isSelected,
+                            () {
+                              setState(() {
+                                selectedIndex = index; // select this one
+                              });
+
+                              fundAccountfield.text = valuesone[index];
+                            },
+                          );
+                        }),
+                      ),
+                      SizedBox(height: 10),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: List.generate(amountstwo.length, (index) {
+                          final isSelected = selectedIndex == index;
+
+                          return quickSelectContainer(
+                            amountstwo[index],
+                            isSelected,
+                            () {
+                              setState(() {
+                                selectedIndex = index; // select this one
+                              });
+
+                              fundAccountfield.text = valuestwo[index];
+                            },
+                          );
+                        }),
+                      ),
+
+                      SizedBox(height: 34.0),
+                      kwikbutton(
+                        "Continue",
+                        buttonChild: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              "Continue",
+                              style: kwikTextStlye(
+                                16.0,
+                                FontWeight.w600,
+                                colorCodes.white,
+                              ),
+                            ),
+                            SizedBox(width: 10),
+                            Icon(
+                              Icons.arrow_forward,
+                              color: colorCodes.white,
+                              size: 16,
+                            ),
+                          ],
+                        ),
+                        () async {
+                          final parentContext = context;
+                          showDialog(
+                            context: parentContext,
+                            barrierDismissible: false,
+                            builder: (_) => kwikportloader(),
+                          );
+                          if (fundAccountfield.text.isEmpty) {
+                            showToastContainer(
+                              "Error",
+                              "Please enter an amount",
+                              colorCodes.sunset,
+                              colorCodes.white,
+                              context,
+                            );
+                            return;
+                          }
+
+                          final amount = double.parse(
+                            fundAccountfield.text.replaceAll(",", ""),
+                          );
+                          final dashboardApi = Provider.of<DashboardApi>(
+                            context,
+                            listen: false,
+                          );
+                          final exporterId =
+                              dashboardApi.data?.userProfile?.exporterId ?? "";
+                          await fundWalletApi
+                              .fundWallet(
+                                exporterId: exporterId,
+                                amount: amount,
+                              )
+                              .then((_) {
+                                Navigator.pop(context);
+                                _controller =
+                                    WebViewController()
+                                      ..setJavaScriptMode(
+                                        JavaScriptMode.unrestricted,
+                                      )
+                                      ..setNavigationDelegate(
+                                        NavigationDelegate(
+                                          // },
+                                          onPageStarted: (url) {
+                                            setState(() => _isLoading = true);
+
+                                            // final uri = Uri.parse(url);
+                                            final uri = Uri.parse(url);
+                                            final reference =
+                                                uri.queryParameters["reference"] ??
+                                                "";
+                                            if (reference.isNotEmpty) {
+                                              _verifyPayment(
+                                                exporterId,
+                                                fundWalletApi.paymentReference!,
+                                              );
+                                            } else {}
+                                          },
+                                          onPageFinished: (url) {
+                                            debugPrint(
+                                              "✅ Finished loading: $url",
+                                            );
+
+                                            setState(() => _isLoading = false);
+                                          },
+                                        ),
+                                      )
+                                      ..loadRequest(
+                                        Uri.parse(
+                                          fundWalletApi.authorizationUrl!,
+                                        ),
+                                      );
+                                setState(() {
+                                  showWebView = true;
+                                });
+                              });
+                        },
+                      ),
+                      SizedBox(height: 30.0),
                       Container(
                         height: 130,
                         width: 342,
@@ -180,7 +414,7 @@ class _FundWalletScreenState extends State<FundWalletScreen> {
                                     ),
                                   ),
                                   Text(
-                                    """• All transactions are secured with bank-level encryption
+                                    """•  All transactions are secured with encryption
 • Minimum funding amount is ₦1,000
 • No fees for bank transfers
 • Funds reflect instantly in your wallet""",
@@ -197,118 +431,35 @@ class _FundWalletScreenState extends State<FundWalletScreen> {
                           ],
                         ),
                       ),
-                      SizedBox(height: 55.0),
-                      Text(
-                        "Enter Amount",
-                        style: TextStyle(
-                          fontSize: 18.0,
-                          color: colorCodes.bluetiful,
-                        ),
-                      ),
-                      SizedBox(height: 20.0),
-                      fundTextfield(fundAccountfield, "", (value) {
-                        // Remove commas
-                        String numericValue = value.replaceAll(",", "");
-
-                        if (numericValue.isEmpty) {
-                          fundAccountfield.value = TextEditingValue(
-                            text: "",
-                            selection: TextSelection.collapsed(offset: 0),
-                          );
-                          return;
-                        }
-
-                        // Format with commas
-                        final newValue = currencyFormat.format(
-                          int.parse(numericValue),
-                        );
-
-                        fundAccountfield.value = TextEditingValue(
-                          text: newValue,
-                          selection: TextSelection.collapsed(
-                            offset: newValue.length,
-                          ),
-                        );
-                      }),
-
-                      SizedBox(height: 110.0),
-                      kwikbutton("Continue", () async {
-                        final parentContext = context;
-                        showDialog(
-                          context: parentContext,
-                          barrierDismissible: false,
-                          builder: (_) => kwikportloader(),
-                        );
-                        if (fundAccountfield.text.isEmpty) {
-                          showToastContainer(
-                            "Error",
-                            "Please enter an amount",
-                            colorCodes.sunset,
-                            colorCodes.white,
-                            context,
-                          );
-                          return;
-                        }
-
-                        final amount = double.parse(
-                          fundAccountfield.text.replaceAll(",", ""),
-                        );
-                        final dashboardApi = Provider.of<DashboardApi>(
-                          context,
-                          listen: false,
-                        );
-                        final exporterId =
-                            dashboardApi.data?.userProfile?.exporterId ?? "";
-                        await fundWalletApi
-                            .fundWallet(exporterId: exporterId, amount: amount)
-                            .then((_) {
-                              Navigator.pop(context);
-                              _controller =
-                                  WebViewController()
-                                    ..setJavaScriptMode(
-                                      JavaScriptMode.unrestricted,
-                                    )
-                                    ..setNavigationDelegate(
-                                      NavigationDelegate(
-                                        // },
-                                        onPageStarted: (url) {
-                                          setState(() => _isLoading = true);
-
-                                          // final uri = Uri.parse(url);
-                                          final uri = Uri.parse(url);
-                                          final reference =
-                                              uri.queryParameters["reference"] ??
-                                              "";
-                                          if (reference.isNotEmpty) {
-                                            _verifyPayment(
-                                              exporterId,
-                                              fundWalletApi.paymentReference!,
-                                            );
-                                          } else {}
-                                        },
-                                        onPageFinished: (url) {
-                                          debugPrint(
-                                            "✅ Finished loading: $url",
-                                          );
-
-                                          setState(() => _isLoading = false);
-                                        },
-                                      ),
-                                    )
-                                    ..loadRequest(
-                                      Uri.parse(
-                                        fundWalletApi.authorizationUrl!,
-                                      ),
-                                    );
-                              setState(() {
-                                showWebView = true;
-                              });
-                            });
-                      }),
                     ],
                   ),
                 ],
               ),
+    );
+  }
+
+  Widget quickSelectContainer(amount, isSelected, selctFunc) {
+    return InkWell(
+      onTap: selctFunc,
+      child: Container(
+        height: 35,
+        width: 110,
+        decoration: BoxDecoration(
+          color: colorCodes.white,
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(width: 1.0, color: colorCodes.antiFlashWhite),
+        ),
+        alignment: Alignment.center,
+        child: Text(
+          amount,
+          style: kwikTextStlye(
+            12.0,
+            FontWeight.w500,
+            colorCodes.black,
+            fontFamily: "",
+          ),
+        ),
+      ),
     );
   }
 }

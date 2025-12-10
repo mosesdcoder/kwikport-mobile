@@ -3,11 +3,13 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:kwik_port/api/controller/home/dashboard_api.dart';
+import 'package:kwik_port/api/model/dashboard_model.dart';
 import 'package:kwik_port/colors/color.dart';
 import 'package:kwik_port/main.dart';
 import 'package:kwik_port/ui/home/dashboard/name_and_notif_headng.dart';
 import 'package:kwik_port/ui/home/dashboard/notifcation/notification_screen.dart';
 import 'package:kwik_port/ui/home/dashboard/wallet_balance_container.dart';
+import 'package:kwik_port/ui/home/exportfulfillment/KycVerification/kyc_verification_screen.dart';
 import 'package:kwik_port/ui/home/wallet/fund_wallet_bottomsheet.dart';
 import 'package:kwik_port/ui/home/wallet/fund_wallet_screen.dart';
 import 'package:kwik_port/ui/home/wallet/wallet_balance_container.dart';
@@ -174,7 +176,22 @@ class _WalletScreenState extends State<WalletScreen> {
                         quickActionsContainer(
                           "assets/images/icons/withdrawal.png",
                           "Withdrawal",
-                          () {},
+                          () {
+                            KwikTicketModel kwikticket = KwikTicketModel(
+                              id: "id",
+                              uniqueId: "uniqueId",
+                              kwikTicketAmount: 2000,
+                            );
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder:
+                                    (context) => KycVerificationScreen(
+                                      kwikticket: kwikticket,
+                                    ),
+                              ),
+                            );
+                          },
                           width: 72.0,
                         ),
                         quickActionsContainer(
