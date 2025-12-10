@@ -7,6 +7,7 @@ import 'package:kwik_port/api/model/dashboard_model.dart';
 import 'package:kwik_port/colors/color.dart';
 import 'package:kwik_port/main.dart';
 import 'package:kwik_port/ui/home/exportfulfillment/KycVerification/fund_export_contract.dart';
+import 'package:kwik_port/ui/home/exportfulfillment/export_fulfillment_screen.dart';
 import 'package:kwik_port/ui/home/kwikticket/ticket_details_container.dart';
 import 'package:kwik_port/utils/button/back_nav_header.dart';
 import 'package:kwik_port/utils/button/bottom_navigatior_bar.dart';
@@ -339,9 +340,9 @@ class _AllKwikTicketScreenState extends State<AllKwikTicketScreen>
               context,
               MaterialPageRoute(
                 builder:
-                    (context) => FundExportContract(
+                    (context) => ExportFulfillmentScreen(
                       kwikticket: ticket,
-                      kwikTicketId: ticket.id!,
+                     // kwikTicketId: ticket.id!,
                     ),
               ),
             );

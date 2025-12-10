@@ -199,7 +199,7 @@ Widget avaiableontractContainer(
               ),
             ),
             Text(
-              "Projected Return",
+              "Profit ratio",
               style: kwikTextStlye(
                 10.0,
                 FontWeight.w300,

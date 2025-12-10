@@ -309,7 +309,7 @@ class _ContractDetailsDeliveredScreenState
                 ),
                 SizedBox(height: 4),
                 overviewRichText(
-                  "Buyer",
+                  "Buyer Price per Ton (NGN)",
                   "${widget.contract.buyerSpecification?.buyerPricePerUnit}",
                 ),
                 SizedBox(height: 4),
@@ -815,7 +815,7 @@ class _ContractDetailsDeliveredScreenState
               );
             }
           }),
-          SizedBox(height: 35),
+          SizedBox(height: 55),
         ],
       ),
       bottomNavigationBar: Bottomnavigationbar(5),

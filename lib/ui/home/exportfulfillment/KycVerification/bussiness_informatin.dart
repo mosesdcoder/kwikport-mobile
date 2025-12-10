@@ -22,6 +22,7 @@ class _BussinessInformationState extends State<BussinessInformation> {
   TextEditingController bussinessnamecontroller = TextEditingController();
   TextEditingController bussinessRegistratinNumber = TextEditingController();
   TextEditingController bussinessAddresscontroller = TextEditingController();
+  TextEditingController typeofbusinesscontroller = TextEditingController();
   String? bussinessType;
   bool isiconExpanded = false;
   bool isdropdownExpanded = false;
@@ -104,37 +105,46 @@ class _BussinessInformationState extends State<BussinessInformation> {
                   ),
 
                   SizedBox(height: 15),
-                  Align(
-                    alignment: Alignment.centerLeft,
-                    child: Text(
-                      "Type of Business",
-                      style: TextStyle(
-                        fontFamily: 'Poppins',
-                        fontSize: 12,
-                        fontWeight: FontWeight.w500,
-                        color: colorCodes.black,
-                      ),
-                    ),
+
+                     kycnameFieldColumn(
+                    "Type of Business",
+                    "",
+                    typeofbusinesscontroller,
+                    hintText: "Exporting",
                   ),
                   SizedBox(height: 8),
-                  kycNationalityDropdown(
-                    bussinessType,
-                    "Select certification type",
-                    bussinessTypeList.map(dropMenuItem).toList(),
-                    (newValue) {
-                      setState(() {
-                        bussinessType = newValue;
-                      });
-                    },
-                    (isOpen) {
-                      setState(() {
-                        isiconExpanded = isOpen;
-                        isdropdownExpanded = isOpen;
-                      });
-                    },
-                  ),
 
-                  SizedBox(height: 15),
+                  // Align(
+                  //   alignment: Alignment.centerLeft,
+                  //   child: Text(
+                  //     "Type of Business",
+                  //     style: TextStyle(
+                  //       fontFamily: 'Poppins',
+                  //       fontSize: 12,
+                  //       fontWeight: FontWeight.w500,
+                  //       color: colorCodes.black,
+                  //     ),
+                  //   ),
+                  // ),
+                  // SizedBox(height: 8),
+                  // kycNationalityDropdown(
+                  //   bussinessType,
+                  //   "Select certification type",
+                  //   bussinessTypeList.map(dropMenuItem).toList(),
+                  //   (newValue) {
+                  //     setState(() {
+                  //       bussinessType = newValue;
+                  //     });
+                  //   },
+                  //   (isOpen) {
+                  //     setState(() {
+                  //       isiconExpanded = isOpen;
+                  //       isdropdownExpanded = isOpen;
+                  //     });
+                  //   },
+                  // ),
+
+                  //SizedBox(height: 15),
                   SizedBox(
                     height: 152,
                     width: 351,

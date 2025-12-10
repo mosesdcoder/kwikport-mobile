@@ -24,9 +24,13 @@ class _PersonalInformationState extends State<PersonalInformation> {
   TextEditingController phonenumbercontroller = TextEditingController();
   TextEditingController dobController = TextEditingController();
   TextEditingController streetAddresscontroller = TextEditingController();
+  TextEditingController cityController = TextEditingController();
+  TextEditingController stateController = TextEditingController();
+
   String? nationality;
   bool isiconExpanded = false;
   bool isdropdownExpanded = false;
+  bool _isFormValid = false;
 
   List<String> nationalityList = [
     'Nigerian',
@@ -35,6 +39,58 @@ class _PersonalInformationState extends State<PersonalInformation> {
     'American',
     'Other',
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    firstNamecontroller.addListener(_validateForm);
+    lastNamecontroller.addListener(_validateForm);
+    emailcontroller.addListener(_validateForm);
+    phonenumbercontroller.addListener(_validateForm);
+    dobController.addListener(_validateForm);
+    streetAddresscontroller.addListener(_validateForm);
+    cityController.addListener(_validateForm);
+    stateController.addListener(_validateForm);
+  }
+
+  @override
+  void dispose() {
+    firstNamecontroller.removeListener(_validateForm);
+    lastNamecontroller.removeListener(_validateForm);
+    emailcontroller.removeListener(_validateForm);
+    phonenumbercontroller.removeListener(_validateForm);
+    dobController.removeListener(_validateForm);
+    streetAddresscontroller.removeListener(_validateForm);
+    cityController.removeListener(_validateForm);
+    stateController.removeListener(_validateForm);
+
+    firstNamecontroller.dispose();
+    lastNamecontroller.dispose();
+    emailcontroller.dispose();
+    phonenumbercontroller.dispose();
+    dobController.dispose();
+    streetAddresscontroller.dispose();
+    cityController.dispose();
+    stateController.dispose();
+    super.dispose();
+  }
+
+  void _validateForm() {
+    final bool isFormValid = firstNamecontroller.text.isNotEmpty &&
+        lastNamecontroller.text.isNotEmpty &&
+        emailcontroller.text.isNotEmpty &&
+        phonenumbercontroller.text.isNotEmpty &&
+        dobController.text.isNotEmpty &&
+        streetAddresscontroller.text.isNotEmpty &&
+        cityController.text.isNotEmpty &&
+        stateController.text.isNotEmpty &&
+        nationality != null;
+    if (_isFormValid != isFormValid) {
+      setState(() {
+        _isFormValid = isFormValid;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -95,7 +151,7 @@ class _PersonalInformationState extends State<PersonalInformation> {
                         width: 129,
                         child: kycnameFieldColumn(
                           "First Name",
-                          "",
+                          "", hintText: "John",
                           firstNamecontroller,
                         ),
                       ),
@@ -104,6 +160,7 @@ class _PersonalInformationState extends State<PersonalInformation> {
                         child: kycnameFieldColumn(
                           "Last Name",
                           "",
+                          hintText: "Doe",
                           lastNamecontroller,
                         ),
                       ),
@@ -161,7 +218,7 @@ class _PersonalInformationState extends State<PersonalInformation> {
                         child: kycnameFieldColumn(
                           "City",
                           "",
-                          firstNamecontroller,
+                          cityController,
                           hintText: "Lagos",
                         ),
                       ),
@@ -170,7 +227,7 @@ class _PersonalInformationState extends State<PersonalInformation> {
                         child: kycnameFieldColumn(
                           "State",
                           "",
-                          lastNamecontroller,
+                          stateController,
                           hintText: "Lagos",
                         ),
                       ),
@@ -198,6 +255,7 @@ class _PersonalInformationState extends State<PersonalInformation> {
                       setState(() {
                         nationality = newValue;
                       });
+                      _validateForm();
                     },
                     (isOpen) {
                       setState(() {
@@ -232,7 +290,8 @@ class _PersonalInformationState extends State<PersonalInformation> {
                   width: 140,
                   child: kwikbutton(
                     "Next",
-                    widget.nextFunc,
+                    _isFormValid ? widget.nextFunc : null,
+                    enabled: _isFormValid,
                     fontSize: 12.0,
                     buttonChild: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -242,7 +301,9 @@ class _PersonalInformationState extends State<PersonalInformation> {
                           style: kwikTextStlye(
                             14.0,
                             FontWeight.w500,
-                            colorCodes.whiteSmoke,
+                            _isFormValid
+                                ? colorCodes.whiteSmoke
+                                : colorCodes.aluminium,
                           ),
                         ),
                         SizedBox(width: 8),
