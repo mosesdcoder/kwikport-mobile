@@ -2,7 +2,9 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:hexcolor/hexcolor.dart';
+import 'package:intl/intl.dart';
 import 'package:kwik_port/api/controller/home/dashboard_api.dart';
+import 'package:kwik_port/api/model/userModel.dart';
 import 'package:kwik_port/colors/color.dart';
 import 'package:kwik_port/main.dart';
 import 'package:kwik_port/ui/home/dashboard/name_and_notif_headng.dart';
@@ -105,7 +107,7 @@ class _WalletScreenState extends State<WalletScreen> {
                           padding: const EdgeInsets.symmetric(horizontal: 6.0),
                           child: walletBalanceContainer(
                             showKwikwalletBalance == true
-                                ? "\$${walletBalance.toString()}"
+                                ? "\#${NumberFormat('#,##0.00').format(walletBalance)}"
                                 : "••••••••",
 
                             "Kwik Balance",
@@ -114,7 +116,8 @@ class _WalletScreenState extends State<WalletScreen> {
                             HexColor("#061042"),
                             "assets/images/icons/dashboard/Union.png",
                             "2mins ago",
-                            "******KWP-2024-001",
+                            "${userDataVar?.exporter?.exporterUniqueId}",
+                            // "******KWP-2024-001",
                             showKwikwalletBalance,
                             () {
                               setState(() {
@@ -124,14 +127,14 @@ class _WalletScreenState extends State<WalletScreen> {
                           ),
                         ),
                         walletBalanceContainer(
-                          exportWalletBalance.toString(),
+                          "\$${NumberFormat('#,##0.00').format(exportWalletBalance)}",
                           "Export Wallet",
                           colorCodes.blackPurple,
                           colorCodes.blackPurple,
                           colorCodes.eggPlantPurple,
                           "assets/images/icons/dashboard/Union (1).png",
                           "2mins ago",
-                          "******KWP-2024-001",
+                          "${userDataVar?.exporter?.exporterUniqueId}",
                           showKwikexportBalance,
                           () {},
                         ),
