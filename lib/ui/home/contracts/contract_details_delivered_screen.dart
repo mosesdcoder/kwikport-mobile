@@ -295,7 +295,7 @@ class _ContractDetailsDeliveredScreenState
                 SizedBox(height: 4),
                 overviewRichText(
                   "Price per Ton (₦)",
-                  "₦${widget.contract.buyerSpecification?.buyerPricePerUnit}",
+                  "₦${widget.contract.pricePerUnitInNGN}",
                 ),
                 SizedBox(height: 4),
                 overviewRichText(

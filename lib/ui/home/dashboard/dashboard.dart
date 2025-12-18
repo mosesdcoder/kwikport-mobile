@@ -113,10 +113,11 @@ class _DashboardState extends State<Dashboard> {
 
     if (ticketProvider.tickets.isEmpty) return;
 
-    final ticket = ticketProvider.tickets.firstWhere(
+    final KwikTicketModel? ticket = ticketProvider.tickets.firstWhere(
       (t) =>
           t.uniqueId == pendingTicketId &&
           t.kwikTicketStatus == KwikTicketStatusEnum.awaitingPayment.value,
+      // orElse: () => null, // ← FIX
     );
 
     if (ticket == null) return;
@@ -321,314 +322,340 @@ class _DashboardState extends State<Dashboard> {
       child: Scaffold(
         extendBody: true,
         backgroundColor: colorCodes.whiteSmoke,
-        body: Stack(
-          children: [
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 10.0, vertical: 50.0),
-              child: SwipeRefresh.adaptive(
-                // physics: NeverScrollableScrollPhysics(),
-                stateStream: _stream,
-                onRefresh: _refresh,
-                children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      nameAndNotifHeading(
-                        context,
-                        "$first $last".trim().isNotEmpty
-                            ? "${first.toUpperCase()} ${last.toUpperCase()}"
-                                .trim()
-                            : "User",
-                        notificationExist,
-                        notificationFunc,
+        body:
+            (dashboardApi.data?.userProfile == null)
+                ? Center(child: kwikportloader())
+                : Stack(
+                  children: [
+                    Padding(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 10.0,
+                        vertical: 50.0,
                       ),
-                      SizedBox(height: 30),
-                      SizedBox(
-                        width: MediaQuery.sizeOf(context).width,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            dashboardBalanceContainer(
-                              showBalance == true
-                                  ? "\$$totalExportContractBalance"
-                                  : "••••••••",
-                              showBalance,
-                              () {
-                                setState(() {
-                                  showBalance = !showBalance;
-                                });
-                              },
-                              context,
-                            ),
-                            // SizedBox(width: 5),
-                            Column(
-                              children: [
-                                activityProgressContainer(
-                                  "assets/images/icons/kwik_tickets.png",
-                                  "My Exports", // "Active Kwiktickets",
-                                  activeTickets.toString().padLeft(2, '0'),
-
-                                  // "01",
-                                  context,
-                                  () {
-                                    currentIndex = 1;
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder:
-                                            (context) => MyExportsScreen(
-                                              // kwikticket: widget.kwikticket,
-                                            ),
-                                      ),
-                                    );
-                                  },
-                                ),
-                                SizedBox(height: 5),
-                                activityProgressContainer(
-                                  "assets/images/icons/completed_ecport.png",
-                                  "Completed Exports",
-                                  completed.toString().padLeft(2, '0'),
-                                  // "15",
-                                  context,
-                                  () {},
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-                      SizedBox(height: 18),
-
-                      // Procurement container
-                      // if (showProcurement)
-                      if (widget.kwikticket != null && showProcurement)
-                        procurementContainer(),
-                      if (widget.kwikticket != null && showProcurement)
-                        //if (showProcurement)
-                          SizedBox(height: 25),
-                      if (showContinueJourney == true &&
-                          exportContractId != null)
-                        Container(
-                          height: 70,
-                          width: double.infinity,
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 12.0,
-                            vertical: 8.0,
-                          ),
-                          decoration: BoxDecoration(
-                            border: Border.all(
-                              width: 1.2,
-                              color: colorCodes.antiFlashWhite,
-                            ),
-                            borderRadius: BorderRadius.circular(6),
-                            color: colorCodes.white,
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      child: SwipeRefresh.adaptive(
+                        // physics: NeverScrollableScrollPhysics(),
+                        stateStream: _stream,
+                        onRefresh: _refresh,
+                        children: [
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
-                              Row(
-                                children: [
-                                  Image.asset(
-                                    "assets/images/clock_awaits.png",
-                                    height: 40,
-                                    width: 40,
-                                  ),
-                                  const SizedBox(width: 10),
-                                  Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Text(
-                                        "Export Journey In Progress",
-                                        style: kwikTextStlye(
-                                          12.0,
-                                          FontWeight.w300,
-                                          colorCodes.graniteGrey,
+                              nameAndNotifHeading(
+                                context,
+                                "$first $last".trim().isNotEmpty
+                                    ? "${first.toUpperCase()} ${last.toUpperCase()}"
+                                        .trim()
+                                    : "User",
+                                notificationExist,
+                                notificationFunc,
+                              ),
+                              SizedBox(height: 30),
+                              SizedBox(
+                                width: MediaQuery.sizeOf(context).width,
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    dashboardBalanceContainer(
+                                      showBalance == true
+                                          ? "\$$totalExportContractBalance"
+                                          : "••••••••",
+                                      showBalance,
+                                      () {
+                                        setState(() {
+                                          showBalance = !showBalance;
+                                        });
+                                      },
+                                      context,
+                                    ),
+                                    // SizedBox(width: 5),
+                                    Column(
+                                      children: [
+                                        activityProgressContainer(
+                                          "assets/images/icons/kwik_tickets.png",
+                                          "My Exports",
+                                          "5", // "Active Kwiktickets",
+                                          // activeTickets.toString().padLeft(
+                                          //   2,
+                                          //   '0',
+                                          // ),
+
+                                          // "01",
+                                          context,
+                                          () {
+                                            currentIndex = 1;
+                                            Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder:
+                                                    (
+                                                      context,
+                                                    ) => MyExportsScreen(
+                                                      // kwikticket: widget.kwikticket,
+                                                    ),
+                                              ),
+                                            );
+                                          },
                                         ),
+                                        SizedBox(height: 5),
+                                        activityProgressContainer(
+                                          "assets/images/icons/completed_ecport.png",
+                                          "Completed Exports",
+                                          //completed.toString().padLeft(2, '0'),
+                                           "15",
+                                          context,
+                                          () {},
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              SizedBox(height: 18),
+
+                              // Procurement container
+                              // if (showProcurement)
+                              if (widget.kwikticket != null && showProcurement)
+                                procurementContainer(),
+                              if (widget.kwikticket != null && showProcurement)
+                                if (showProcurement) SizedBox(height: 25),
+                              if (showContinueJourney == true &&
+                                  exportContractId != null)
+                                Container(
+                                  height: 70,
+                                  width: double.infinity,
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 12.0,
+                                    vertical: 8.0,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    border: Border.all(
+                                      width: 1.2,
+                                      color: colorCodes.antiFlashWhite,
+                                    ),
+                                    borderRadius: BorderRadius.circular(6),
+                                    color: colorCodes.white,
+                                  ),
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Row(
+                                        children: [
+                                          Image.asset(
+                                            "assets/images/clock_awaits.png",
+                                            height: 40,
+                                            width: 40,
+                                          ),
+                                          const SizedBox(width: 10),
+                                          Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            children: [
+                                              Text(
+                                                "Export Journey In Progress",
+                                                style: kwikTextStlye(
+                                                  12.0,
+                                                  FontWeight.w300,
+                                                  colorCodes.graniteGrey,
+                                                ),
+                                              ),
+                                              Text(
+                                                "Continue your export journey",
+                                                style: kwikTextStlye(
+                                                  12.0,
+                                                  FontWeight.w500,
+                                                  colorCodes.black,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ],
                                       ),
-                                      Text(
-                                        "Continue your export journey",
-                                        style: kwikTextStlye(
-                                          12.0,
-                                          FontWeight.w500,
-                                          colorCodes.black,
+                                      SizedBox(
+                                        height: 23,
+                                        child: elevatedbutton(
+                                          "Continue",
+                                          () async {
+                                            // await startNewJourney(exportContractId!);
+                                            Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder:
+                                                    (context) =>
+                                                        ExportJourneyScreen(
+                                                          kwikticket:
+                                                              kwikticket,
+                                                          exporterContractId:
+                                                              exportContractId!,
+                                                        ),
+                                              ),
+                                            );
+                                          },
+                                          backgroundcolor:
+                                              colorCodes.portlandOrange,
                                         ),
                                       ),
                                     ],
                                   ),
+                                ),
+
+                              Align(
+                                alignment: Alignment.centerLeft,
+                                child: Text(
+                                  "Quick Actions",
+                                  style: kwikTextStlye(
+                                    16.0,
+                                    FontWeight.w500,
+                                    colorCodes.black,
+                                  ),
+                                ),
+                              ),
+                              SizedBox(height: 16),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  quickActionsContainer(
+                                    "assets/images/icons/dashboard/fundwallet_acction.png",
+                                    "Fund Wallet",
+                                    () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder:
+                                              (context) => FundWalletScreen(),
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                  SizedBox(width: 20),
+                                  quickActionsContainer(
+                                    "assets/images/icons/dashboard/requestcontract_action.png",
+                                    "Request Contract",
+                                    () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder:
+                                              (context) =>
+                                                  RequestContractScreen(),
+                                        ),
+                                      );
+                                      currentIndex = 2;
+                                    },
+                                  ),
                                 ],
                               ),
-                              SizedBox(
-                                height: 23,
-                                child: elevatedbutton(
-                                  "Continue",
-                                  () async {
-                                    // await startNewJourney(exportContractId!);
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder:
-                                            (context) => ExportJourneyScreen(
-                                              kwikticket: kwikticket,
-                                              exporterContractId:
-                                                  exportContractId!,
-                                            ),
+                              SizedBox(height: 24),
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    "Available Contracts",
+                                    style: kwikTextStlye(
+                                      16.0,
+                                      FontWeight.w500,
+                                      colorCodes.black,
+                                    ),
+                                  ),
+                                  InkWell(
+                                    onTap: () {
+                                      currentIndex = 2;
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder:
+                                              (context) => ContractScreen(),
+                                        ),
+                                      );
+                                    },
+                                    child: Text(
+                                      "See All",
+                                      style: kwikTextStlye(
+                                        14.0,
+                                        FontWeight.w500,
+                                        colorCodes.azureBlue,
+                                        decoration: TextDecoration.underline,
                                       ),
-                                    );
-                                  },
-                                  backgroundcolor: colorCodes.portlandOrange,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              SizedBox(height: 18),
+
+                              Padding(
+                                padding: const EdgeInsets.only(bottom: 55.0),
+                                child: SizedBox(
+                                  height: 210,
+                                  child: ListView.separated(
+                                    // padding: EdgeInsets.only(bottom: 30),
+                                    // physics: NeverScrollableScrollPhysics(),
+                                    scrollDirection: Axis.horizontal,
+                                    separatorBuilder:
+                                        (context, index) => SizedBox(width: 16),
+                                    itemCount:
+                                        contractProvider.contracts.length > 2
+                                            ? 2
+                                            : contractProvider.contracts.length,
+                                    itemBuilder: (ctx, index) {
+                                      final contract =
+                                          contractProvider.contracts[index];
+                                      if (isLoading) {
+                                        return Center(child: kwikportloader());
+                                      } else if (contractProvider
+                                          .contracts
+                                          .isEmpty) {
+                                        return Text("No contracts available");
+                                      } else {
+                                        return avaiableontractContainerUpdated(
+                                          contract.commodityImage ??
+                                              "https://kwikport.s3.eu-west-3.amazonaws.com/commodity-images/cocoa.png",
+                                          contract.commodityName,
+                                          "assets/images/icons/tick-circle.png",
+                                          "${contract.contractStatus}", //== 0
+                                          // ? "Active"
+                                          // : "Closed",
+                                          // "Open",
+                                          "Grade A - Premium Quality",
+                                          "assets/images/icons/Country.png",
+                                          contract.destinationCountry,
+                                          // "\$12,500",
+                                          "\$${contract.totalAmount?.toStringAsFixed(2) ?? '0.00'}",
+                                          () {
+                                            currentIndex = 2;
+                                            Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder:
+                                                    (
+                                                      context,
+                                                    ) => ContractDetailsScreen(
+                                                      // contractId: export.id,
+                                                      // contractStatus: export.contractStatus,
+                                                      contract: contract,
+                                                    ),
+                                              ),
+                                            );
+                                          },
+                                        );
+                                      }
+                                    },
+                                  ),
                                 ),
                               ),
                             ],
                           ),
-                        ),
-
-                      Align(
-                        alignment: Alignment.centerLeft,
-                        child: Text(
-                          "Quick Actions",
-                          style: kwikTextStlye(
-                            16.0,
-                            FontWeight.w500,
-                            colorCodes.black,
-                          ),
-                        ),
-                      ),
-                      SizedBox(height: 16),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          quickActionsContainer(
-                            "assets/images/icons/dashboard/fundwallet_acction.png",
-                            "Fund Wallet",
-                            () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => FundWalletScreen(),
-                                ),
-                              );
-                            },
-                          ),
-                          SizedBox(width: 20),
-                          quickActionsContainer(
-                            "assets/images/icons/dashboard/requestcontract_action.png",
-                            "Request Contract",
-                            () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => RequestContractScreen(),
-                                ),
-                              );
-                              currentIndex = 2;
-                            },
-                          ),
                         ],
                       ),
-                      SizedBox(height: 24),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            "Available Contracts",
-                            style: kwikTextStlye(
-                              16.0,
-                              FontWeight.w500,
-                              colorCodes.black,
-                            ),
-                          ),
-                          InkWell(
-                            onTap: () {
-                              currentIndex = 2;
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => ContractScreen(),
-                                ),
-                              );
-                            },
-                            child: Text(
-                              "See All",
-                              style: kwikTextStlye(
-                                14.0,
-                                FontWeight.w500,
-                                colorCodes.azureBlue,
-                                decoration: TextDecoration.underline,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: 18),
-
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 55.0),
-                        child: SizedBox(
-                          height: 210,
-                          child: ListView.separated(
-                            // padding: EdgeInsets.only(bottom: 30),
-                            // physics: NeverScrollableScrollPhysics(),
-                            scrollDirection: Axis.horizontal,
-                            separatorBuilder:
-                                (context, index) => SizedBox(width: 16),
-                            itemCount:
-                                contractProvider.contracts.length > 2
-                                    ? 2
-                                    : contractProvider.contracts.length,
-                            itemBuilder: (ctx, index) {
-                              final contract =
-                                  contractProvider.contracts[index];
-                              if (isLoading) {
-                                return Center(child: kwikportloader());
-                              } else if (contractProvider.contracts.isEmpty) {
-                                return Text("No contracts available");
-                              } else {
-                                return avaiableontractContainerUpdated(
-                                  contract.commodityImage ??
-                                      "https://kwikport.s3.eu-west-3.amazonaws.com/commodity-images/cocoa.png",
-                                  contract.commodityName,
-                                  "assets/images/icons/tick-circle.png",
-                                  "${contract.contractStatus}", //== 0
-                                  // ? "Active"
-                                  // : "Closed",
-                                  // "Open",
-                                  "Grade A - Premium Quality",
-                                  "assets/images/icons/Country.png",
-                                  contract.destinationCountry,
-                                  // "\$12,500",
-                                  "\$${contract.totalAmount?.toStringAsFixed(2) ?? '0.00'}",
-                                  () {
-                                    currentIndex = 2;
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder:
-                                            (context) => ContractDetailsScreen(
-                                              // contractId: export.id,
-                                              // contractStatus: export.contractStatus,
-                                              contract: contract,
-                                            ),
-                                      ),
-                                    );
-                                  },
-                                );
-                              }
-                            },
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-            //     ),
-            //   ],
-            // ),
-          ],
-        ),
+                    ),
+                    //     ),
+                    //   ],
+                    // ),
+                  ],
+                ),
         bottomNavigationBar: Bottomnavigationbar(1),
       ),
     );

@@ -13,10 +13,7 @@ import 'package:kwik_port/utils/text/textstyle.dart';
 class ContractDetailsScreen extends StatefulWidget {
   final ContractModel contract;
 
-  const ContractDetailsScreen({
-    super.key,
-    required this.contract,
-  });
+  const ContractDetailsScreen({super.key, required this.contract});
 
   @override
   State<ContractDetailsScreen> createState() => _ContractDetailsScreenState();
@@ -78,11 +75,21 @@ class _ContractDetailsScreenState extends State<ContractDetailsScreen>
                   children: [
                     Stack(
                       children: [
-                        Image.network(
-                          widget.contract.commodityImage ??
-                              "https://kwikport.s3.eu-west-3.amazonaws.com/commodity-images/cocoa.png",
-                          height: 238,
-                          width: 342,
+                        Container(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(16),
+
+                            child: Image.network(
+                              widget.contract.commodityImage ??
+                                  "https://kwikport.s3.eu-west-3.amazonaws.com/commodity-images/cocoa.png",
+                              height: 238,
+                              width: 342,
+                              fit: BoxFit.fill,
+                            ),
+                          ),
                         ),
                         Positioned(
                           top: 35,
@@ -186,64 +193,69 @@ class _ContractDetailsScreenState extends State<ContractDetailsScreen>
                           SizedBox(height: 4),
 
                           // -------- DYNAMIC PROGRESS BAR ----------
-                          Builder(builder: (_) {
-                            double progress = 0.0;
+                          Builder(
+                            builder: (_) {
+                              double progress = 0.0;
 
-                            if (widget.contract.totalAmount != 0) {
-                              progress = widget.contract.fulfilledQuantity! /
-                                  widget.contract.totalAmount!;
-                            }
+                              if (widget.contract.totalAmount != 0) {
+                                progress =
+                                    widget.contract.fulfilledQuantity! /
+                                    widget.contract.totalAmount!;
+                              }
 
-                            return Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                LinearProgressIndicator(
-                                  backgroundColor: HexColor("#D6E7FF"),
-                                  minHeight: 8,
-                                  value: progress.clamp(0.0, 1.0),
-                                  borderRadius: BorderRadius.circular(12),
-                                  color: colorCodes.azureBlue,
-                                ),
-                                SizedBox(height: 4),
-                                Row(
-                                  mainAxisAlignment:
-                                  MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    RichText(
-                                      textAlign: TextAlign.center,
-                                      text: TextSpan(
-                                        style: TextStyle(
-                                          fontFamily: 'Poppins',
-                                          fontSize: 10.0,
-                                          fontWeight: FontWeight.w500,
-                                          color: colorCodes.graniteGrey,
+                              return Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  LinearProgressIndicator(
+                                    backgroundColor: HexColor("#D6E7FF"),
+                                    minHeight: 8,
+                                    value: progress.clamp(0.0, 1.0),
+                                    borderRadius: BorderRadius.circular(12),
+                                    color: colorCodes.azureBlue,
+                                  ),
+                                  SizedBox(height: 4),
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      RichText(
+                                        textAlign: TextAlign.center,
+                                        text: TextSpan(
+                                          style: TextStyle(
+                                            fontFamily: 'Poppins',
+                                            fontSize: 10.0,
+                                            fontWeight: FontWeight.w500,
+                                            color: colorCodes.graniteGrey,
+                                          ),
+                                          children: [
+                                            TextSpan(
+                                              text:
+                                                  "${widget.contract.fulfilledQuantity}",
+                                            ),
+                                            TextSpan(text: " / "),
+                                            TextSpan(
+                                              text:
+                                                  "${widget.contract.totalAmount}",
+                                            ),
+                                          ],
                                         ),
-                                        children: [
-                                          TextSpan(
-                                              text:
-                                              "${widget.contract.fulfilledQuantity}"),
-                                          TextSpan(text: " / "),
-                                          TextSpan(
-                                              text:
-                                              "${widget.contract.totalAmount}"),
-                                        ],
                                       ),
-                                    ),
-                                    Text(
-                                      "${(progress * 100).toStringAsFixed(0)}% completed",
-                                      style: kwikTextStlye(
-                                        12.0,
-                                        FontWeight.w500,
-                                        colorCodes.graniteGrey,
+                                      Text(
+                                        "${(progress * 100).toStringAsFixed(0)}% completed",
+                                        style: kwikTextStlye(
+                                          12.0,
+                                          FontWeight.w500,
+                                          colorCodes.graniteGrey,
+                                        ),
                                       ),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            );
-                          }),
-                          // ------------------------------------------
+                                    ],
+                                  ),
+                                ],
+                              );
+                            },
+                          ),
 
+                          // ------------------------------------------
                           SizedBox(height: 12),
                           SizedBox(
                             width: 358,
@@ -364,10 +376,10 @@ class _ContractDetailsScreenState extends State<ContractDetailsScreen>
                                   border: Border.all(
                                     width: 1.2,
                                     color:
-                                    widget.contract.contractStatus ==
-                                        "Active"
-                                        ? colorCodes.mediumSeaGreen
-                                        : colorCodes.portlandOrange,
+                                        widget.contract.contractStatus ==
+                                                "Active"
+                                            ? colorCodes.mediumSeaGreen
+                                            : colorCodes.portlandOrange,
                                   ),
                                   borderRadius: BorderRadius.circular(22),
                                   color: colorCodes.aeroblue,
@@ -380,10 +392,10 @@ class _ContractDetailsScreenState extends State<ContractDetailsScreen>
                                       height: 16,
                                       width: 16,
                                       color:
-                                      widget.contract.contractStatus ==
-                                          "Active"
-                                          ? colorCodes.mediumSeaGreen
-                                          : colorCodes.portlandOrange,
+                                          widget.contract.contractStatus ==
+                                                  "Active"
+                                              ? colorCodes.mediumSeaGreen
+                                              : colorCodes.portlandOrange,
                                     ),
                                     Text(
                                       "${widget.contract.contractStatus}",
@@ -461,7 +473,7 @@ class _ContractDetailsScreenState extends State<ContractDetailsScreen>
                             children: [
                               Row(
                                 mainAxisAlignment:
-                                MainAxisAlignment.spaceBetween,
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
                                   Text(
                                     "Price Per Ton (Naira)",
@@ -483,7 +495,7 @@ class _ContractDetailsScreenState extends State<ContractDetailsScreen>
                               ),
                               Row(
                                 mainAxisAlignment:
-                                MainAxisAlignment.spaceBetween,
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
                                   Text(
                                     "${widget.contract.pricePerUnitInNGN ?? "N/A"}",
@@ -511,8 +523,8 @@ class _ContractDetailsScreenState extends State<ContractDetailsScreen>
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) =>
-                                  ContractDetailsDeliveredScreen(
+                              builder:
+                                  (context) => ContractDetailsDeliveredScreen(
                                     contract: widget.contract,
                                   ),
                             ),

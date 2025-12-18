@@ -40,7 +40,17 @@ Widget avaiableontractContainer(
           children: [
             Row(
               children: [
-                Image.network(goodsImg, height: 72, width: 72),
+                Container(
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(16),
+                    child: Image.network(
+                      goodsImg,
+                      height: 72,
+                      width: 72,
+                      fit: BoxFit.fill,
+                    ),
+                  ),
+                ),
                 SizedBox(width: 16),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -258,7 +268,23 @@ Widget avaiableontractContainerUpdated(
       children: [
         InkWell(
           onTap: viewContractFunc,
-          child: Image.network(goodsImg, height: 86, width: 342),
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(16),
+            topRight: Radius.circular(16),
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(16),
+              topRight: Radius.circular(16),
+            ),
+
+            child: Image.network(
+              goodsImg,
+              height: 86,
+              width: 342,
+              fit: BoxFit.cover,
+            ),
+          ),
         ),
         Padding(
           padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),

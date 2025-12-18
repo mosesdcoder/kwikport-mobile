@@ -649,3 +649,5 @@ class ExportSummaryModel {
     'kwikTickets': kwikTickets?.toJson(),
   };
 }
+
+
