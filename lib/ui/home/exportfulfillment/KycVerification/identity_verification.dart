@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:kwik_port/colors/color.dart';
 import 'package:kwik_port/utils/button/kwik_button.dart';
@@ -18,6 +20,8 @@ class IdentityVerification extends StatefulWidget {
 }
 
 class _IdentityVerificationState extends State<IdentityVerification> {
+  File? _selectedImage;
+
   @override
   Widget build(BuildContext context) {
     return SizedBox(

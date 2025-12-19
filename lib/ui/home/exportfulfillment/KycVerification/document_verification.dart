@@ -43,10 +43,11 @@ class _DocumentVerificationState extends State<DocumentVerification> {
   bool isdropdownExpanded = false;
   // TextEditingController iDNumbercontroller = TextEditingController();
   List<String> certificatetionTypeList = [
-    'Nigerian',
-    'Kenyan',
-    'Ghanian',
-    'American',
+    'NIN',
+    'International Passport',
+    'Voters Card',
+    'National Driver License',
+    'National ID Card',
     'Other',
   ];
   final ImagePicker _picker = ImagePicker();
@@ -200,7 +201,7 @@ class _DocumentVerificationState extends State<DocumentVerification> {
                   Align(
                     alignment: Alignment.centerLeft,
                     child: Text(
-                      "Quality Certification",
+                      "Idetification Type",
                       style: TextStyle(
                         fontFamily: 'Poppins',
                         fontSize: 12,
@@ -257,6 +258,29 @@ class _DocumentVerificationState extends State<DocumentVerification> {
                     //   widget.onProofOfAddressChanged(selectedFile);
                     // }, imageFile: widget.proofOfAddressFile
                   ),
+                  //               uploadImageContainer("Upload ID Document", () async {
+                  //                     final pickedFile = await _picker.pickImage(
+                  //                       //source: ImageSource.gallery,
+                  //                       source: ImageSource.camera,
+                  // preferredCameraDevice: CameraDevice.front,
+                  //                     );
+                  //                     if (pickedFile != null) {
+                  //                       setState(() {
+                  //                         _selectedImage = File(pickedFile.path);
+                  //                       });
+                  //                     }
+                  //                   }, _selectedImage),
+                  //               SizedBox(height: 15),
+                  //               uploadImageContainer("Proof of Address", () async {
+                  //                     final pickedFile = await _picker.pickImage(
+                  //                       source: ImageSource.gallery,
+                  //                     );
+                  //                     if (pickedFile != null) {
+                  //                       setState(() {
+                  //                         _selectedImage2 = File(pickedFile.path);
+                  //                       });
+                  //                     }
+                  //   },_selectedImage2),
                 ],
               ),
             ),

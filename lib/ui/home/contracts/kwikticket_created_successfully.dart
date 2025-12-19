@@ -272,7 +272,7 @@ class _KwikticketCreatedSuccessfullyState
                           ),
                         ),
                         Text(
-                          "Status",
+                          "Ticket Status",
                           style: kwikTextStlye(
                             12.0,
                             FontWeight.w300,
@@ -328,11 +328,13 @@ class _KwikticketCreatedSuccessfullyState
                     SizedBox(height: 20),
                     contractDetailHeadingAndSubtitle(
                       "Contract Duration ",
-                      "Time",
-                      "${widget.kwikticket.deadline?.day} Days",
+                      "Deadline",
+                      "${widget.kwikticket?.contract?.contractDuration} Days",
 
                       // "12 AUG 2025",
-                      DateFormat('h:mm a').format(widget.kwikticket.deadline!),
+                      // "${widget.kwikticket.deadline.ho}"
+                      // DateFormat('dd:h:mm').format(widget.kwikticket.deadline!),
+                      DateFormat('dd MMM HH:mm').format(widget.kwikticket.deadline!),
                     ),
                   ],
                 ),

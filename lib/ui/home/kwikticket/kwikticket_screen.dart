@@ -263,14 +263,14 @@ class _KwikticketScreenState extends State<KwikticketScreen> {
                         ),
                       ],
                     ),
-                    SizedBox(height: 22),
+                    SizedBox(height: 33),
                     Container(
-                      height: 58,
-                      width: 335,
+                      height: 87,
+                      width: 345,
                       alignment: Alignment.center,
                       padding: EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 10,
+                        horizontal: 6,
+                        vertical: 8,
                       ),
                       decoration: BoxDecoration(
                         color: colorCodes.white,
@@ -293,7 +293,7 @@ class _KwikticketScreenState extends State<KwikticketScreen> {
                           SizedBox(
                             width: 232,
                             child: Text(
-                              "This ticket represents your secured allocation in this export contract.",
+                              "This ticket represents your secured allocation in this export contract, please note that this ticket is only valid for 24 hours.",
                               style: kwikTextStlye(
                                 12.0,
                                 FontWeight.w300,
@@ -320,7 +320,7 @@ class _KwikticketScreenState extends State<KwikticketScreen> {
                 );
                 currentIndex = 3;
               }),
-              SizedBox(height: 40),
+              SizedBox(height: 80),
             ],
           ),
         ],

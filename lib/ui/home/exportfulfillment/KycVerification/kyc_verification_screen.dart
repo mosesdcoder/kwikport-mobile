@@ -271,3 +271,74 @@ class _KycVerificationScreenState extends State<KycVerificationScreen> {
     }
   }
 }
+
+  // Widget verifcationDialog() {
+    // switch (linearValue) {
+    //   case 0.25:
+    //     return PersonalInformation(
+    //       nextFunc: () {
+    //         setState(() {
+    //           linearValue += 0.25;
+    //         });
+    //       },
+    //     );
+    //   // Code to execute if expression matches value1
+
+    //   case 0.50:
+    //     return DocumentVerification(
+    //       nextFunc: () {
+    //         setState(() {
+    //           linearValue += 0.25;
+    //         });
+    //       },
+    //       previousFunc: () {
+    //         setState(() {
+    //           linearValue -= 0.25;
+    //         });
+    //       },
+    //     );
+    //   // Code to execute if expression matches value2
+    //   // ... additional cases
+    //   case 0.75:
+    //     return IdentityVerification(
+    //       nextFunc: () {
+    //         setState(() {
+    //           linearValue += 0.25;
+    //         });
+    //       },
+    //       previousFunc: () {
+    //         setState(() {
+    //           linearValue -= 0.25;
+    //         });
+    //       },
+    //     );
+    //   case 1.0:
+    //     return BussinessInformation(
+    //       submitFunc: () {
+    //         showDialog(
+    //           barrierDismissible: false,
+    //           context: context,
+
+    //           builder: (BuildContext context) {
+    //             return KycSuccessfulDialog(kwikticket: widget.kwikticket);
+    //           },
+    //         );
+    //       },
+    //       previousFunc: () {
+    //         setState(() {
+    //           linearValue -= 0.25;
+    //         });
+    //       },
+    //     );
+    //   default:
+    //     return PersonalInformation(
+    //       nextFunc: () {
+    //         setState(() {
+    //           linearValue += 0.25;
+    //         });
+    //       },
+    //     );
+    //   // Code to execute if none of the cases match
+    // }
+  
+

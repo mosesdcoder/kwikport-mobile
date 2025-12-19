@@ -83,7 +83,7 @@ class _ExportJourneyScreenState extends State<ExportJourneyScreen> {
 
     // _initJourney();
     stageStates = [
-      StageStatus.inProgress, // Procurement
+      StageStatus.pending, // Procurement
       StageStatus.pending, // Packaging
       StageStatus.pending, // Logistics
       StageStatus.pending, // Freight Forwarding
@@ -102,12 +102,13 @@ class _ExportJourneyScreenState extends State<ExportJourneyScreen> {
         jsonEncode(widget.kwikticket!.toJson()),
       );
 
-      await prefs.setBool('procurementCompleted', true);
-      await prefs.setBool('procurementInProgress', false);
-      await prefs.remove('procurementStartTime');
+      // Remove hardcoded procurement completion
+      // await prefs.setBool('procurementCompleted', true);
+      // await prefs.setBool('procurementInProgress', false);
+      // await prefs.remove('procurementStartTime');
 
       // Initial load
-      for (int stage = 2; stage <= _stageTitles.length + 1; stage++) {
+      for (int stage = 1; stage <= _stageTitles.length; stage++) {
         await _fetchStage(stage);
       }
       setState(() => isLoading = false);
@@ -155,7 +156,7 @@ class _ExportJourneyScreenState extends State<ExportJourneyScreen> {
   /// Reset UI state and provider
   void _resetUIState() {
     stageStates = [
-      StageStatus.inProgress,
+      StageStatus.pending,
       StageStatus.pending,
       StageStatus.pending,
       StageStatus.pending,
@@ -172,15 +173,15 @@ class _ExportJourneyScreenState extends State<ExportJourneyScreen> {
 
   /// Fetch all stages for current exporter
   Future<void> _fetchAllStages() async {
-    for (int stage = 2; stage <= _stageTitles.length + 1; stage++) {
+    for (int stage = 1; stage <= _stageTitles.length; stage++) {
       await _fetchStage(stage);
     }
   }
 
   /// Only refresh incomplete stages
   Future<void> _autoRefreshIncompleteStages() async {
-    for (int stage = 2; stage <= _stageTitles.length + 1; stage++) {
-      if (stageStates[stage - 2] != StageStatus.completed) {
+    for (int stage = 1; stage <= _stageTitles.length; stage++) {
+      if (stageStates[stage - 1] != StageStatus.completed) {
         await _fetchStage(stage);
       }
     }
@@ -194,7 +195,7 @@ class _ExportJourneyScreenState extends State<ExportJourneyScreen> {
 
   Future<void> _autoRefresh() async {
     // Only refresh stages that are NOT completed
-    for (int stage = 2; stage <= _stageTitles.length; stage++) {
+    for (int stage = 1; stage <= _stageTitles.length; stage++) {
       if (stageStates[stage - 1] != StageStatus.completed) {
         await _fetchStage(stage);
       }
@@ -205,12 +206,14 @@ class _ExportJourneyScreenState extends State<ExportJourneyScreen> {
   Future<void> _fetchStage(int mainStage) async {
     final api = Provider.of<ExportSubStageApi>(context, listen: false);
 
+    final apiStage = mainStage + 1; // UI stage 1 (Procurement) queries API with 2
+
     // ⬅️ Get the response directly from the function
     final fetchedSubStages = await api.getSubStages(
       exporterContractId: widget.exporterContractId,
-      mainStage: mainStage,
+      mainStage: apiStage,
     );
-    fetchedSubStages.forEach((s) {
+    fetchedSubStages!.forEach((s) {
       debugPrint("${s.subStageName}: isCompleted=${s.isCompleted}");
     });
 
@@ -236,7 +239,7 @@ class _ExportJourneyScreenState extends State<ExportJourneyScreen> {
 
     final allCompleted = fetchedSubStages.every((s) => s.isCompleted ?? false);
     final anyActive = fetchedSubStages.any((s) => s.isActive ?? false);
-    final index = mainStage - 2; // because backend stages start at 2
+    final index = mainStage - 1; // because stages start at 1
     if (index >= 0 && index < stageStates.length) {
       setState(() {
         if (allCompleted) {
@@ -264,7 +267,7 @@ class _ExportJourneyScreenState extends State<ExportJourneyScreen> {
   }
 
   void _unlockNextStage(int nextStage) {
-    final index = nextStage - 2; // align backend to UI
+    final index = nextStage - 1; // align to stages starting at 1
     if (index >= 0 && index < stageStates.length) {
       if (stageStates[index] == StageStatus.pending) {
         setState(() {
@@ -275,7 +278,7 @@ class _ExportJourneyScreenState extends State<ExportJourneyScreen> {
   }
 
   Future<void> _refresh() async {
-    for (int stage = 2; stage <= _stageTitles.length; stage++) {
+    for (int stage = 1; stage <= _stageTitles.length; stage++) {
       await _fetchStage(stage);
     }
   }
@@ -311,7 +314,7 @@ class _ExportJourneyScreenState extends State<ExportJourneyScreen> {
     final exportSubStageProvider = Provider.of<ExportSubStageApi>(context);
     final subStages = exportSubStageProvider.subStages;
     // Determine current progress
-    bool procurementCompleted = true; // already selected before this screen
+    bool procurementCompleted = stageStates[0] == StageStatus.completed; // dynamic now
     bool packagingCompleted = subStages.every((s) => s.isCompleted);
     bool hasPackagingAgency =
         subStages.isNotEmpty; // or from API flag if available
@@ -373,7 +376,7 @@ class _ExportJourneyScreenState extends State<ExportJourneyScreen> {
                       SizedBox(height: 20),
                       Column(
                         children: List.generate(_stageTitles.length, (index) {
-                          final mainStage = index + 2;
+                          final mainStage = index + 1;
                           final substagesForStage =
                               stageSubStages[mainStage] ?? [];
                           bool canExpand =
@@ -448,72 +451,77 @@ class _ExportJourneyScreenState extends State<ExportJourneyScreen> {
                   ),
                 ),
                 SizedBox(height: 15),
-                Container(
-                  height: 160,
-                  width: 391,
-                  padding: EdgeInsets.symmetric(horizontal: 12, vertical: 20),
-                  decoration: BoxDecoration(
-                    color: colorCodes.white,
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: Column(
-                    children: [
-                      Container(
-                        height: 104,
-                        width: 350,
-                        alignment: Alignment.center,
-                        padding: EdgeInsets.symmetric(
-                          horizontal: 10,
-                          vertical: 15,
-                        ),
-                        decoration: BoxDecoration(
-                          color: colorCodes.white,
-                          borderRadius: BorderRadius.circular(16),
-                          border: Border.all(
-                            width: 1.5,
-                            color: colorCodes.sunset,
-                          ),
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Image.asset(
-                              "assets/images/icons/dashboard/Frame 10000060291.png",
-                              height: 24,
-                              width: 24,
+
+                // Conditionally show agency selection prompt
+                (stageStates[0] == StageStatus.completed && stageStates[1] == StageStatus.selectAgency)
+                    ? Container(
+                      height: 160,
+                      width: 391,
+                      padding: EdgeInsets.symmetric(horizontal: 12, vertical: 20),
+                      decoration: BoxDecoration(
+                        color: colorCodes.white,
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: Column(
+                        children: [
+                          Container(
+                            height: 104,
+                            width: 350,
+                            alignment: Alignment.center,
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 10,
+                              vertical: 15,
                             ),
-                            SizedBox(width: 8),
-                            SizedBox(
-                              width: 238,
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    "Agency Selction Required",
-                                    style: kwikTextStlye(
-                                      14.0,
-                                      FontWeight.w600,
-                                      colorCodes.sinopia,
-                                    ),
-                                  ),
-                                  Text(
-                                    "Procurement is complete. Select a packaging & documentation agency to continue your export journey.",
-                                    style: kwikTextStlye(
-                                      10.0,
-                                      FontWeight.w300,
-                                      colorCodes.black,
-                                    ),
-                                  ),
-                                ],
+                            decoration: BoxDecoration(
+                              color: colorCodes.white,
+                              borderRadius: BorderRadius.circular(16),
+                              border: Border.all(
+                                width: 1.5,
+                                color: colorCodes.sunset,
                               ),
                             ),
-                          ],
-                        ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Image.asset(
+                                  "assets/images/icons/dashboard/Frame 10000060291.png",
+                                  height: 24,
+                                  width: 24,
+                                ),
+                                SizedBox(width: 8),
+                                SizedBox(
+                                  width: 238,
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        "Agency Selection Required",
+                                        style: kwikTextStlye(
+                                          14.0,
+                                          FontWeight.w600,
+                                          colorCodes.sinopia,
+                                        ),
+                                      ),
+                                      Text(
+                                        "Procurement is complete. Select a packaging & documentation agency to continue your export journey.",
+                                        style: kwikTextStlye(
+                                          10.0,
+                                          FontWeight.w300,
+                                          colorCodes.black,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
-                ),
+                    )
+                    : SizedBox.shrink(),
+
                 SizedBox(height: 15),
 
                 kwikbutton("Complete Export", () async {
@@ -652,7 +660,7 @@ class _ExportJourneyScreenState extends State<ExportJourneyScreen> {
 
   Future<void> _handleStageButton(int index) async {
     // final currentStage = index + 1;
-    final currentStage = index;
+    final currentStage = index + 1;
     // if (index == 0) {
     //   showToastContainer(
     //     "Procurement Stage",

@@ -263,13 +263,13 @@ class _GenerateContractTicketDialogState
                   SizedBox(height: 24),
 
                   marketRateContainer(
-                    "${widget.contract.pricePerUnitInNGN ?? 0} ",
+                    "${widget.contract.pricePerUnitInNGN?.toStringAsFixed(2) ?? 'N/A'} NGN",
                     "Total Cost (${volumeController.text} tons)",
                     "₦${totalCost ?? 0}",
                     volumeController.text,
                   ),
                   SizedBox(height: 24),
-                  kwikbutton("Generate Tickets", () async {
+                  kwikbutton("Generate Ticket", () async {
                     if (volumeController.text.isNotEmpty) {
                       await createTicketApi
                           .createKwikTicket(
