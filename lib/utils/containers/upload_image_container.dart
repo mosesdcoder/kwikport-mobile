@@ -1,10 +1,14 @@
+import 'dart:io';
+
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
 import 'package:kwik_port/colors/color.dart';
 import 'package:kwik_port/utils/button/kwik_button.dart';
 import 'package:kwik_port/utils/text/textstyle.dart';
 
-Widget uploadImageContainer(title, func,) {
+
+Widget uploadImageContainer(title, func,File? image,
+) {
   return Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
@@ -37,7 +41,14 @@ Widget uploadImageContainer(title, func,) {
             borderRadius: BorderRadius.circular(16.0),
             color: colorCodes.white,
           ),
-          child: Column(
+          child: image != null
+                ? Image.file(
+                    image,
+                    fit: BoxFit.cover,
+                    width: double.infinity,
+                    height: double.infinity,
+                  )
+       : Column(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [

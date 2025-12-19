@@ -1,4 +1,7 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:kwik_port/colors/color.dart';
 import 'package:kwik_port/utils/button/dropdown_button.dart';
 import 'package:kwik_port/utils/button/kwik_button.dart';
@@ -24,12 +27,16 @@ class _DocumentVerificationState extends State<DocumentVerification> {
   bool isdropdownExpanded = false;
   TextEditingController iDNumbercontroller = TextEditingController();
   List<String> certificatetionTypeList = [
-    'Nigerian',
-    'Kenyan',
-    'Ghanian',
-    'American',
+    'NIN',
+    'International Passport',
+    'Voters Card',
+    'National Driver License',
+    'National ID Card',
     'Other',
   ];
+  File? _selectedImage; 
+  File? _selectedImage2; 
+  final ImagePicker _picker = ImagePicker();
   @override
   Widget build(BuildContext context) {
     return SizedBox(
@@ -137,7 +144,7 @@ class _DocumentVerificationState extends State<DocumentVerification> {
                   Align(
                     alignment: Alignment.centerLeft,
                     child: Text(
-                      "Quality Certification",
+                      "Idetification Type",
                       style: TextStyle(
                         fontFamily: 'Poppins',
                         fontSize: 12,
@@ -149,7 +156,7 @@ class _DocumentVerificationState extends State<DocumentVerification> {
                   SizedBox(height: 8),
                   kycNationalityDropdown(
                     certificatetionType,
-                    "Select certification type",
+                    "Select identification type",
                     certificatetionTypeList.map(dropMenuItem).toList(),
                     (newValue) {
                       setState(() {
@@ -171,9 +178,29 @@ class _DocumentVerificationState extends State<DocumentVerification> {
                     hintText: "Peter Walker",
                   ),
                   SizedBox(height: 15),
-                  uploadImageContainer("Upload ID Document", () {}),
+                  uploadImageContainer("Upload ID Document", () async {
+                        final pickedFile = await _picker.pickImage(
+                          //source: ImageSource.gallery,
+                          source: ImageSource.camera, 
+    preferredCameraDevice: CameraDevice.front,
+                        );
+                        if (pickedFile != null) {
+                          setState(() {
+                            _selectedImage = File(pickedFile.path);
+                          });
+                        }
+                      }, _selectedImage),
                   SizedBox(height: 15),
-                  uploadImageContainer("Proof of Address", () {}),
+                  uploadImageContainer("Proof of Address", () async {
+                        final pickedFile = await _picker.pickImage(
+                          source: ImageSource.gallery,
+                        );
+                        if (pickedFile != null) {
+                          setState(() {
+                            _selectedImage2 = File(pickedFile.path);
+                          });
+                        }
+      },_selectedImage2),
                 ],
               ),
             ),

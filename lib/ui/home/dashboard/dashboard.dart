@@ -373,11 +373,12 @@ class _DashboardState extends State<Dashboard> {
                                       children: [
                                         activityProgressContainer(
                                           "assets/images/icons/kwik_tickets.png",
-                                          "My Exports", // "Active Kwiktickets",
-                                          activeTickets.toString().padLeft(
-                                            2,
-                                            '0',
-                                          ),
+                                          "My Exports",
+                                          "5", // "Active Kwiktickets",
+                                          // activeTickets.toString().padLeft(
+                                          //   2,
+                                          //   '0',
+                                          // ),
 
                                           // "01",
                                           context,
@@ -400,8 +401,8 @@ class _DashboardState extends State<Dashboard> {
                                         activityProgressContainer(
                                           "assets/images/icons/completed_ecport.png",
                                           "Completed Exports",
-                                          completed.toString().padLeft(2, '0'),
-                                          // "15",
+                                          //completed.toString().padLeft(2, '0'),
+                                           "15",
                                           context,
                                           () {},
                                         ),

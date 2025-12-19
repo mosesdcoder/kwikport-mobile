@@ -309,7 +309,7 @@ class _ContractDetailsDeliveredScreenState
                 ),
                 SizedBox(height: 4),
                 overviewRichText(
-                  "Buyer",
+                  "Buyer Price per Ton (NGN)",
                   "${widget.contract.buyerSpecification?.buyerPricePerUnit}",
                 ),
                 SizedBox(height: 4),
@@ -410,7 +410,7 @@ class _ContractDetailsDeliveredScreenState
                 ),
                 SizedBox(height: 24),
                 Text(
-                  "HOW YOU CAN FULFILL THIS CONTRACT",
+                  "HOW YOU CAN ACTIVATE THIS CONTRACT",
                   style: kwikTextStlye(20.0, FontWeight.w600, colorCodes.black),
                 ),
                 SizedBox(height: 10),
@@ -633,7 +633,7 @@ class _ContractDetailsDeliveredScreenState
                       ),
                       SizedBox(height: 10),
                       checkRow(
-                        "Choose your fulfillment path: KwikProcure or Own Product.",
+                        "Choose your activation path: KwikProcure or Own Product.",
                       ),
                     ],
                   ),
@@ -815,7 +815,7 @@ class _ContractDetailsDeliveredScreenState
               );
             }
           }),
-          SizedBox(height: 35),
+          SizedBox(height: 55),
         ],
       ),
       bottomNavigationBar: Bottomnavigationbar(5),

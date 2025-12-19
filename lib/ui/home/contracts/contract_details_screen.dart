@@ -32,10 +32,11 @@ class _ContractDetailsScreenState extends State<ContractDetailsScreen>
 
   @override
   Widget build(BuildContext context) {
-    // var tonsRemaining =
-    //     widget.contract.totalQuantity! - widget.contract.fulfilledQuantity!;
-    // var percentageLeft = (tonsRemaining / contract.totalQuantity! ?? 0) * 100;
-    // double progressValue = tonsRemaining / contract.totalQuantity!;
+       var tonsRemaining =
+              widget.contract.totalQuantity! - widget.contract.fulfilledQuantity!;
+          var percentageLeft =
+              (tonsRemaining / widget.contract.totalQuantity! ?? 0) * 100;
+          double progressValue = tonsRemaining / widget.contract.totalQuantity!;
     return Scaffold(
       extendBody: true,
       backgroundColor: colorCodes.whiteSmoke,
@@ -293,7 +294,7 @@ class _ContractDetailsScreenState extends State<ContractDetailsScreen>
                                 ),
                               ),
                               Text(
-                                "Gross Value",
+                                "Profit Ratio",
                                 style: kwikTextStlye(
                                   12.0,
                                   FontWeight.w300,
@@ -321,7 +322,7 @@ class _ContractDetailsScreenState extends State<ContractDetailsScreen>
                                     width: 16,
                                   ),
                                   Text(
-                                    "${widget.contract.projectedIncome}",
+                                    "${widget.contract.profitRatio?.toStringAsFixed(2) ?? 'N/A'}%",
                                     style: kwikTextStlye(
                                       14.0,
                                       FontWeight.w600,
@@ -345,7 +346,7 @@ class _ContractDetailsScreenState extends State<ContractDetailsScreen>
                                 ),
                               ),
                               Text(
-                                "Status",
+                                "Contract Status",
                                 style: kwikTextStlye(
                                   12.0,
                                   FontWeight.w300,
@@ -505,7 +506,7 @@ class _ContractDetailsScreenState extends State<ContractDetailsScreen>
                                     ),
                                   ),
                                   Text(
-                                    "${widget.contract.pricePerUnitInNGN}",
+                                    "${widget.contract.buyerSpecification!.buyerPricePerUnit ?? "N/A"}",
                                     style: kwikTextStlye(
                                       14.0,
                                       FontWeight.w600,

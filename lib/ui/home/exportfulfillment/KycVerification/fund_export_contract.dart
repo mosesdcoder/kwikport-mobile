@@ -596,7 +596,7 @@ class _FundExportContractState extends State<FundExportContract> {
                           ),
                         ],
                       ),
-                      SizedBox(height: 30),
+                      SizedBox(height: 50),
                       kwikbutton(
                         "Pay ₦${widget.kwikticket.kwikTicketAmount}",
                         () async {

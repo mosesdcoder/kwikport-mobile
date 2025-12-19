@@ -22,7 +22,8 @@ class KycVerificationScreen extends StatefulWidget {
 }
 
 class _KycVerificationScreenState extends State<KycVerificationScreen> {
-  double linearValue = 0.25;
+  double linearValue = 0.0;
+  int currentStep = 0;
   @override
   void initState() {
     super.initState();
@@ -90,72 +91,145 @@ class _KycVerificationScreenState extends State<KycVerificationScreen> {
   }
 
   Widget verifcationDialog() {
-    switch (linearValue) {
-      case 0.25:
-        return PersonalInformation(
-          nextFunc: () {
-            setState(() {
-              linearValue += 0.25;
-            });
-          },
-        );
-      // Code to execute if expression matches value1
+  switch (currentStep) {
+    case 0:
+      return PersonalInformation(
+        nextFunc: () {
+          setState(() {
+            currentStep = 1;
+            linearValue = 0.25;
+          });
+        },
+      );
 
-      case 0.50:
-       return DocumentVerification(
-          nextFunc: () {
-            setState(() {
-              linearValue += 0.25;
-            });
-          },
-          previousFunc: () {
-            setState(() {
-              linearValue -= 0.25;
-            });
-          },
-        );
-      // Code to execute if expression matches value2
-      // ... additional cases
-      case 0.75:
-        return IdentityVerification(
-          nextFunc: () {
-            setState(() {
-              linearValue += 0.25;
-            });
-          },
-          previousFunc: () {
-            setState(() {
-              linearValue -= 0.25;
-            });
-          },
-        );
-      case 1.0:
-        return BussinessInformation(
-          submitFunc: () {
-            showDialog(
-              barrierDismissible: false,
-              context: context,
+    case 1:
+      return DocumentVerification(
+        nextFunc: () {
+          setState(() {
+            currentStep = 2;
+            linearValue = 0.50;
+          });
+        },
+        previousFunc: () {
+          setState(() {
+            currentStep = 0;
+            linearValue = 0.0;
+          });
+        },
+      );
 
-              builder: (BuildContext context) {
-                return KycSuccessfulDialog(kwikticket: widget.kwikticket);
-              },
-            );
-          },
-          previousFunc: () {
-            setState(() {
-              linearValue -= 0.25;
-            });
-          },
-        );
-      default:
-        return PersonalInformation(
-          nextFunc: () {
-            setState(() {
-              linearValue += 0.25;
-            });
-          },
-        );
-      // Code to execute if none of the cases match
-    }
+    case 2:
+      return IdentityVerification(
+        nextFunc: () {
+          setState(() {
+            currentStep = 3;
+            linearValue = 0.75;
+          });
+        },
+        previousFunc: () {
+          setState(() {
+            currentStep = 1;
+            linearValue = 0.25;
+          });
+        },
+      );
+
+    case 3:
+      return BussinessInformation(
+        submitFunc: () {
+          setState(() {
+            currentStep = 4;
+            linearValue = 1.0;
+          });
+
+          showDialog(
+            barrierDismissible: false,
+            context: context,
+            builder: (_) => KycSuccessfulDialog(
+              kwikticket: widget.kwikticket,
+            ),
+          );
+        },
+        previousFunc: () {
+          setState(() {
+            currentStep = 2;
+            linearValue = 0.50;
+          });
+        },
+      );
+
+    default:
+      return SizedBox();
   }
 }
+
+  // Widget verifcationDialog() {
+    // switch (linearValue) {
+    //   case 0.25:
+    //     return PersonalInformation(
+    //       nextFunc: () {
+    //         setState(() {
+    //           linearValue += 0.25;
+    //         });
+    //       },
+    //     );
+    //   // Code to execute if expression matches value1
+
+    //   case 0.50:
+    //     return DocumentVerification(
+    //       nextFunc: () {
+    //         setState(() {
+    //           linearValue += 0.25;
+    //         });
+    //       },
+    //       previousFunc: () {
+    //         setState(() {
+    //           linearValue -= 0.25;
+    //         });
+    //       },
+    //     );
+    //   // Code to execute if expression matches value2
+    //   // ... additional cases
+    //   case 0.75:
+    //     return IdentityVerification(
+    //       nextFunc: () {
+    //         setState(() {
+    //           linearValue += 0.25;
+    //         });
+    //       },
+    //       previousFunc: () {
+    //         setState(() {
+    //           linearValue -= 0.25;
+    //         });
+    //       },
+    //     );
+    //   case 1.0:
+    //     return BussinessInformation(
+    //       submitFunc: () {
+    //         showDialog(
+    //           barrierDismissible: false,
+    //           context: context,
+
+    //           builder: (BuildContext context) {
+    //             return KycSuccessfulDialog(kwikticket: widget.kwikticket);
+    //           },
+    //         );
+    //       },
+    //       previousFunc: () {
+    //         setState(() {
+    //           linearValue -= 0.25;
+    //         });
+    //       },
+    //     );
+    //   default:
+    //     return PersonalInformation(
+    //       nextFunc: () {
+    //         setState(() {
+    //           linearValue += 0.25;
+    //         });
+    //       },
+    //     );
+    //   // Code to execute if none of the cases match
+    // }
+  }
+

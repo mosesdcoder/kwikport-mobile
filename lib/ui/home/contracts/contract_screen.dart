@@ -378,7 +378,7 @@ class _ContractScreenState extends State<ContractScreen>
             "${percentageLeft}% left",
             "${contract.totalAmount}",
             "assets/images/icons/Trending up.png",
-            "${contract.projectedIncome?.toStringAsFixed(2) ?? '0.00'}%",
+            "${contract.profitRatio?.toStringAsFixed(2) ?? '0.00'}%",
             () {
               Navigator.push(
                 context,

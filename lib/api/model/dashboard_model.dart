@@ -397,6 +397,7 @@ class ContractModel {
   final double? totalQuantity;
   final double? totalAmount;
   final double? totalAmountSpent;
+  final double? profitRatio;
   final double? projectedIncome;
   final double? pricePerUnitInUSD;
   final double? pricePerUnitInNGN;
@@ -432,6 +433,7 @@ class ContractModel {
     this.totalQuantity,
     this.totalAmount,
     this.totalAmountSpent,
+    this.profitRatio,
     this.projectedIncome,
     this.pricePerUnitInUSD,
     this.pricePerUnitInNGN,
@@ -475,6 +477,7 @@ class ContractModel {
       totalQuantity: (json['totalQuantity'] as num?)?.toDouble(),
       totalAmount: (json['totalAmount'] as num?)?.toDouble(),
       totalAmountSpent: (json['totalAmountSpent'] as num?)?.toDouble(),
+      profitRatio: (json['profitRatio'] as num?)?.toDouble(),
       projectedIncome: (json['projectedIncome'] as num?)?.toDouble(),
       pricePerUnitInUSD: (json['pricePerUnitInUSD'] as num?)?.toDouble(),
       pricePerUnitInNGN: (json['pricePerUnitInNGN'] as num?)?.toDouble(),
@@ -528,6 +531,7 @@ class ContractModel {
     'projectedIncome': projectedIncome,
     'pricePerUnitInUSD': pricePerUnitInUSD,
     'pricePerUnitInNGN':pricePerUnitInNGN,
+    'profitRatio':profitRatio,
     'fulfilledQuantity': fulfilledQuantity,
     'contractStatus': contractStatus,
     'exportStage': exportStage,
