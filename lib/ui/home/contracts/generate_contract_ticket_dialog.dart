@@ -263,7 +263,7 @@ class _GenerateContractTicketDialogState
                   SizedBox(height: 24),
 
                   marketRateContainer(
-                    "${widget.contract.buyerSpecification?.buyerPricePerUnit}",
+                    "${widget.contract.pricePerUnitInNGN ?? 0} ",
                     "Total Cost (${volumeController.text} tons)",
                     "₦${totalCost ?? 0}",
                     volumeController.text,

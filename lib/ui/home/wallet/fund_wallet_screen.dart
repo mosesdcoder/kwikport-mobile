@@ -100,6 +100,7 @@ class _FundWalletScreenState extends State<FundWalletScreen> {
   Widget build(BuildContext context) {
     final dashboardApi = Provider.of<DashboardApi>(context);
     final fundWalletApi = Provider.of<FundWalletApi>(context);
+
     final isLoading = dashboardApi.loading;
     final walletBalance = dashboardApi.data?.walletBalance ?? 0.0;
     final amountsone = ["₦10,000", "₦25,000", "₦50,000"];
@@ -168,6 +169,7 @@ class _FundWalletScreenState extends State<FundWalletScreen> {
                         child: Stack(
                           children: [
                             Container(
+                              alignment: Alignment.center,
                               decoration: BoxDecoration(
                                 image: DecorationImage(
                                   image: AssetImage(
@@ -176,16 +178,62 @@ class _FundWalletScreenState extends State<FundWalletScreen> {
                                   fit: BoxFit.cover,
                                 ),
                               ),
-                              child: Column(),
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 12.0,
+                                ),
+                                child: Column(
+                                  children: [
+                                    Container(
+                                      height: 25,
+                                      width: 103,
+                                      alignment: Alignment.center,
+                                      decoration: BoxDecoration(
+                                        color: Colors.white24,
+                                        borderRadius: BorderRadius.circular(10),
+                                        border: Border.all(
+                                          color: Colors.white38,
+                                          width: 1.3,
+                                        ),
+                                      ),
+                                      child: Text(
+                                        "Current Balance",
+                                        style: kwikTextStlye(
+                                          10.0,
+                                          FontWeight.w500,
+                                          colorCodes.white,
+                                        ),
+                                      ),
+                                    ),
+                                    SizedBox(height: 5),
+                                    Text(
+                                      "₦$walletBalance",
+                                      style: kwikTextStlye(
+                                        20.0,
+                                        FontWeight.w600,
+                                        colorCodes.white,
+                                        fontFamily: "",
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
                             ),
+
                             Positioned(
                               top: 0,
                               right: 0,
                               bottom: 1,
+                              // left: 1,
                               child: Image.asset(
                                 "assets/images/icons/Union (2).png",
                                 height: 216,
                                 width: 216,
+                              ),
+                            ),
+                            Positioned(
+                              child: Image.asset(
+                                "assets/images/Group 3016006.png",
                               ),
                             ),
                           ],
@@ -298,11 +346,7 @@ class _FundWalletScreenState extends State<FundWalletScreen> {
                         ),
                         () async {
                           final parentContext = context;
-                          showDialog(
-                            context: parentContext,
-                            barrierDismissible: false,
-                            builder: (_) => kwikportloader(),
-                          );
+
                           if (fundAccountfield.text.isEmpty) {
                             showToastContainer(
                               "Error",
@@ -313,6 +357,11 @@ class _FundWalletScreenState extends State<FundWalletScreen> {
                             );
                             return;
                           }
+                          showDialog(
+                            context: parentContext,
+                            barrierDismissible: false,
+                            builder: (_) => kwikportloader(),
+                          );
 
                           final amount = double.parse(
                             fundAccountfield.text.replaceAll(",", ""),

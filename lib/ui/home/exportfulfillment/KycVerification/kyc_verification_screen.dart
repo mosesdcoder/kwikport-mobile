@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:kwik_port/api/model/dashboard_model.dart';
@@ -23,14 +25,44 @@ class KycVerificationScreen extends StatefulWidget {
 
 class _KycVerificationScreenState extends State<KycVerificationScreen> {
   double linearValue = 0.25;
+  // Shared controllers and state for Personal Information
+  final TextEditingController firstNameController = TextEditingController();
+  final TextEditingController lastNameController = TextEditingController();
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController phoneController = TextEditingController();
+  final TextEditingController dobController = TextEditingController();
+  final TextEditingController streetAddressController = TextEditingController();
+  final TextEditingController cityController = TextEditingController();
+  final TextEditingController stateController = TextEditingController();
+  String? nationality;
+  // Document verification state
+  String? certificationType;
+  TextEditingController iDNumberController = TextEditingController();
+  File? idDocumentFile;
+  File? proofOfAddressFile;
   @override
   void initState() {
     super.initState();
   }
 
   @override
+  void dispose() {
+    // Dispose controllers to prevent memory leaks
+    firstNameController.dispose();
+    lastNameController.dispose();
+    emailController.dispose();
+    phoneController.dispose();
+    dobController.dispose();
+    streetAddressController.dispose();
+    cityController.dispose();
+    stateController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: true,
       extendBody: true,
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(85.0),
@@ -62,7 +94,7 @@ class _KycVerificationScreenState extends State<KycVerificationScreen> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    "Step 1: Personal Information",
+                    getStepTitle(),
                     style: kwikTextStlye(
                       12.0,
                       FontWeight.w300,
@@ -70,7 +102,7 @@ class _KycVerificationScreenState extends State<KycVerificationScreen> {
                     ),
                   ),
                   Text(
-                    "25% Complete",
+                    "${(linearValue * 100).toInt()}% Complete",
                     style: kwikTextStlye(
                       12.0,
                       FontWeight.w300,
@@ -93,16 +125,40 @@ class _KycVerificationScreenState extends State<KycVerificationScreen> {
     switch (linearValue) {
       case 0.25:
         return PersonalInformation(
+          firstNameController: firstNameController,
+          lastNameController: lastNameController,
+          emailController: emailController,
+          phoneController: phoneController,
+          dobController: dobController,
+          streetAddressController: streetAddressController,
+          cityController: cityController,
+          stateController: stateController,
+          nationality: nationality,
+          onNationalityChanged: (String? value) {
+            setState(() {
+              nationality = value;
+            });
+          },
+
           nextFunc: () {
             setState(() {
               linearValue += 0.25;
             });
           },
+          // nextFunc: () {
+          //   setState(() {
+          //     linearValue += 0.25;
+          //   });
+          // },
         );
       // Code to execute if expression matches value1
 
       case 0.50:
-       return DocumentVerification(
+        return DocumentVerification(
+          certificationType: certificationType,
+          iDNumberController: iDNumberController,
+          idDocumentFile: idDocumentFile,
+          proofOfAddressFile: proofOfAddressFile,
           nextFunc: () {
             setState(() {
               linearValue += 0.25;
@@ -113,6 +169,31 @@ class _KycVerificationScreenState extends State<KycVerificationScreen> {
               linearValue -= 0.25;
             });
           },
+          onCertificationTypeChanged: (String? value) {
+            setState(() {
+              certificationType = value;
+            });
+          },
+          onIdDocumentChanged: (file) {
+            setState(() {
+              idDocumentFile = file;
+            });
+          },
+          onProofOfAddressChanged: (file) {
+            setState(() {
+              proofOfAddressFile = file;
+            });
+          },
+          // nextFunc: () {
+          //   setState(() {
+          //     linearValue += 0.25;
+          //   });
+          // },
+          // previousFunc: () {
+          //   setState(() {
+          //     linearValue -= 0.25;
+          //   });
+          // },
         );
       // Code to execute if expression matches value2
       // ... additional cases
@@ -149,13 +230,44 @@ class _KycVerificationScreenState extends State<KycVerificationScreen> {
         );
       default:
         return PersonalInformation(
+          firstNameController: firstNameController,
+          lastNameController: lastNameController,
+          emailController: emailController,
+          phoneController: phoneController,
+          dobController: dobController,
+          streetAddressController: streetAddressController,
+          cityController: cityController,
+          stateController: stateController,
+          nationality: nationality,
+          onNationalityChanged: (value) {
+            setState(() {
+              nationality = value;
+            });
+          },
           nextFunc: () {
             setState(() {
               linearValue += 0.25;
             });
           },
+          // nextFunc: () {
+          //   setState(() {
+          //     linearValue += 0.25;
+          //   });
+          // },
         );
       // Code to execute if none of the cases match
+    }
+  }
+
+  String getStepTitle() {
+    if (linearValue <= 0.25) {
+      return "Step 1: Personal Information";
+    } else if (linearValue <= 0.50) {
+      return "Step 2: Document Verification";
+    } else if (linearValue <= 0.75) {
+      return "Step 3: Identity Verification";
+    } else {
+      return "Step 4: Business Information";
     }
   }
 }

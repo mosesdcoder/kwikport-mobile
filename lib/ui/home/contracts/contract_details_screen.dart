@@ -497,7 +497,7 @@ class _ContractDetailsScreenState extends State<ContractDetailsScreen>
                                     MainAxisAlignment.spaceBetween,
                                 children: [
                                   Text(
-                                    "${widget.contract.pricePerUnitInNGN ?? "N/A"}",
+                                    "${widget.contract.pricePerUnitInNGN ?? "0"}",
                                     style: TextStyle(
                                       fontSize: 14.0,
                                       fontWeight: FontWeight.w600,

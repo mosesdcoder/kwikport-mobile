@@ -10,21 +10,48 @@ import 'package:kwik_port/utils/textFields/nameField_column.dart';
 import 'package:kwik_port/utils/textFields/phoneNumber_field.dart';
 
 class PersonalInformation extends StatefulWidget {
-  final nextFunc;
-  const PersonalInformation({super.key, required this.nextFunc});
+  final TextEditingController firstNameController;
+  final TextEditingController lastNameController;
+  final TextEditingController emailController;
+  final TextEditingController phoneController;
+  final TextEditingController dobController;
+  final TextEditingController streetAddressController;
+  final TextEditingController cityController;
+  final TextEditingController stateController;
+  final String? nationality;
+  final Function(String?) onNationalityChanged;
+  
+  final VoidCallback nextFunc;
+  // final nextFunc;
+  const PersonalInformation({
+    super.key,
+    required this.firstNameController,
+    required this.lastNameController,
+    required this.emailController,
+    required this.phoneController,
+    required this.dobController,
+    required this.streetAddressController,
+    required this.cityController,
+    required this.stateController,
+    required this.nationality,
+    required this.onNationalityChanged,
+    required this.nextFunc,
+  });
 
   @override
   State<PersonalInformation> createState() => _PersonalInformationState();
 }
 
 class _PersonalInformationState extends State<PersonalInformation> {
-  TextEditingController emailcontroller = TextEditingController();
-  TextEditingController firstNamecontroller = TextEditingController();
-  TextEditingController lastNamecontroller = TextEditingController();
-  TextEditingController phonenumbercontroller = TextEditingController();
-  TextEditingController dobController = TextEditingController();
-  TextEditingController streetAddresscontroller = TextEditingController();
-  String? nationality;
+  // TextEditingController emailcontroller = TextEditingController();
+  // TextEditingController firstNamecontroller = TextEditingController();
+  // TextEditingController lastNamecontroller = TextEditingController();
+  // TextEditingController phonenumbercontroller = TextEditingController();
+  // TextEditingController dobController = TextEditingController();
+  // TextEditingController streetAddresscontroller = TextEditingController();
+  // TextEditingController cityController = TextEditingController();
+  // TextEditingController stateController = TextEditingController();
+  // String? nationality;
   bool isiconExpanded = false;
   bool isdropdownExpanded = false;
 
@@ -92,31 +119,41 @@ class _PersonalInformationState extends State<PersonalInformation> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       SizedBox(
-                        width: 129,
+                        width: 139,
                         child: kycnameFieldColumn(
                           "First Name",
                           "",
-                          firstNamecontroller,
+                          widget.firstNameController,
+                          textColor: colorCodes.black,
                         ),
                       ),
                       SizedBox(
-                        width: 129,
+                        width: 139,
                         child: kycnameFieldColumn(
                           "Last Name",
                           "",
-                          lastNamecontroller,
+                          widget.lastNameController,
+                          textColor: colorCodes.black,
                         ),
                       ),
                     ],
                   ),
                   SizedBox(height: 15),
-                  kycemailFieldColumn("", emailcontroller),
+                  kycemailFieldColumn(
+                    "",
+                    widget.emailController,
+                    textColor: colorCodes.black,
+                  ),
                   SizedBox(height: 15),
-                  kycphonenumberFieldColumn("", phonenumbercontroller),
+                  kycphonenumberFieldColumn(
+                    "",
+                    widget.phoneController,
+                    textColor: colorCodes.black,
+                  ),
                   SizedBox(height: 15),
                   dateofbirthTxtField(
                     "Date of Birth",
-                    dobController,
+                    widget.dobController,
                     "",
                     () async {
                       var date = DateTime.now();
@@ -132,7 +169,7 @@ class _PersonalInformationState extends State<PersonalInformation> {
                       );
                       if (dateofBirth != null) {
                         setState(() {
-                          dobController.text = DateFormat(
+                          widget.dobController.text = DateFormat(
                             'dd/MM/yyyy',
                           ).format(dateofBirth);
                         });
@@ -146,10 +183,11 @@ class _PersonalInformationState extends State<PersonalInformation> {
                     child: kycnameFieldColumn(
                       "Street Address",
                       "",
-                      streetAddresscontroller,
+                      widget.streetAddressController,
                       hintText: "123 Main Street, Lagos",
                       maxLines: 5,
                       // maxLength: 200,
+                      textColor: colorCodes.black,
                     ),
                   ),
                   SizedBox(height: 15),
@@ -161,8 +199,9 @@ class _PersonalInformationState extends State<PersonalInformation> {
                         child: kycnameFieldColumn(
                           "City",
                           "",
-                          firstNamecontroller,
+                          widget.cityController,
                           hintText: "Lagos",
+                          textColor: colorCodes.black,
                         ),
                       ),
                       SizedBox(
@@ -170,8 +209,9 @@ class _PersonalInformationState extends State<PersonalInformation> {
                         child: kycnameFieldColumn(
                           "State",
                           "",
-                          lastNamecontroller,
+                          widget.stateController,
                           hintText: "Lagos",
+                          textColor: colorCodes.black,
                         ),
                       ),
                     ],
@@ -191,14 +231,16 @@ class _PersonalInformationState extends State<PersonalInformation> {
                   ),
                   SizedBox(height: 8),
                   kycNationalityDropdown(
-                    nationality,
+                    widget.nationality,
                     "Select nationality",
                     nationalityList.map(dropMenuItem).toList(),
-                    (newValue) {
-                      setState(() {
-                        nationality = newValue;
-                      });
-                    },
+                    (value) {
+                      widget.onNationalityChanged(value as String?);
+                    }, // (newValue) {
+                    //   setState(() {
+                    //     widget.nationality = newValue;
+                    //   });
+                    // },
                     (isOpen) {
                       setState(() {
                         isiconExpanded = isOpen;

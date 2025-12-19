@@ -23,7 +23,7 @@ Widget dateofbirthTxtField(hintText, controller, errorText, showdate) {
             fontFamily: 'Poppins',
             fontSize: 12,
             fontWeight: FontWeight.w300,
-            color: colorCodes.graniteGrey,
+            color: colorCodes.black,
           ),
           controller: controller,
           autocorrect: true,

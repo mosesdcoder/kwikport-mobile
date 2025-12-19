@@ -78,7 +78,7 @@ Widget emailFieldColumn(errorText, controller, {title}) {
   );
 }
 
-Widget kycemailFieldColumn(errorText, controller, {title}) {
+Widget kycemailFieldColumn(errorText, controller, {title, textColor}) {
   return Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
@@ -97,7 +97,7 @@ Widget kycemailFieldColumn(errorText, controller, {title}) {
           fontFamily: 'Poppins',
           fontSize: 12,
           fontWeight: FontWeight.w300,
-          color: colorCodes.graniteGrey,
+          color: textColor ?? colorCodes.graniteGrey,
         ),
         controller: controller,
         autocorrect: true,

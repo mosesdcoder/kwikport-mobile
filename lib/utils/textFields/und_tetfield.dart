@@ -95,7 +95,7 @@ Widget fundWalletColumn(
         decoration: InputDecoration(
           hintText: hintText,
           hintStyle: TextStyle(
-            fontFamily: 'Poppins',
+            fontFamily: '',
             color: colorCodes.graniteGrey,
             fontSize: 12,
             fontWeight: FontWeight.w300,
