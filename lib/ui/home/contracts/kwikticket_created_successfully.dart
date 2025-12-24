@@ -231,7 +231,8 @@ class _KwikticketCreatedSuccessfullyState
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          "${widget.kwikticket.contract?.buyerSpecification?.buyerPricePerUnit}",
+                            "\₦${NumberFormat('#,##0.00').format(widget.kwikticket.contract?.buyerSpecification?.buyerPricePerUnit)}",
+                          // "${widget.kwikticket.contract?.buyerSpecification?.buyerPricePerUnit}",
                           style: kwikTextStlye(
                             14.0,
                             FontWeight.w600,
@@ -246,7 +247,8 @@ class _KwikticketCreatedSuccessfullyState
                               width: 16,
                             ),
                             Text(
-                              "${widget.kwikticket.grossEarning}%",
+                                "\₦${NumberFormat('#,##0.00').format(widget.kwikticket.grossEarning)}",
+                              // "${widget.kwikticket.grossEarning}%",
                               style: kwikTextStlye(
                                 14.0,
                                 FontWeight.w600,
@@ -329,12 +331,12 @@ class _KwikticketCreatedSuccessfullyState
                     contractDetailHeadingAndSubtitle(
                       "Contract Duration ",
                       "Deadline",
-                      "${widget.kwikticket?.contract?.contractDuration} Days",
+                      "${widget.kwikticket?.contract?.contractDuration} Months",
 
                       // "12 AUG 2025",
                       // "${widget.kwikticket.deadline.ho}"
                       // DateFormat('dd:h:mm').format(widget.kwikticket.deadline!),
-                      DateFormat('dd MMM HH:mm').format(widget.kwikticket.deadline!),
+                      DateFormat('dd MMM yyyy HH:mm').format(widget.kwikticket.deadline!),
                     ),
                   ],
                 ),

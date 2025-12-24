@@ -293,6 +293,7 @@ class _ContractScreenState extends State<ContractScreen>
             ),
           ],
         ),
+        
         bottomNavigationBar: Bottomnavigationbar(2),
       ),
     );

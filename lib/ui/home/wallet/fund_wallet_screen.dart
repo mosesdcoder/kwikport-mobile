@@ -244,7 +244,8 @@ class _FundWalletScreenState extends State<FundWalletScreen> {
                       fundWalletColumn(
                         "Enter Amount",
                         "",
-                        fundAccountfield,
+                      
+                         fundAccountfield,
                         "₦1000",
                         (value) {
                           // Remove commas

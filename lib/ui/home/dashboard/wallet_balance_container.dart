@@ -51,7 +51,7 @@ Widget dashboardBalanceContainer(
           style: kwikTextStlye(14.0, FontWeight.w300, colorCodes.whiteSmoke),
         ),
         Text(
-          "\$2,500",//$walletBalance",
+          "$walletBalance",
           style: TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.w600,

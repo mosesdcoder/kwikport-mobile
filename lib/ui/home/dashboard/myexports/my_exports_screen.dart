@@ -15,7 +15,9 @@ import 'package:provider/provider.dart';
 import 'package:swipe_refresh/swipe_refresh.dart';
 
 class MyExportsScreen extends StatefulWidget {
-  const MyExportsScreen({super.key});
+  final ExportSummaryModel? exports;
+
+  const MyExportsScreen({super.key,required this.exports});
 
   @override
   State<MyExportsScreen> createState() => _MyExportsScreenState();
@@ -210,6 +212,7 @@ class _MyExportsScreenState extends State<MyExportsScreen>
 
     if (filteredExports.isEmpty) {
       print("No completed exports found for filter: $statusFilter");
+      print("Filtered Exports: $filteredExports");
       return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -247,19 +250,20 @@ class _MyExportsScreenState extends State<MyExportsScreen>
                 .toList();
         return exporttDetailContainer(
           // "", //
-          export?.kwikTickets?.contract?.contractId ?? "Unknown",
+          export?.contractUniqueId ?? "Unknown",
           // "", //
           export?.commodityName ?? "Unknown Commodity",
           (export?.kwikTickets?.contract?.contractType == 1
               ? "International Buyer"
               : "Local Buyer"),
           // "", //
-          (export?.kwikTickets?.quantityToFulfill.toString() ?? "0"),
-          export?.kwikTickets?.contract?.destinationCountry ?? "N/A",
+          export?.selectedCapacity.toString() ?? "0",
+          export?.destinationCountry ?? "N/A",
           "", // (export?.totalAmountSpent?.toString() ?? ""),
-          "", // // "", //          ticket.kwikTicketAmount.toString()),
-          "", // (export?.buyerSpecification?.buyerName?.toString() ?? "N/A"),
-          "", // (export?.exportCommission?.toString() ?? "N/A"),
+          export.buyerName, // // "", //          ticket.kwikTicketAmount.toString()),
+            "\₦${NumberFormat('#,##0.00').format(export.contractTotalAmount)}",
+         // export.contractTotalAmount.toString() ?? "0", // (export?.buyerSpecification?.buyerName?.toString() ?? "N/A"),
+          export.estimatedCompletionDate, // (export?.exportCommission?.toString() ?? "N/A"),
           // "", // "", //   DateFormat('yyyy-MM-dd').format(ticket.createdAt ?? DateTime.now()),
           export.completedAt == null ? true : false,
           () {
