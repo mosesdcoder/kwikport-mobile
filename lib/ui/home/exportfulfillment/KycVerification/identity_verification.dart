@@ -20,7 +20,7 @@ class IdentityVerification extends StatefulWidget {
 }
 
 class _IdentityVerificationState extends State<IdentityVerification> {
-  File? _selectedImage; 
+  File? _selectedImage;
 
   @override
   Widget build(BuildContext context) {
@@ -163,7 +163,7 @@ class _IdentityVerificationState extends State<IdentityVerification> {
                   ),
                 ),
                 SizedBox(height: 15),
-                uploadImageContainer("Upload Selfie Photo", () {},_selectedImage),
+                uploadImageContainer("Upload Selfie Photo", () {}),
               ],
             ),
           ),

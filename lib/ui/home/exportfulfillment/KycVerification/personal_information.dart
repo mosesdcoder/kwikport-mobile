@@ -10,24 +10,48 @@ import 'package:kwik_port/utils/textFields/nameField_column.dart';
 import 'package:kwik_port/utils/textFields/phoneNumber_field.dart';
 
 class PersonalInformation extends StatefulWidget {
-  final nextFunc;
-  const PersonalInformation({super.key, required this.nextFunc});
+  final TextEditingController firstNameController;
+  final TextEditingController lastNameController;
+  final TextEditingController emailController;
+  final TextEditingController phoneController;
+  final TextEditingController dobController;
+  final TextEditingController streetAddressController;
+  final TextEditingController cityController;
+  final TextEditingController stateController;
+  final String? nationality;
+  final Function(String?) onNationalityChanged;
+
+  final VoidCallback nextFunc;
+  // final nextFunc;
+  const PersonalInformation({
+    super.key,
+    required this.firstNameController,
+    required this.lastNameController,
+    required this.emailController,
+    required this.phoneController,
+    required this.dobController,
+    required this.streetAddressController,
+    required this.cityController,
+    required this.stateController,
+    required this.nationality,
+    required this.onNationalityChanged,
+    required this.nextFunc,
+  });
 
   @override
   State<PersonalInformation> createState() => _PersonalInformationState();
 }
 
 class _PersonalInformationState extends State<PersonalInformation> {
-  TextEditingController emailcontroller = TextEditingController();
-  TextEditingController firstNamecontroller = TextEditingController();
-  TextEditingController lastNamecontroller = TextEditingController();
-  TextEditingController phonenumbercontroller = TextEditingController();
-  TextEditingController dobController = TextEditingController();
-  TextEditingController streetAddresscontroller = TextEditingController();
-  TextEditingController cityController = TextEditingController();
-  TextEditingController stateController = TextEditingController();
-
-  String? nationality;
+  // TextEditingController emailcontroller = TextEditingController();
+  // TextEditingController firstNamecontroller = TextEditingController();
+  // TextEditingController lastNamecontroller = TextEditingController();
+  // TextEditingController phonenumbercontroller = TextEditingController();
+  // TextEditingController dobController = TextEditingController();
+  // TextEditingController streetAddresscontroller = TextEditingController();
+  // TextEditingController cityController = TextEditingController();
+  // TextEditingController stateController = TextEditingController();
+  // String? nationality;
   bool isiconExpanded = false;
   bool isdropdownExpanded = false;
   bool _isFormValid = false;
@@ -43,48 +67,49 @@ class _PersonalInformationState extends State<PersonalInformation> {
   @override
   void initState() {
     super.initState();
-    firstNamecontroller.addListener(_validateForm);
-    lastNamecontroller.addListener(_validateForm);
-    emailcontroller.addListener(_validateForm);
-    phonenumbercontroller.addListener(_validateForm);
-    dobController.addListener(_validateForm);
-    streetAddresscontroller.addListener(_validateForm);
-    cityController.addListener(_validateForm);
-    stateController.addListener(_validateForm);
+    widget.firstNameController.addListener(_validateForm);
+    widget.lastNameController.addListener(_validateForm);
+    widget.emailController.addListener(_validateForm);
+    widget.phoneController.addListener(_validateForm);
+    widget.dobController.addListener(_validateForm);
+    widget.streetAddressController.addListener(_validateForm);
+    widget.cityController.addListener(_validateForm);
+    widget.stateController.addListener(_validateForm);
   }
 
   @override
   void dispose() {
-    firstNamecontroller.removeListener(_validateForm);
-    lastNamecontroller.removeListener(_validateForm);
-    emailcontroller.removeListener(_validateForm);
-    phonenumbercontroller.removeListener(_validateForm);
-    dobController.removeListener(_validateForm);
-    streetAddresscontroller.removeListener(_validateForm);
-    cityController.removeListener(_validateForm);
-    stateController.removeListener(_validateForm);
+    widget.firstNameController.removeListener(_validateForm);
+    widget.lastNameController.removeListener(_validateForm);
+    widget.emailController.removeListener(_validateForm);
+    widget.phoneController.removeListener(_validateForm);
+    widget.dobController.removeListener(_validateForm);
+    widget.streetAddressController.removeListener(_validateForm);
+    widget.cityController.removeListener(_validateForm);
+    widget.stateController.removeListener(_validateForm);
 
-    firstNamecontroller.dispose();
-    lastNamecontroller.dispose();
-    emailcontroller.dispose();
-    phonenumbercontroller.dispose();
-    dobController.dispose();
-    streetAddresscontroller.dispose();
-    cityController.dispose();
-    stateController.dispose();
+    widget.firstNameController.dispose();
+    widget.lastNameController.dispose();
+    widget.emailController.dispose();
+    widget.phoneController.dispose();
+    widget.dobController.dispose();
+    widget.streetAddressController.dispose();
+    widget.cityController.dispose();
+    widget.stateController.dispose();
     super.dispose();
   }
 
   void _validateForm() {
-    final bool isFormValid = firstNamecontroller.text.isNotEmpty &&
-        lastNamecontroller.text.isNotEmpty &&
-        emailcontroller.text.isNotEmpty &&
-        phonenumbercontroller.text.isNotEmpty &&
-        dobController.text.isNotEmpty &&
-        streetAddresscontroller.text.isNotEmpty &&
-        cityController.text.isNotEmpty &&
-        stateController.text.isNotEmpty &&
-        nationality != null;
+    final bool isFormValid =
+        widget.firstNameController.text.isNotEmpty &&
+        widget.lastNameController.text.isNotEmpty &&
+        widget.emailController.text.isNotEmpty &&
+        widget.phoneController.text.isNotEmpty &&
+        widget.dobController.text.isNotEmpty &&
+        widget.streetAddressController.text.isNotEmpty &&
+        widget.cityController.text.isNotEmpty &&
+        widget.stateController.text.isNotEmpty &&
+        widget.nationality != null;
     if (_isFormValid != isFormValid) {
       setState(() {
         _isFormValid = isFormValid;
@@ -148,177 +173,190 @@ class _PersonalInformationState extends State<PersonalInformation> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       SizedBox(
-                        width: 129,
+                        width: 139,
                         child: kycnameFieldColumn(
                           "First Name",
-                          "", hintText: "John",
-                          firstNamecontroller,
+                          "",
+                          widget.firstNameController,
+                          textColor: colorCodes.black,
                         ),
                       ),
                       SizedBox(
-                        width: 129,
+                        width: 139,
                         child: kycnameFieldColumn(
                           "Last Name",
                           "",
-                          hintText: "Doe",
-                          lastNamecontroller,
+                          widget.lastNameController,
+                          textColor: colorCodes.black,
                         ),
+                      ),
+                      kycemailFieldColumn(
+                        "",
+                        widget.emailController,
+                        textColor: colorCodes.black,
+                      ),
+                      SizedBox(height: 15),
+                      kycphonenumberFieldColumn(
+                        "",
+                        widget.phoneController,
+                        textColor: colorCodes.black,
+                      ),
+                      SizedBox(height: 15),
+                      dateofbirthTxtField(
+                        "Date of Birth",
+                        widget.dobController,
+                        "",
+                        () async {
+                          var date = DateTime.now();
+                          DateTime? dateofBirth = await showDatePicker(
+                            context: context,
+                            initialDate: DateTime.now().subtract(
+                              Duration(days: 18 * 365),
+                            ),
+                            firstDate: DateTime(1950),
+                            lastDate: DateTime.now().subtract(
+                              Duration(days: 18 * 365),
+                            ),
+                          );
+                          if (dateofBirth != null) {
+                            setState(() {
+                              widget.dobController.text = DateFormat(
+                                'dd/MM/yyyy',
+                              ).format(dateofBirth);
+                            });
+                          }
+                        },
+                      ),
+                      SizedBox(height: 15),
+                      SizedBox(
+                        height: 152,
+                        width: 351,
+                        child: kycnameFieldColumn(
+                          "Street Address",
+                          "",
+                          widget.streetAddressController,
+                          hintText: "123 Main Street, Lagos",
+                          maxLines: 5,
+                          // maxLength: 200,
+                          textColor: colorCodes.black,
+                        ),
+                      ),
+                      SizedBox(height: 15),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          SizedBox(
+                            width: 129,
+                            child: kycnameFieldColumn(
+                              "City",
+                              "",
+                              widget.cityController,
+                              hintText: "Lagos",
+                              textColor: colorCodes.black,
+                            ),
+                          ),
+                          SizedBox(
+                            width: 129,
+                            child: kycnameFieldColumn(
+                              "State",
+                              "",
+                              widget.stateController,
+                              hintText: "Lagos",
+                              textColor: colorCodes.black,
+                            ),
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: 15),
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          "Nationality",
+                          style: TextStyle(
+                            fontFamily: 'Poppins',
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                            color: colorCodes.black,
+                          ),
+                        ),
+                      ),
+                      SizedBox(height: 8),
+                      kycNationalityDropdown(
+                        widget.nationality,
+                        "Select nationality",
+                        nationalityList.map(dropMenuItem).toList(),
+                        (value) {
+                          widget.onNationalityChanged(value as String?);
+                        }, // (newValue) {
+                        //   setState(() {
+                        //     widget.nationality = newValue;
+                        //   });
+                        // },
+                        (isOpen) {
+                          setState(() {
+                            isiconExpanded = isOpen;
+                            isdropdownExpanded = isOpen;
+                          });
+                        },
                       ),
                     ],
                   ),
-                  SizedBox(height: 15),
-                  kycemailFieldColumn("", emailcontroller),
-                  SizedBox(height: 15),
-                  kycphonenumberFieldColumn("", phonenumbercontroller),
-                  SizedBox(height: 15),
-                  dateofbirthTxtField(
-                    "Date of Birth",
-                    dobController,
-                    "",
-                    () async {
-                      var date = DateTime.now();
-                      DateTime? dateofBirth = await showDatePicker(
-                        context: context,
-                        initialDate: DateTime.now().subtract(
-                          Duration(days: 18 * 365),
-                        ),
-                        firstDate: DateTime(1950),
-                        lastDate: DateTime.now().subtract(
-                          Duration(days: 18 * 365),
-                        ),
-                      );
-                      if (dateofBirth != null) {
-                        setState(() {
-                          dobController.text = DateFormat(
-                            'dd/MM/yyyy',
-                          ).format(dateofBirth);
-                        });
-                      }
-                    },
-                  ),
-                  SizedBox(height: 15),
-                  SizedBox(
-                    height: 152,
-                    width: 351,
-                    child: kycnameFieldColumn(
-                      "Street Address",
-                      "",
-                      streetAddresscontroller,
-                      hintText: "123 Main Street, Lagos",
-                      maxLines: 5,
-                      // maxLength: 200,
-                    ),
-                  ),
+
                   SizedBox(height: 15),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       SizedBox(
-                        width: 129,
-                        child: kycnameFieldColumn(
-                          "City",
-                          "",
-                          cityController,
-                          hintText: "Lagos",
+                        height: 38,
+                        width: 140,
+                        child: kwikbutton(
+                          "Cancel",
+                          () {
+                            Navigator.pop(context);
+                          },
+                          backgroundcolor: colorCodes.white,
+                          textColor: colorCodes.black,
+                          borderColor: colorCodes.antiFlashWhite,
+                          fontSize: 12.0,
                         ),
                       ),
                       SizedBox(
-                        width: 129,
-                        child: kycnameFieldColumn(
-                          "State",
-                          "",
-                          stateController,
-                          hintText: "Lagos",
+                        height: 38,
+                        width: 140,
+                        child: kwikbutton(
+                          "Next",
+                          _isFormValid ? widget.nextFunc : null,
+                          enabled: _isFormValid,
+                          fontSize: 12.0,
+                          buttonChild: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                "Next",
+                                style: kwikTextStlye(
+                                  14.0,
+                                  FontWeight.w500,
+                                  _isFormValid
+                                      ? colorCodes.whiteSmoke
+                                      : colorCodes.aluminium,
+                                ),
+                              ),
+                              SizedBox(width: 8),
+                              Image.asset(
+                                "assets/images/icons/arrow-right.png",
+                                height: 18,
+                                width: 18,
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ],
                   ),
-                  SizedBox(height: 15),
-                  Align(
-                    alignment: Alignment.centerLeft,
-                    child: Text(
-                      "Nationality",
-                      style: TextStyle(
-                        fontFamily: 'Poppins',
-                        fontSize: 12,
-                        fontWeight: FontWeight.w500,
-                        color: colorCodes.black,
-                      ),
-                    ),
-                  ),
-                  SizedBox(height: 8),
-                  kycNationalityDropdown(
-                    nationality,
-                    "Select nationality",
-                    nationalityList.map(dropMenuItem).toList(),
-                    (newValue) {
-                      setState(() {
-                        nationality = newValue;
-                      });
-                      _validateForm();
-                    },
-                    (isOpen) {
-                      setState(() {
-                        isiconExpanded = isOpen;
-                        isdropdownExpanded = isOpen;
-                      });
-                    },
-                  ),
+                  SizedBox(height: 30),
                 ],
               ),
             ),
-            SizedBox(height: 15),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                SizedBox(
-                  height: 38,
-                  width: 140,
-                  child: kwikbutton(
-                    "Cancel",
-                    () {
-                      Navigator.pop(context);
-                    },
-                    backgroundcolor: colorCodes.white,
-                    textColor: colorCodes.black,
-                    borderColor: colorCodes.antiFlashWhite,
-                    fontSize: 12.0,
-                  ),
-                ),
-                SizedBox(
-                  height: 38,
-                  width: 140,
-                  child: kwikbutton(
-                    "Next",
-                    _isFormValid ? widget.nextFunc : null,
-                    enabled: _isFormValid,
-                    fontSize: 12.0,
-                    buttonChild: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          "Next",
-                          style: kwikTextStlye(
-                            14.0,
-                            FontWeight.w500,
-                            _isFormValid
-                                ? colorCodes.whiteSmoke
-                                : colorCodes.aluminium,
-                          ),
-                        ),
-                        SizedBox(width: 8),
-                        Image.asset(
-                          "assets/images/icons/arrow-right.png",
-                          height: 18,
-                          width: 18,
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            SizedBox(height: 30),
           ],
         ),
       ),

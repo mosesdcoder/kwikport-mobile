@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:kwik_port/api/model/dashboard_model.dart';
@@ -22,16 +24,45 @@ class KycVerificationScreen extends StatefulWidget {
 }
 
 class _KycVerificationScreenState extends State<KycVerificationScreen> {
-  double linearValue = 0.0;
-  int currentStep = 0;
+  double linearValue = 0.25;
+  // Shared controllers and state for Personal Information
+  final TextEditingController firstNameController = TextEditingController();
+  final TextEditingController lastNameController = TextEditingController();
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController phoneController = TextEditingController();
+  final TextEditingController dobController = TextEditingController();
+  final TextEditingController streetAddressController = TextEditingController();
+  final TextEditingController cityController = TextEditingController();
+  final TextEditingController stateController = TextEditingController();
+  String? nationality;
+  // Document verification state
+  String? certificationType;
+  TextEditingController iDNumberController = TextEditingController();
+  File? idDocumentFile;
+  File? proofOfAddressFile;
   @override
   void initState() {
     super.initState();
   }
 
   @override
+  void dispose() {
+    // Dispose controllers to prevent memory leaks
+    firstNameController.dispose();
+    lastNameController.dispose();
+    emailController.dispose();
+    phoneController.dispose();
+    dobController.dispose();
+    streetAddressController.dispose();
+    cityController.dispose();
+    stateController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: true,
       extendBody: true,
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(85.0),
@@ -63,7 +94,7 @@ class _KycVerificationScreenState extends State<KycVerificationScreen> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    "Step 1: Personal Information",
+                    getStepTitle(),
                     style: kwikTextStlye(
                       12.0,
                       FontWeight.w300,
@@ -71,7 +102,7 @@ class _KycVerificationScreenState extends State<KycVerificationScreen> {
                     ),
                   ),
                   Text(
-                    "25% Complete",
+                    "${(linearValue * 100).toInt()}% Complete",
                     style: kwikTextStlye(
                       12.0,
                       FontWeight.w300,
@@ -91,75 +122,153 @@ class _KycVerificationScreenState extends State<KycVerificationScreen> {
   }
 
   Widget verifcationDialog() {
-  switch (currentStep) {
-    case 0:
-      return PersonalInformation(
-        nextFunc: () {
-          setState(() {
-            currentStep = 1;
-            linearValue = 0.25;
-          });
-        },
-      );
+    switch (linearValue) {
+      case 0.25:
+        return PersonalInformation(
+          firstNameController: firstNameController,
+          lastNameController: lastNameController,
+          emailController: emailController,
+          phoneController: phoneController,
+          dobController: dobController,
+          streetAddressController: streetAddressController,
+          cityController: cityController,
+          stateController: stateController,
+          nationality: nationality,
+          onNationalityChanged: (String? value) {
+            setState(() {
+              nationality = value;
+            });
+          },
 
-    case 1:
-      return DocumentVerification(
-        nextFunc: () {
-          setState(() {
-            currentStep = 2;
-            linearValue = 0.50;
-          });
-        },
-        previousFunc: () {
-          setState(() {
-            currentStep = 0;
-            linearValue = 0.0;
-          });
-        },
-      );
+          nextFunc: () {
+            setState(() {
+              linearValue += 0.25;
+            });
+          },
+          // nextFunc: () {
+          //   setState(() {
+          //     linearValue += 0.25;
+          //   });
+          // },
+        );
+      // Code to execute if expression matches value1
 
-    case 2:
-      return IdentityVerification(
-        nextFunc: () {
-          setState(() {
-            currentStep = 3;
-            linearValue = 0.75;
-          });
-        },
-        previousFunc: () {
-          setState(() {
-            currentStep = 1;
-            linearValue = 0.25;
-          });
-        },
-      );
+      case 0.50:
+        return DocumentVerification(
+          certificationType: certificationType,
+          iDNumberController: iDNumberController,
+          idDocumentFile: idDocumentFile,
+          proofOfAddressFile: proofOfAddressFile,
+          nextFunc: () {
+            setState(() {
+              linearValue += 0.25;
+            });
+          },
+          previousFunc: () {
+            setState(() {
+              linearValue -= 0.25;
+            });
+          },
+          onCertificationTypeChanged: (String? value) {
+            setState(() {
+              certificationType = value;
+            });
+          },
+          onIdDocumentChanged: (file) {
+            setState(() {
+              idDocumentFile = file;
+            });
+          },
+          onProofOfAddressChanged: (file) {
+            setState(() {
+              proofOfAddressFile = file;
+            });
+          },
+          // nextFunc: () {
+          //   setState(() {
+          //     linearValue += 0.25;
+          //   });
+          // },
+          // previousFunc: () {
+          //   setState(() {
+          //     linearValue -= 0.25;
+          //   });
+          // },
+        );
+      // Code to execute if expression matches value2
+      // ... additional cases
+      case 0.75:
+        return IdentityVerification(
+          nextFunc: () {
+            setState(() {
+              linearValue += 0.25;
+            });
+          },
+          previousFunc: () {
+            setState(() {
+              linearValue -= 0.25;
+            });
+          },
+        );
+      case 1.0:
+        return BussinessInformation(
+          submitFunc: () {
+            showDialog(
+              barrierDismissible: false,
+              context: context,
 
-    case 3:
-      return BussinessInformation(
-        submitFunc: () {
-          setState(() {
-            currentStep = 4;
-            linearValue = 1.0;
-          });
+              builder: (BuildContext context) {
+                return KycSuccessfulDialog(kwikticket: widget.kwikticket);
+              },
+            );
+          },
+          previousFunc: () {
+            setState(() {
+              linearValue -= 0.25;
+            });
+          },
+        );
+      default:
+        return PersonalInformation(
+          firstNameController: firstNameController,
+          lastNameController: lastNameController,
+          emailController: emailController,
+          phoneController: phoneController,
+          dobController: dobController,
+          streetAddressController: streetAddressController,
+          cityController: cityController,
+          stateController: stateController,
+          nationality: nationality,
+          onNationalityChanged: (value) {
+            setState(() {
+              nationality = value;
+            });
+          },
+          nextFunc: () {
+            setState(() {
+              linearValue += 0.25;
+            });
+          },
+          // nextFunc: () {
+          //   setState(() {
+          //     linearValue += 0.25;
+          //   });
+          // },
+        );
+      // Code to execute if none of the cases match
+    }
+  }
 
-          showDialog(
-            barrierDismissible: false,
-            context: context,
-            builder: (_) => KycSuccessfulDialog(
-              kwikticket: widget.kwikticket,
-            ),
-          );
-        },
-        previousFunc: () {
-          setState(() {
-            currentStep = 2;
-            linearValue = 0.50;
-          });
-        },
-      );
-
-    default:
-      return SizedBox();
+  String getStepTitle() {
+    if (linearValue <= 0.25) {
+      return "Step 1: Personal Information";
+    } else if (linearValue <= 0.50) {
+      return "Step 2: Document Verification";
+    } else if (linearValue <= 0.75) {
+      return "Step 3: Identity Verification";
+    } else {
+      return "Step 4: Business Information";
+    }
   }
 }
 
@@ -231,5 +340,5 @@ class _KycVerificationScreenState extends State<KycVerificationScreen> {
     //     );
     //   // Code to execute if none of the cases match
     // }
-  }
+  
 

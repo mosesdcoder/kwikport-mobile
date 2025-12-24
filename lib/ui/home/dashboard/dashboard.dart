@@ -263,20 +263,26 @@ class _DashboardState extends State<Dashboard> {
 
   Future<void> _checkOngoingJourney() async {
     final prefs = await SharedPreferences.getInstance();
+
     final inProgress = prefs.getBool('journeyInProgress') ?? false;
     final contractId = prefs.getString('activeExportContractId');
-    final ticketJson = prefs.getString('activeKwikTicket');
 
+    // Load saved ticket
+    final ticketJson = prefs.getString('activeKwikTicket');
     KwikTicketModel? loadedTicket;
 
     if (ticketJson != null && ticketJson.isNotEmpty) {
       loadedTicket = KwikTicketModel.fromJson(jsonDecode(ticketJson));
     }
 
+    // RULE: show button ONLY if both values exist
+    final shouldShowJourney =
+        inProgress == true && contractId != null && loadedTicket != null;
+
     setState(() {
-      showContinueJourney = inProgress;
+      showContinueJourney = shouldShowJourney;
       exportContractId = contractId;
-      kwikticket = loadedTicket; // ✅ FIXED
+      kwikticket = loadedTicket;
     });
   }
 
@@ -284,12 +290,18 @@ class _DashboardState extends State<Dashboard> {
   //   final prefs = await SharedPreferences.getInstance();
   //   final inProgress = prefs.getBool('journeyInProgress') ?? false;
   //   final contractId = prefs.getString('activeExportContractId');
-  //   final ticket = prefs.getString('activeKwikTicket');
+  //   final ticketJson = prefs.getString('activeKwikTicket');
+
+  //   KwikTicketModel? loadedTicket;
+
+  //   if (ticketJson != null && ticketJson.isNotEmpty) {
+  //     loadedTicket = KwikTicketModel.fromJson(jsonDecode(ticketJson));
+  //   }
 
   //   setState(() {
   //     showContinueJourney = inProgress;
   //     exportContractId = contractId;
-  //     kwikticket = ticket;
+  //     kwikticket = loadedTicket; // ✅ FIXED
   //   });
   // }
 
@@ -421,8 +433,10 @@ class _DashboardState extends State<Dashboard> {
                                 procurementContainer(),
                               if (widget.kwikticket != null && showProcurement)
                                 if (showProcurement) SizedBox(height: 25),
-                              if (showContinueJourney == true &&
-                                  exportContractId != null)
+                              if (showContinueJourney == true
+                              // &&
+                              //     exportContractId != null
+                              )
                                 Container(
                                   height: 70,
                                   width: double.infinity,

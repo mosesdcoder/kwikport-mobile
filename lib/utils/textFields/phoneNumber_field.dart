@@ -132,6 +132,7 @@ Widget kycphonenumberFieldColumn(
   title,
   hintText,
   suffixIcon,
+  textColor,
 }) {
   return Column(
     crossAxisAlignment: CrossAxisAlignment.start,
@@ -151,7 +152,7 @@ Widget kycphonenumberFieldColumn(
           fontFamily: 'Poppins',
           fontSize: 12,
           fontWeight: FontWeight.w300,
-          color: colorCodes.graniteGrey,
+          color: textColor ?? colorCodes.graniteGrey,
         ),
         controller: controller,
         autocorrect: true,
