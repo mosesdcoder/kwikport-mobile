@@ -765,51 +765,7 @@ class _ContractDetailsDeliveredScreenState
                 builder: (BuildContext context) {
                   return GenerateContractTicketDialog(
                     contract: widget.contract,
-                    // generateFunc: () async {
-                    //   final newTicket = await createTicketApi
-                    //       .createKwikTicket(
-                    //         exportContractId: widget.contract.id,
-                    //         exporterId: userDataVar?.exporter?.id ?? "",
-                    //         peggedDollarValue:
-                    //             widget.contract.projectedIncome ?? 0.0,
-                    //         badge: "Gold",
-                    //         deadline: DateTime.now().add(
-                    //           Duration(
-                    //             days: widget.contract.contractDuration ?? 0,
-                    //           ),
-                    //         ),
-                    //         kwikTicketAmount:
-                    //             widget.contract.totalAmount ?? 0.0,
-                    //         projectedIncomeInDollars:
-                    //             widget.contract.projectedIncome ?? 0.0,
-                    //         // exporterId: widget.contract.exporterId ?? "N/A",
-                    //       )
-                    //       .then((newTicket) {
-                    //         if (createTicketApi.isSuccessful == true &&
-                    //             newTicket != null) {
-                    //           Navigator.push(
-                    //             context,
-                    //             MaterialPageRoute(
-                    //               builder:
-                    //                   (_) => KwikticketCreatedSuccessfully(
-
-                    //                     kwikticket: newTicket,
-                    //                   ),
-                    //             ),
-                    //           );
-                    //         } else {
-                    //           showToastContainer(
-                    //             "Error",
-                    //             createTicketApi.message,
-                    //             colorCodes.mistyRose,
-                    //             colorCodes.portlandOrange,
-                    //             context,
-                    //           );
-                    //         }
-                    //       });
-
-                    //   currentIndex = 3;
-                    // },
+                  
                   );
                 },
               );

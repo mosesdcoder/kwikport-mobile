@@ -19,11 +19,13 @@ import 'package:kwik_port/api/controller/contractsApi/publishedcontractsApi.dart
 import 'package:kwik_port/api/controller/contractsApi/request_contract_api.dart';
 import 'package:kwik_port/api/controller/fund_wallet_api.dart';
 import 'package:kwik_port/api/controller/home/dashboard_api.dart';
+import 'package:kwik_port/api/controller/home/notification_api.dart';
 import 'package:kwik_port/api/controller/kwikTickets/create_kwikticket_api.dart';
 import 'package:kwik_port/api/controller/kwikTickets/fund_ticket_api.dart';
 import 'package:kwik_port/api/controller/kwikTickets/get_kwik_ticket_api.dart';
 import 'package:kwik_port/api/controller/kwikTickets/update_kwikticket_status_api.dart';
 import 'package:kwik_port/api/controller/kwikTickets/verify_payment.dart';
+import 'package:kwik_port/api/controller/kyc/submit_kyc_api.dart';
 import 'package:kwik_port/api/controller/verify_fund_payment.dart';
 import 'package:kwik_port/api/model/userModel.dart';
 import 'package:kwik_port/colors/color.dart';
@@ -65,6 +67,8 @@ void main() async {
           ChangeNotifierProvider(create: (_) => FundWalletApi()),
           ChangeNotifierProvider(create: (_) => VerifyFundPayment()),
           ChangeNotifierProvider(create: (_) => RequestContractApi()),
+          ChangeNotifierProvider(create: (_) => SubmitKycApi()),
+          ChangeNotifierProvider(create: (_) => NotificationApi()),
         ],
         child: const MyApp(),
       ),

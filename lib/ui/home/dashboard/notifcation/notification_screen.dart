@@ -1,8 +1,13 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:kwik_port/api/controller/home/notification_api.dart';
 import 'package:kwik_port/colors/color.dart';
 import 'package:kwik_port/ui/home/dashboard/notifcation/notification_container.dart';
 import 'package:kwik_port/utils/button/bottom_navigatior_bar.dart';
 import 'package:kwik_port/utils/text/textstyle.dart';
+import 'package:provider/provider.dart';
+import 'package:swipe_refresh/swipe_refresh.dart';
 
 class NotificationScreen extends StatefulWidget {
   const NotificationScreen({super.key});
@@ -47,15 +52,51 @@ class _NotificationScreenState extends State<NotificationScreen>
     "Estimated arrival:",
   ];
   List textfour = ["", "Dec 28, 2025.", "", "", "", "", "Dec 28, 2025."];
+  final ScrollController _scrollController = ScrollController();
+  final _controller = StreamController<SwipeRefreshState>.broadcast();
+  Stream<SwipeRefreshState> get _stream => _controller.stream;
+
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 4, vsync: this);
+    _scrollController.addListener(_onScroll);
+  }
+
+  void _onScroll() {
+    final api = Provider.of<NotificationApi>(context, listen: false);
+    if (_scrollController.position.pixels >=
+            _scrollController.position.maxScrollExtent - 200 &&
+        api.hasMore &&
+        !api.isLoading) {
+      api.fetchNotifications();
+    }
+  }
+
+  Future<void> _refresh() async {
+    final api = Provider.of<NotificationApi>(context, listen: false);
+
+    await api.fetchNotifications();
+    _controller.sink.add(SwipeRefreshState.hidden);
+    // _controller.sink.add(SwipeRefreshState.hidden);
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    _controller.close();
+    super.dispose();
   }
 
   bool newNotification = false;
   @override
   Widget build(BuildContext context) {
+    final notificationApi = Provider.of<NotificationApi>(context);
+
+    final exportCount = notificationApi.countByType("Export").toString();
+    final transactionCount =
+        notificationApi.countByType("Transaction").toString();
+    final systemCount = notificationApi.countByType("System").toString();
     return Scaffold(
       extendBody: true,
       appBar: PreferredSize(
@@ -168,134 +209,143 @@ class _NotificationScreenState extends State<NotificationScreen>
         padding: EdgeInsets.only(left: 18, right: 18, top: 10, bottom: 70),
         children: [
           SizedBox(
-            height: MediaQuery.of(context).size.height - 170,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
+            height: MediaQuery.of(context).size.height,
+            child: SwipeRefresh.adaptive(
+              stateStream: _stream,
+              onRefresh: _refresh,
               children: [
                 SizedBox(
-                  height: 90 * itemCount.toDouble(),
-                  child: TabBarView(
-                    controller: _tabController,
+                  height: MediaQuery.of(context).size.height - 170,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      Container(
+                      SizedBox(
                         height: 90 * itemCount.toDouble(),
-                        width: 390,
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 10,
-                          vertical: 20,
-                        ),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(16),
-                          color: colorCodes.white,
-                        ),
-                        child: ListView.separated(
-                          padding: EdgeInsets.only(bottom: 40),
-                          physics: NeverScrollableScrollPhysics(),
-                          separatorBuilder:
-                              (context, index) => SizedBox(height: 15),
-                          itemCount: itemCount,
-                          itemBuilder: (ctx, index) {
-                            return notificationContainer(
-                              notifstatus[index],
-                              "Export Complete 🎉",
-                              "1min",
-                              textone[index],
-                              texttwo[index],
-                              textthree[index],
-                              textfour[index],
-                            );
-                          },
-                        ),
-                      ),
-                      Container(
-                        height: 90 * itemCount.toDouble(),
-                        width: 390,
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 10,
-                          vertical: 20,
-                        ),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(16),
-                          color: colorCodes.white,
-                        ),
-                        child: ListView.separated(
-                          padding: EdgeInsets.only(bottom: 40),
-                          physics: NeverScrollableScrollPhysics(),
-                          separatorBuilder:
-                              (context, index) => SizedBox(height: 15),
-                          itemCount: itemCount,
-                          itemBuilder: (ctx, index) {
-                            return notificationContainer(
-                              notifstatus[index],
-                              "Export Complete 🎉",
-                              "1min",
-                              textone[index],
-                              texttwo[index],
-                              textthree[index],
-                              textfour[index],
-                            );
-                          },
-                        ),
-                      ),
-                      Container(
-                        height: 90 * itemCount.toDouble(),
-                        width: 390,
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 10,
-                          vertical: 20,
-                        ),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(16),
-                          color: colorCodes.white,
-                        ),
-                        child: ListView.separated(
-                          padding: EdgeInsets.only(bottom: 40),
-                          physics: NeverScrollableScrollPhysics(),
-                          separatorBuilder:
-                              (context, index) => SizedBox(height: 15),
-                          itemCount: itemCount,
-                          itemBuilder: (ctx, index) {
-                            return notificationContainer(
-                              notifstatus[index],
-                              "Export Complete 🎉",
-                              "1min",
-                              textone[index],
-                              texttwo[index],
-                              textthree[index],
-                              textfour[index],
-                            );
-                          },
-                        ),
-                      ),
-                      Container(
-                        height: 90 * itemCount.toDouble(),
-                        width: 390,
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 0,
-                          vertical: 20,
-                        ),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(16),
-                          color: colorCodes.white,
-                        ),
-                        child: ListView.separated(
-                          padding: EdgeInsets.only(bottom: 40),
-                          physics: NeverScrollableScrollPhysics(),
-                          separatorBuilder:
-                              (context, index) => SizedBox(height: 15),
-                          itemCount: itemCount,
-                          itemBuilder: (ctx, index) {
-                            return notificationContainer(
-                              notifstatus[index],
-                              "Export Complete 🎉",
-                              "1min",
-                              textone[index],
-                              texttwo[index],
-                              textthree[index],
-                              textfour[index],
-                            );
-                          },
+                        child: TabBarView(
+                          controller: _tabController,
+                          children: [
+                            Container(
+                              height: 90 * itemCount.toDouble(),
+                              width: 390,
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 10,
+                                vertical: 20,
+                              ),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(16),
+                                color: colorCodes.white,
+                              ),
+                              child: ListView.separated(
+                                padding: EdgeInsets.only(bottom: 40),
+                                physics: NeverScrollableScrollPhysics(),
+                                separatorBuilder:
+                                    (context, index) => SizedBox(height: 15),
+                                itemCount: itemCount,
+                                itemBuilder: (ctx, index) {
+                                  return notificationContainer(
+                                    notifstatus[index],
+                                    "Export Complete 🎉",
+                                    "1min",
+                                    textone[index],
+                                    texttwo[index],
+                                    textthree[index],
+                                    textfour[index],
+                                  );
+                                },
+                              ),
+                            ),
+                            Container(
+                              height: 90 * itemCount.toDouble(),
+                              width: 390,
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 10,
+                                vertical: 20,
+                              ),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(16),
+                                color: colorCodes.white,
+                              ),
+                              child: ListView.separated(
+                                padding: EdgeInsets.only(bottom: 40),
+                                physics: NeverScrollableScrollPhysics(),
+                                separatorBuilder:
+                                    (context, index) => SizedBox(height: 15),
+                                itemCount: itemCount,
+                                itemBuilder: (ctx, index) {
+                                  return notificationContainer(
+                                    notifstatus[index],
+                                    "Export Complete 🎉",
+                                    "1min",
+                                    textone[index],
+                                    texttwo[index],
+                                    textthree[index],
+                                    textfour[index],
+                                  );
+                                },
+                              ),
+                            ),
+                            Container(
+                              height: 90 * itemCount.toDouble(),
+                              width: 390,
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 10,
+                                vertical: 20,
+                              ),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(16),
+                                color: colorCodes.white,
+                              ),
+                              child: ListView.separated(
+                                padding: EdgeInsets.only(bottom: 40),
+                                physics: NeverScrollableScrollPhysics(),
+                                separatorBuilder:
+                                    (context, index) => SizedBox(height: 15),
+                                itemCount: itemCount,
+                                itemBuilder: (ctx, index) {
+                                  return notificationContainer(
+                                    notifstatus[index],
+                                    "Export Complete 🎉",
+                                    "1min",
+                                    textone[index],
+                                    texttwo[index],
+                                    textthree[index],
+                                    textfour[index],
+                                  );
+                                },
+                              ),
+                            ),
+                            Container(
+                              height: 90 * itemCount.toDouble(),
+                              width: 390,
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 0,
+                                vertical: 20,
+                              ),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(16),
+                                color: colorCodes.white,
+                              ),
+                              child: ListView.separated(
+                                padding: EdgeInsets.only(bottom: 40),
+                                physics: NeverScrollableScrollPhysics(),
+                                separatorBuilder:
+                                    (context, index) => SizedBox(height: 15),
+                                itemCount: itemCount,
+                                itemBuilder: (ctx, index) {
+                                  return notificationContainer(
+                                    notifstatus[index],
+                                    "Export Complete 🎉",
+                                    "1min",
+                                    textone[index],
+                                    texttwo[index],
+                                    textthree[index],
+                                    textfour[index],
+                                  );
+                                },
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ],

@@ -43,15 +43,6 @@ class PersonalInformation extends StatefulWidget {
 }
 
 class _PersonalInformationState extends State<PersonalInformation> {
-  // TextEditingController emailcontroller = TextEditingController();
-  // TextEditingController firstNamecontroller = TextEditingController();
-  // TextEditingController lastNamecontroller = TextEditingController();
-  // TextEditingController phonenumbercontroller = TextEditingController();
-  // TextEditingController dobController = TextEditingController();
-  // TextEditingController streetAddresscontroller = TextEditingController();
-  // TextEditingController cityController = TextEditingController();
-  // TextEditingController stateController = TextEditingController();
-  // String? nationality;
   bool isiconExpanded = false;
   bool isdropdownExpanded = false;
   bool _isFormValid = false;
@@ -87,15 +78,17 @@ class _PersonalInformationState extends State<PersonalInformation> {
     widget.streetAddressController.removeListener(_validateForm);
     widget.cityController.removeListener(_validateForm);
     widget.stateController.removeListener(_validateForm);
-
-    widget.firstNameController.dispose();
-    widget.lastNameController.dispose();
-    widget.emailController.dispose();
-    widget.phoneController.dispose();
-    widget.dobController.dispose();
-    widget.streetAddressController.dispose();
-    widget.cityController.dispose();
-    widget.stateController.dispose();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _validateForm();
+    });
+    // widget.firstNameController.dispose();
+    // widget.lastNameController.dispose();
+    // widget.emailController.dispose();
+    // widget.phoneController.dispose();
+    // widget.dobController.dispose();
+    // widget.streetAddressController.dispose();
+    // widget.cityController.dispose();
+    // widget.stateController.dispose();
     super.dispose();
   }
 
@@ -117,6 +110,247 @@ class _PersonalInformationState extends State<PersonalInformation> {
     }
   }
 
+  // @override
+  // Widget build(BuildContext context) {
+  //   return Padding(
+  //     padding: const EdgeInsets.only(bottom: 30),
+  //     child: Column(
+  //       crossAxisAlignment: CrossAxisAlignment.stretch,
+  //       children: [
+  //         Container(
+  //           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+  //           decoration: BoxDecoration(
+  //             color: colorCodes.white,
+  //             borderRadius: BorderRadius.circular(16),
+  //           ),
+  //           child: Column(
+  //             children: [
+  //               Row(
+  //                 crossAxisAlignment: CrossAxisAlignment.start,
+  //                 children: [
+  //                   Image.asset(
+  //                     "assets/images/icons/dashboard/Frame 1000006029 (3).png",
+  //                     height: 25,
+  //                     width: 25,
+  //                   ),
+  //                   SizedBox(width: 12),
+  //                   Column(
+  //                     crossAxisAlignment: CrossAxisAlignment.start,
+  //                     children: [
+  //                       Text(
+  //                         "Personal Information",
+  //                         style: kwikTextStlye(
+  //                           18.0,
+  //                           FontWeight.w600,
+  //                           colorCodes.black,
+  //                         ),
+  //                       ),
+  //                       Text(
+  //                         "Provide your basic personal details",
+  //                         style: kwikTextStlye(
+  //                           12.0,
+  //                           FontWeight.w300,
+  //                           colorCodes.graniteGrey,
+  //                         ),
+  //                       ),
+  //                     ],
+  //                   ),
+  //                 ],
+  //               ),
+  //               SizedBox(height: 25),
+  //               Row(
+  //                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  //                 children: [
+  //                   SizedBox(
+  //                     width: 139,
+  //                     child: kycnameFieldColumn(
+  //                       "First Name",
+  //                       "",
+  //                       widget.firstNameController,
+  //                       textColor: colorCodes.black,
+  //                     ),
+  //                   ),
+  //                   SizedBox(
+  //                     width: 139,
+  //                     child: kycnameFieldColumn(
+  //                       "Last Name",
+  //                       "",
+  //                       widget.lastNameController,
+  //                       textColor: colorCodes.black,
+  //                     ),
+  //                   ),
+  //                   kycemailFieldColumn(
+  //                     "",
+  //                     widget.emailController,
+  //                     textColor: colorCodes.black,
+  //                   ),
+  //                   SizedBox(height: 15),
+  //                   kycphonenumberFieldColumn(
+  //                     "",
+  //                     widget.phoneController,
+  //                     textColor: colorCodes.black,
+  //                   ),
+  //                   SizedBox(height: 15),
+  //                   dateofbirthTxtField(
+  //                     "Date of Birth",
+  //                     widget.dobController,
+  //                     "",
+  //                     () async {
+  //                       var date = DateTime.now();
+  //                       DateTime? dateofBirth = await showDatePicker(
+  //                         context: context,
+  //                         initialDate: DateTime.now().subtract(
+  //                           Duration(days: 18 * 365),
+  //                         ),
+  //                         firstDate: DateTime(1950),
+  //                         lastDate: DateTime.now().subtract(
+  //                           Duration(days: 18 * 365),
+  //                         ),
+  //                       );
+  //                       if (dateofBirth != null) {
+  //                         setState(() {
+  //                           widget.dobController.text = DateFormat(
+  //                             'dd/MM/yyyy',
+  //                           ).format(dateofBirth);
+  //                         });
+  //                       }
+  //                     },
+  //                   ),
+  //                   SizedBox(height: 15),
+  //                   SizedBox(
+  //                     height: 152,
+  //                     width: 351,
+  //                     child: kycnameFieldColumn(
+  //                       "Street Address",
+  //                       "",
+  //                       widget.streetAddressController,
+  //                       hintText: "123 Main Street, Lagos",
+  //                       maxLines: 5,
+  //                       // maxLength: 200,
+  //                       textColor: colorCodes.black,
+  //                     ),
+  //                   ),
+  //                   SizedBox(height: 15),
+  //                   Row(
+  //                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  //                     children: [
+  //                       SizedBox(
+  //                         width: 129,
+  //                         child: kycnameFieldColumn(
+  //                           "City",
+  //                           "",
+  //                           widget.cityController,
+  //                           hintText: "Lagos",
+  //                           textColor: colorCodes.black,
+  //                         ),
+  //                       ),
+  //                       SizedBox(
+  //                         width: 129,
+  //                         child: kycnameFieldColumn(
+  //                           "State",
+  //                           "",
+  //                           widget.stateController,
+  //                           hintText: "Lagos",
+  //                           textColor: colorCodes.black,
+  //                         ),
+  //                       ),
+  //                     ],
+  //                   ),
+  //                   SizedBox(height: 15),
+  //                   Align(
+  //                     alignment: Alignment.centerLeft,
+  //                     child: Text(
+  //                       "Nationality",
+  //                       style: TextStyle(
+  //                         fontFamily: 'Poppins',
+  //                         fontSize: 12,
+  //                         fontWeight: FontWeight.w500,
+  //                         color: colorCodes.black,
+  //                       ),
+  //                     ),
+  //                   ),
+  //                   SizedBox(height: 8),
+  //                   kycNationalityDropdown(
+  //                     widget.nationality,
+  //                     "Select nationality",
+  //                     nationalityList.map(dropMenuItem).toList(),
+  //                     (value) {
+  //                       widget.onNationalityChanged(value as String?);
+  //                       _validateForm();
+  //                     }, // (newValue) {
+  //                     //   setState(() {
+  //                     //     widget.nationality = newValue;
+  //                     //   });
+  //                     // },
+  //                     (isOpen) {
+  //                       setState(() {
+  //                         isiconExpanded = isOpen;
+  //                         isdropdownExpanded = isOpen;
+  //                       });
+  //                     },
+  //                   ),
+  //                 ],
+  //               ),
+
+  //               SizedBox(height: 15),
+  //               Row(
+  //                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  //                 children: [
+  //                   SizedBox(
+  //                     height: 38,
+  //                     width: 140,
+  //                     child: kwikbutton(
+  //                       "Cancel",
+  //                       () {
+  //                         Navigator.pop(context);
+  //                       },
+  //                       backgroundcolor: colorCodes.white,
+  //                       textColor: colorCodes.black,
+  //                       borderColor: colorCodes.antiFlashWhite,
+  //                       fontSize: 12.0,
+  //                     ),
+  //                   ),
+  //                   SizedBox(
+  //                     height: 38,
+  //                     width: 140,
+  //                     child: kwikbutton(
+  //                       "Next",
+  //                       _isFormValid ? widget.nextFunc : null,
+  //                       enabled: _isFormValid,
+  //                       fontSize: 12.0,
+  //                       buttonChild: Row(
+  //                         mainAxisAlignment: MainAxisAlignment.center,
+  //                         children: [
+  //                           Text(
+  //                             "Next",
+  //                             style: kwikTextStlye(
+  //                               14.0,
+  //                               FontWeight.w500,
+  //                               _isFormValid
+  //                                   ? colorCodes.whiteSmoke
+  //                                   : colorCodes.aluminium,
+  //                             ),
+  //                           ),
+  //                           SizedBox(width: 8),
+  //                           Image.asset(
+  //                             "assets/images/icons/arrow-right.png",
+  //                             height: 18,
+  //                             width: 18,
+  //                           ),
+  //                         ],
+  //                       ),
+  //                     ),
+  //                   ),
+  //                 ],
+  //               ),
+  //               SizedBox(height: 30),
+  //             ],
+  //           ),
+  //         ),
+  //       ],
+  //     ),
+  //   );
+  // }
   @override
   Widget build(BuildContext context) {
     return SizedBox(
@@ -127,7 +361,7 @@ class _PersonalInformationState extends State<PersonalInformation> {
         child: Column(
           children: [
             Container(
-              height: 830,
+              height: 865,
               width: 391,
               padding: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
               decoration: BoxDecoration(
@@ -190,116 +424,118 @@ class _PersonalInformationState extends State<PersonalInformation> {
                           textColor: colorCodes.black,
                         ),
                       ),
-                      kycemailFieldColumn(
-                        "",
-                        widget.emailController,
-                        textColor: colorCodes.black,
-                      ),
-                      SizedBox(height: 15),
-                      kycphonenumberFieldColumn(
-                        "",
-                        widget.phoneController,
-                        textColor: colorCodes.black,
-                      ),
-                      SizedBox(height: 15),
-                      dateofbirthTxtField(
-                        "Date of Birth",
-                        widget.dobController,
-                        "",
-                        () async {
-                          var date = DateTime.now();
-                          DateTime? dateofBirth = await showDatePicker(
-                            context: context,
-                            initialDate: DateTime.now().subtract(
-                              Duration(days: 18 * 365),
-                            ),
-                            firstDate: DateTime(1950),
-                            lastDate: DateTime.now().subtract(
-                              Duration(days: 18 * 365),
-                            ),
-                          );
-                          if (dateofBirth != null) {
-                            setState(() {
-                              widget.dobController.text = DateFormat(
-                                'dd/MM/yyyy',
-                              ).format(dateofBirth);
-                            });
-                          }
-                        },
-                      ),
-                      SizedBox(height: 15),
+                    ],
+                  ),
+
+                  kycemailFieldColumn(
+                    "",
+                    widget.emailController,
+                    textColor: colorCodes.black,
+                  ),
+                  SizedBox(height: 15),
+                  kycphonenumberFieldColumn(
+                    "",
+                    widget.phoneController,
+                    textColor: colorCodes.black,
+                  ),
+                  SizedBox(height: 15),
+                  dateofbirthTxtField(
+                    "Date of Birth",
+                    widget.dobController,
+                    "",
+                    () async {
+                      var date = DateTime.now();
+                      DateTime? dateofBirth = await showDatePicker(
+                        context: context,
+                        initialDate: DateTime.now().subtract(
+                          Duration(days: 18 * 365),
+                        ),
+                        firstDate: DateTime(1950),
+                        lastDate: DateTime.now().subtract(
+                          Duration(days: 18 * 365),
+                        ),
+                      );
+                      if (dateofBirth != null) {
+                        setState(() {
+                          widget.dobController.text = DateFormat(
+                            'dd/MM/yyyy',
+                          ).format(dateofBirth);
+                        });
+                      }
+                    },
+                  ),
+                  SizedBox(height: 15),
+                  SizedBox(
+                    height: 152,
+                    width: 351,
+                    child: kycnameFieldColumn(
+                      "Street Address",
+                      "",
+                      widget.streetAddressController,
+                      hintText: "123 Main Street, Lagos",
+                      maxLines: 5,
+                      // maxLength: 200,
+                      textColor: colorCodes.black,
+                    ),
+                  ),
+                  SizedBox(height: 15),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
                       SizedBox(
-                        height: 152,
-                        width: 351,
+                        width: 140,
                         child: kycnameFieldColumn(
-                          "Street Address",
+                          "City",
                           "",
-                          widget.streetAddressController,
-                          hintText: "123 Main Street, Lagos",
-                          maxLines: 5,
-                          // maxLength: 200,
+                          widget.cityController,
+                          hintText: "Lagos",
                           textColor: colorCodes.black,
                         ),
                       ),
-                      SizedBox(height: 15),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          SizedBox(
-                            width: 129,
-                            child: kycnameFieldColumn(
-                              "City",
-                              "",
-                              widget.cityController,
-                              hintText: "Lagos",
-                              textColor: colorCodes.black,
-                            ),
-                          ),
-                          SizedBox(
-                            width: 129,
-                            child: kycnameFieldColumn(
-                              "State",
-                              "",
-                              widget.stateController,
-                              hintText: "Lagos",
-                              textColor: colorCodes.black,
-                            ),
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: 15),
-                      Align(
-                        alignment: Alignment.centerLeft,
-                        child: Text(
-                          "Nationality",
-                          style: TextStyle(
-                            fontFamily: 'Poppins',
-                            fontSize: 12,
-                            fontWeight: FontWeight.w500,
-                            color: colorCodes.black,
-                          ),
+                      SizedBox(
+                        width: 140,
+                        child: kycnameFieldColumn(
+                          "State",
+                          "",
+                          widget.stateController,
+                          hintText: "Lagos",
+                          textColor: colorCodes.black,
                         ),
                       ),
-                      SizedBox(height: 8),
-                      kycNationalityDropdown(
-                        widget.nationality,
-                        "Select nationality",
-                        nationalityList.map(dropMenuItem).toList(),
-                        (value) {
-                          widget.onNationalityChanged(value as String?);
-                        }, // (newValue) {
-                        //   setState(() {
-                        //     widget.nationality = newValue;
-                        //   });
-                        // },
-                        (isOpen) {
-                          setState(() {
-                            isiconExpanded = isOpen;
-                            isdropdownExpanded = isOpen;
-                          });
-                        },
-                      ),
                     ],
+                  ),
+                  SizedBox(height: 15),
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      "Nationality",
+                      style: TextStyle(
+                        fontFamily: 'Poppins',
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                        color: colorCodes.black,
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 8),
+                  kycNationalityDropdown(
+                    widget.nationality,
+                    "Select nationality",
+                    nationalityList.map(dropMenuItem).toList(),
+                    (value) {
+                      widget.onNationalityChanged(value as String?);
+                      _validateForm();
+                    }, // (newValue) {
+                    //   setState(() {
+                    //     widget.nationality = newValue;
+                    //   });
+                    // },
+                    (isOpen) {
+                      setState(() {
+                        isiconExpanded = isOpen;
+                        isdropdownExpanded = isOpen;
+                      });
+                    },
                   ),
 
                   SizedBox(height: 15),
@@ -325,7 +561,7 @@ class _PersonalInformationState extends State<PersonalInformation> {
                         width: 140,
                         child: kwikbutton(
                           "Next",
-                          _isFormValid ? widget.nextFunc : null,
+                          _isFormValid ? widget.nextFunc : () {},
                           enabled: _isFormValid,
                           fontSize: 12.0,
                           buttonChild: Row(

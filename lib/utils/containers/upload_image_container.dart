@@ -45,7 +45,12 @@ Widget uploadImageContainer(
             ),
             child:
                 imageFile != null
-                    ? Image.file(imageFile, fit: BoxFit.contain)
+                    ? Image.file(
+                      imageFile,
+                      fit: BoxFit.contain,
+                      cacheHeight: 190,
+                      cacheWidth: 350,
+                    )
                     : Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.center,

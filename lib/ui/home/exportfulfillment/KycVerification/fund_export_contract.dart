@@ -59,31 +59,6 @@ class _FundExportContractState extends State<FundExportContract> {
   void initState() {
     super.initState();
     _controller = WebViewController();
-    // _controller =
-    //     WebViewController()
-    //       ..setJavaScriptMode(JavaScriptMode.unrestricted)
-    //       ..setNavigationDelegate(
-    //         NavigationDelegate(
-    //           // },
-    //           onPageStarted: (url) {
-    //             setState(() => _isLoading = true);
-
-    //             final uri = Uri.parse(url);
-    //           },
-    //           onPageFinished: (url) {
-    //             debugPrint("✅ Finished loading: $url");
-
-    //             setState(() => _isLoading = false);
-    //             final uri = Uri.parse(url);
-    //             final reference = uri.queryParameters["reference"] ?? "";
-    //             if (reference.isNotEmpty) {
-    //               _verifyPayment(widget.kwikTicketId, widget.referenceNumber);
-    //             } else {}
-    //           },
-
-    //         ),
-    //       )
-    //       ..loadRequest(Uri.parse(widget.url));
   }
 
   Future<void> _verifyPayment(String ticketId, String reference) async {
@@ -110,19 +85,6 @@ class _FundExportContractState extends State<FundExportContract> {
       // final dashboardApi = Provider.of<DashboardApi>(context, listen: false);
       // await dashboardApi.fetchDashboard();
       Provider.of<DashboardApi>(context, listen: false).fetchDashboard();
-
-      // // Now get the actual latest ticket
-      // final updatedTicket = dashboardApi.data!.kwikTickets.firstWhere(
-      //   (t) => t.uniqueId == widget.kwikticket.uniqueId,
-      // );
-
-      // final updateApi = Provider.of<UpdateKwikTicketStatusApi>(
-      //   context,
-      //   listen: false,
-      // );
-
-      // }
-      // });
 
       if (mounted) {
         showToastContainer(
@@ -623,12 +585,14 @@ class _FundExportContractState extends State<FundExportContract> {
                                     exporterId: widget.kwikticket.exporter!.id,
                                     fundingMethod: 1, //.toString(),
                                   )
-                                  .then((_) {
+                                  .then((_) async {
                                     Navigator.pop(context);
 
-                                    if (fundTicketApi.isSuccessful == true &&
-                                        fundTicketApi.authorizationUrl !=
-                                            null) {
+                                    if (fundTicketApi.isSuccessful == true
+                                    // &&
+                                    // fundTicketApi.authorizationUrl !=
+                                    //     null
+                                    ) {
                                       debugPrint(
                                         "Fund Ticket id: ${widget.kwikticket.id}",
                                       );
@@ -637,12 +601,49 @@ class _FundExportContractState extends State<FundExportContract> {
                                           fundTicketApi.paymentReference ??
                                           // uri.queryParameters["reference"] ??
                                           "";
-                                      if (reference.isNotEmpty) {
-                                        _verifyPayment(
-                                          widget.kwikTicketId,
-                                          fundTicketApi.paymentReference!,
+                                      // if (reference.isNotEmpty) {
+                                      //   _verifyPayment(
+                                      //     widget.kwikTicketId,
+                                      //     fundTicketApi.paymentReference!,
+                                      //   );
+                                      // } else {}
+                                      Provider.of<DashboardApi>(
+                                        context,
+                                        listen: false,
+                                      ).fetchDashboard();
+
+                                      if (mounted) {
+                                        showToastContainer(
+                                          "Payment Successful",
+                                          fundTicketApi.message,
+                                          colorCodes.pigmentGreen,
+                                          colorCodes.mediumSeaGreen,
+                                          context,
                                         );
-                                      } else {}
+                                        final now = DateTime.now();
+                                        final formattedDateTime =
+                                            "${now.day}-${now.month}-${now.year} ${now.hour}:${now.minute}";
+
+                                        Navigator.pushReplacement(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder:
+                                                (_) => ExportPaymentConfirmed(
+                                                  kwikticket: widget.kwikticket,
+                                                  referenceNumber:
+                                                      fundTicketApi
+                                                          .paymentReference!,
+                                                  dateTime:
+                                                      formattedDateTime
+                                                          .toString(),
+                                                  // amountPaid:widget.,
+                                                  paymentMethod:
+                                                      fundTicketApi.provider!,
+                                                ),
+                                          ),
+                                        );
+                                        await clearPendingTicket();
+                                      }
                                     } else {
                                       showToastContainer(
                                         "Fund Ticket",

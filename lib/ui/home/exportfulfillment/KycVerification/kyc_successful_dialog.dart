@@ -182,20 +182,16 @@ class _KycSuccessfulDialogState extends State<KycSuccessfulDialog> {
 
                     // if (fundTicketApi.isSuccessful == true &&
                     //     fundTicketApi.authorizationUrl != null) {
-                    //   Navigator.push(
-                    //     context,
-                    //     MaterialPageRoute(
-                    //       builder:
-                    //           (_) => FundExportContract(
-                    //             kwikticket: widget.kwikticket,
-                    //             url: fundTicketApi.authorizationUrl!,
-                    //             kwikTicketId: widget.kwikticket.id,
-                    //             referenceNumber:
-                    //                 fundTicketApi.paymentReference!,
-                    //             paymentMethod: fundTicketApi.provider!,
-                    //           ),
-                    //     ),
-                    //   );
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder:
+                            (_) => FundExportContract(
+                              kwikticket: widget.kwikticket,
+                              kwikTicketId: widget.kwikticket.id,
+                            ),
+                      ),
+                    );
                     // } else {
                     //   showToastContainer(
                     //     "Fund Ticket",

@@ -1,18 +1,24 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:kwik_port/colors/color.dart';
 import 'package:kwik_port/utils/button/kwik_button.dart';
 import 'package:kwik_port/utils/containers/upload_image_container.dart';
 import 'package:kwik_port/utils/text/textstyle.dart';
 
 class IdentityVerification extends StatefulWidget {
-  final nextFunc, previousFunc;
+  final VoidCallback nextFunc;
+  final VoidCallback previousFunc;
+  final File? selfieFile;
+  final Function(File?) onSelfieChanged;
 
   const IdentityVerification({
     super.key,
     required this.nextFunc,
     required this.previousFunc,
+    required this.selfieFile,
+    required this.onSelfieChanged,
   });
 
   @override
@@ -20,7 +26,61 @@ class IdentityVerification extends StatefulWidget {
 }
 
 class _IdentityVerificationState extends State<IdentityVerification> {
-  File? _selectedImage;
+  final ImagePicker _picker = ImagePicker();
+  bool _isFormValid = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _validateForm();
+  }
+
+  void _validateForm() {
+    final isValid = widget.selfieFile != null;
+    if (_isFormValid != isValid) {
+      setState(() {
+        _isFormValid = isValid;
+      });
+    }
+  }
+
+  Future<void> pickImage() async {
+    final XFile? image = await _picker.pickImage(
+      source: await _showPickerDialog(),
+      imageQuality: 80,
+    );
+
+    if (image != null) {
+      final file = File(image.path);
+
+      widget.onSelfieChanged(file);
+    }
+  }
+
+  Future<ImageSource> _showPickerDialog() async {
+    ImageSource? source = await showModalBottomSheet<ImageSource>(
+      context: context,
+      builder:
+          (context) => Container(
+            height: 140,
+            child: Column(
+              children: [
+                ListTile(
+                  leading: Icon(Icons.photo_library),
+                  title: Text("Gallery"),
+                  onTap: () => Navigator.pop(context, ImageSource.gallery),
+                ),
+                ListTile(
+                  leading: Icon(Icons.camera_alt),
+                  title: Text("Camera"),
+                  onTap: () => Navigator.pop(context, ImageSource.camera),
+                ),
+              ],
+            ),
+          ),
+    );
+    return source ?? ImageSource.gallery;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -163,7 +223,13 @@ class _IdentityVerificationState extends State<IdentityVerification> {
                   ),
                 ),
                 SizedBox(height: 15),
-                uploadImageContainer("Upload Selfie Photo", () {}),
+                // uploadImageContainer("Upload Selfie Photo", () {}),
+                uploadImageContainer(
+                  "Upload Selfie Photo",
+
+                  () => pickImage(),
+                  imageFile: widget.selfieFile,
+                ),
               ],
             ),
           ),
