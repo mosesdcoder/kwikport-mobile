@@ -584,7 +584,7 @@ class ExportSummaryModel {
   final String exporterId;
   final String commodityName;
   final double totalQuantity;
-  final double contractTotal;
+  final double contractTotalAmount;
   final double grossEarning;
   final double totalAmountSpent;
   final String contractFulfilmentMethod;
@@ -592,6 +592,12 @@ class ExportSummaryModel {
   final DateTime createdAt;
   final DateTime? completedAt;
   final KwikTicketModel? kwikTickets;
+  final String buyerName;
+  final DateTime? estimatedCompletionDate;
+  double exportNumberOfDays;
+  final String destinationCountry;
+  final String contractUniqueId;
+  final double? selectedCapacity;
 
   ExportSummaryModel({
     required this.id,
@@ -599,7 +605,7 @@ class ExportSummaryModel {
     required this.exporterId,
     required this.commodityName,
     required this.totalQuantity,
-    required this.contractTotal,
+    required this.contractTotalAmount,
     required this.grossEarning,
     required this.totalAmountSpent,
     required this.contractFulfilmentMethod,
@@ -607,6 +613,12 @@ class ExportSummaryModel {
     required this.createdAt,
     this.completedAt,
     required this.kwikTickets,
+    required this.buyerName,
+    this.estimatedCompletionDate,
+    required this.exportNumberOfDays,
+    required this.destinationCountry,
+    required this.contractUniqueId,
+    this.selectedCapacity,
   });
 
   factory ExportSummaryModel.fromJson(Map<String, dynamic> json) {
@@ -616,7 +628,7 @@ class ExportSummaryModel {
       exporterId: json['exporterId'] ?? '',
       commodityName: json['commodityName'] ?? '',
       totalQuantity: (json['totalQuantity'] ?? 0).toDouble(),
-      contractTotal: (json['contractTotal'] ?? 0).toDouble(),
+      contractTotalAmount: (json['contractTotalAmount'] ?? 0).toDouble(),
       grossEarning: (json['grossEarning'] ?? 0).toDouble(),
       totalAmountSpent: (json['totalAmountSpent'] ?? 0).toDouble(),
       contractFulfilmentMethod: json['contractFulfilmentMethod'] ?? '',
@@ -630,6 +642,15 @@ class ExportSummaryModel {
           json['kwikTickets'] != null
               ? KwikTicketModel.fromJson(json['kwikTickets'])
               : null,
+      buyerName: json['buyerName'] ?? '',
+      estimatedCompletionDate:
+          json['estimatedCompletionDate'] != null
+              ? DateTime.tryParse(json['estimatedCompletionDate'])
+              : null,
+      exportNumberOfDays: (json['exportNumberOfDays'] ?? 0).toDouble(),
+      destinationCountry: json['destinationCountry'] ?? '',
+      contractUniqueId: json['contractUniqueId'] ?? '',
+      selectedCapacity: (json['selectedCapacity'] ?? 0).toDouble(),
     );
   }
 
@@ -639,7 +660,7 @@ class ExportSummaryModel {
     'exporterId': exporterId,
     'commodityName': commodityName,
     'totalQuantity': totalQuantity,
-    'contractTotal': contractTotal,
+    'contractTotalAmount': contractTotalAmount,
     'grossEarning': grossEarning,
     'totalAmountSpent': totalAmountSpent,
     'contractFulfilmentMethod': contractFulfilmentMethod,
@@ -647,7 +668,13 @@ class ExportSummaryModel {
     'createdAt': createdAt.toIso8601String(),
     'completedAt': completedAt?.toIso8601String(),
     'kwikTickets': kwikTickets?.toJson(),
+    'buyerName': buyerName,
+    'estimatedCompletionDate': estimatedCompletionDate?.toIso8601String(),
+    'exportNumberOfDays': exportNumberOfDays,
+    'destinationCountry': destinationCountry,
+    'contractUniqueId': contractUniqueId,
+    'selectedCapacity': selectedCapacity ?? 0.0,
+
   };
 }
-
 
