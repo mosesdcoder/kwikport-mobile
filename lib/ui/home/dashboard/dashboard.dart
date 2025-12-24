@@ -34,7 +34,8 @@ import 'package:swipe_refresh/swipe_refresh.dart';
 
 class Dashboard extends StatefulWidget {
   final KwikTicketModel? kwikticket;
-  const Dashboard({super.key, this.kwikticket});
+  final ExportSummaryModel? exports;
+  const Dashboard({super.key, this.kwikticket, this.exports});
 
   @override
   State<Dashboard> createState() => _DashboardState();
@@ -314,6 +315,9 @@ class _DashboardState extends State<Dashboard> {
     final totalExportContractBalance =
         dashboardApi.data?.totalExportContractBalance ?? 0.0;
     print('Total Export Contract Balance: $totalExportContractBalance');
+    print('KwikTicket passed to MyExportsScreen: ${widget}');
+    print('dashboard data: ${dashboardApi.data?.exports.first.toJson()}');
+
 
     final activeTickets = dashboardApi.activeKwikTicketsCount;
     // final activeContracts = dashboardApi.getActiveExportsCount;
@@ -386,11 +390,11 @@ class _DashboardState extends State<Dashboard> {
                                         activityProgressContainer(
                                           "assets/images/icons/kwik_tickets.png",
                                           "My Exports",
-                                          "5", // "Active Kwiktickets",
-                                          // activeTickets.toString().padLeft(
-                                          //   2,
-                                          //   '0',
-                                          // ),
+                                          //"5", // "Active Kwiktickets",
+                                           activeTickets.toString().padLeft(
+                                            2,
+                                            '0',
+                                          ),
 
                                           // "01",
                                           context,
@@ -400,10 +404,8 @@ class _DashboardState extends State<Dashboard> {
                                               context,
                                               MaterialPageRoute(
                                                 builder:
-                                                    (
-                                                      context,
-                                                    ) => MyExportsScreen(
-                                                      // kwikticket: widget.kwikticket,
+                                                    ( _) => MyExportsScreen(
+                                                       exports: widget.exports,
                                                     ),
                                               ),
                                             );
@@ -413,8 +415,8 @@ class _DashboardState extends State<Dashboard> {
                                         activityProgressContainer(
                                           "assets/images/icons/completed_ecport.png",
                                           "Completed Exports",
-                                          //completed.toString().padLeft(2, '0'),
-                                           "15",
+                                          completed.toString().padLeft(2, '0'),
+                                           //"15",
                                           context,
                                           () {},
                                         ),

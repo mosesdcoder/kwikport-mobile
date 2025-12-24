@@ -524,7 +524,7 @@ class _ExportJourneyScreenState extends State<ExportJourneyScreen> {
 
                 SizedBox(height: 15),
 
-                kwikbutton("Complete Export", () async {
+                kwikbutton("Continue", () async {
                   final prefs = await SharedPreferences.getInstance();
                   await prefs.remove('journeyInProgress');
                   await prefs.remove('activeExportContractId');
@@ -543,7 +543,8 @@ class _ExportJourneyScreenState extends State<ExportJourneyScreen> {
                     ),
                   );
                 }),
-                SizedBox(height: 25),
+                
+                SizedBox(height: 60),
               ],
             ),
           ],

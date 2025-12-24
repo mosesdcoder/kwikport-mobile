@@ -8,6 +8,7 @@ import 'package:kwik_port/api/model/userModel.dart';
 import 'package:kwik_port/api/model/dashboard_model.dart';
 import 'package:kwik_port/colors/color.dart';
 import 'package:kwik_port/main.dart';
+import 'package:kwik_port/ui/home/contracts/request_contract_screen.dart';
 import 'package:kwik_port/ui/home/dashboard/name_and_notif_headng.dart';
 import 'package:kwik_port/ui/home/dashboard/notifcation/notification_screen.dart';
 import 'package:kwik_port/ui/home/dashboard/wallet_balance_container.dart';
@@ -109,7 +110,7 @@ class _WalletScreenState extends State<WalletScreen> {
                           padding: const EdgeInsets.symmetric(horizontal: 6.0),
                           child: walletBalanceContainer(
                             showKwikwalletBalance == true
-                                ? "\#${NumberFormat('#,##0.00').format(walletBalance)}"
+                                ? "\₦${NumberFormat('#,##0.00').format(walletBalance)}"
                                 : "••••••••",
 
                             "Kwik Balance",
@@ -185,22 +186,33 @@ class _WalletScreenState extends State<WalletScreen> {
                               uniqueId: "uniqueId",
                               kwikTicketAmount: 2000,
                             );
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder:
-                                    (context) => KycVerificationScreen(
-                                      kwikticket: kwikticket,
-                                    ),
-                              ),
-                            );
+                            // Navigator.push(
+                            //   context,
+                            //   MaterialPageRoute(
+                            //     builder:
+                            //         (context) => 
+                            //         KycVerificationScreen(
+                            //           kwikticket: kwikticket,
+                            //         ),
+                            //   ),
+                            // );
                           },
                           width: 72.0,
                         ),
                         quickActionsContainer(
                           "assets/images/icons/request.png",
                           "Request",
-                          () {},
+                          () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder:
+                                              (context) =>
+                                                  RequestContractScreen(),
+                                        ),
+                                      );
+                                      currentIndex = 2;
+                                    },
                           width: 70.0,
                         ),
                         quickActionsContainer(

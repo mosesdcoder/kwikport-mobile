@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hexcolor/hexcolor.dart';
+import 'package:intl/intl.dart';
+import 'package:kwik_port/api/utils/money_util.dart';
 import 'package:kwik_port/colors/color.dart';
 import 'package:kwik_port/utils/button/kwik_button.dart';
 import 'package:kwik_port/utils/text/textstyle.dart';
@@ -112,13 +114,14 @@ Widget ticketDetailContainer(
                     ),
                   ),
                   Text(
-                    commodityCostPrice,
+
+                    MoneyUtils.formatMoney(commodityCostPrice),
                     style: kwikTextStlye(
                       14.0,
                       FontWeight.w600,
                       colorCodes.textBlack,
                       fontFamily: "",
-                    ),
+                    ),  
                   ),
                 ],
               ),
@@ -135,7 +138,8 @@ Widget ticketDetailContainer(
                     ),
                   ),
                   Text(
-                    pricePerTon,
+
+                    MoneyUtils.formatMoney(pricePerTon),
                     style: kwikTextStlye(
                       14.0,
                       FontWeight.w600,
@@ -171,7 +175,9 @@ Widget ticketDetailContainer(
                       ),
                       SizedBox(width: 5),
                       Text(
-                        projectedIncome,
+                          //"\₦${NumberFormat('#,##0.00').format(projectedIncome)}",
+
+                        MoneyUtils.formatMoney(projectedIncome),
                         style: kwikTextStlye(
                           14.0,
                           FontWeight.w500,
@@ -270,7 +276,7 @@ Widget ticketDetailContainer(
                     kwiticketStatus == 1
                         ? "Active"
                         : kwiticketStatus == 2
-                        ? "Awaiting"
+                        ? "Non-Active"
                         : kwiticketStatus == 5
                         ? "Fulfilled"
                         : "Cancelled",
@@ -502,7 +508,8 @@ Widget exporttDetailContainer(
                 ),
                 SizedBox(width: 5),
                 Text(
-                  "Est. completion: $completionDate",
+                  "Est. completion: ${completionDate.year}-${completionDate.month.toString().padLeft(2, '0')}-${completionDate.day.toString().padLeft(2, '0')}",
+// $completionDate",
                   style: kwikTextStlye(
                     12.0,
                     FontWeight.w500,
@@ -556,3 +563,5 @@ dataDetail(title1, title2, detail1, detail2) {
     ],
   );
 }
+
+
