@@ -87,4 +87,35 @@ class NotificationApi extends ChangeNotifier {
   int countByType(String type) {
     return _notifications.where((n) => n['notificationType'] == type).length;
   }
+  /// Get notifications for a tab
+List<Map<String, dynamic>> getByTab(int index) {
+  switch (index) {
+    case 1: // Exports
+      return _notifications
+          .where((n) => n['notificationType'] == 'ExportComplete')
+          .cast<Map<String, dynamic>>()
+          .toList();
+
+    case 2: // Transactions
+      return _notifications
+          .where((n) => n['notificationType'] == 'Payment')
+          .cast<Map<String, dynamic>>()
+          .toList();
+
+    case 3: // System
+      return _notifications
+          .where((n) => n['notificationType'] == 'SystemAlert')
+          .cast<Map<String, dynamic>>()
+          .toList();
+
+    default: // All
+      return _notifications.cast<Map<String, dynamic>>();
+  }
+}
+
+/// Count per tab
+int countForTab(int index) {
+  return getByTab(index).length;
+}
+
 }

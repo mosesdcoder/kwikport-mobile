@@ -171,9 +171,12 @@ class _NotificationScreenState extends State<NotificationScreen>
               SizedBox(height: 17),
               notificationTabBar(
                 _tabController,
-                numberofexport,
-                transactionNotif,
-                systemNotif,
+                // numberofexport,
+                // transactionNotif,
+                // systemNotif,
+                notificationApi.countForTab(1).toString(),
+                notificationApi.countForTab(2).toString(),
+                notificationApi.countForTab(3).toString(),
                 (index) {
                   switch (index) {
                     case 1:
@@ -224,128 +227,168 @@ class _NotificationScreenState extends State<NotificationScreen>
                         height: 90 * itemCount.toDouble(),
                         child: TabBarView(
                           controller: _tabController,
-                          children: [
-                            Container(
-                              height: 90 * itemCount.toDouble(),
-                              width: 390,
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 10,
-                                vertical: 20,
-                              ),
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(16),
-                                color: colorCodes.white,
-                              ),
-                              child: ListView.separated(
-                                padding: EdgeInsets.only(bottom: 40),
-                                physics: NeverScrollableScrollPhysics(),
-                                separatorBuilder:
-                                    (context, index) => SizedBox(height: 15),
-                                itemCount: itemCount,
-                                itemBuilder: (ctx, index) {
-                                  return notificationContainer(
-                                    notifstatus[index],
-                                    "Export Complete 🎉",
-                                    "1min",
-                                    textone[index],
-                                    texttwo[index],
-                                    textthree[index],
-                                    textfour[index],
+                          children: List.generate(4, (tabIndex) {
+                            final items = notificationApi.getByTab(tabIndex);
+
+                            if (items.isEmpty && !notificationApi.isLoading) {
+                              return const Center(
+                                child: Text("No notifications"),
+                              );
+                            }
+
+                            return ListView.separated(
+                              controller: _scrollController,
+                              padding: const EdgeInsets.all(16),
+                              itemCount:
+                                  items.length +
+                                  (notificationApi.hasMore ? 1 : 0),
+                              separatorBuilder:
+                                  (_, __) => const SizedBox(height: 15),
+                              itemBuilder: (context, index) {
+                                if (index >= items.length) {
+                                  return const Center(
+                                    child: CircularProgressIndicator(),
                                   );
-                                },
-                              ),
-                            ),
-                            Container(
-                              height: 90 * itemCount.toDouble(),
-                              width: 390,
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 10,
-                                vertical: 20,
-                              ),
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(16),
-                                color: colorCodes.white,
-                              ),
-                              child: ListView.separated(
-                                padding: EdgeInsets.only(bottom: 40),
-                                physics: NeverScrollableScrollPhysics(),
-                                separatorBuilder:
-                                    (context, index) => SizedBox(height: 15),
-                                itemCount: itemCount,
-                                itemBuilder: (ctx, index) {
-                                  return notificationContainer(
-                                    notifstatus[index],
-                                    "Export Complete 🎉",
-                                    "1min",
-                                    textone[index],
-                                    texttwo[index],
-                                    textthree[index],
-                                    textfour[index],
-                                  );
-                                },
-                              ),
-                            ),
-                            Container(
-                              height: 90 * itemCount.toDouble(),
-                              width: 390,
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 10,
-                                vertical: 20,
-                              ),
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(16),
-                                color: colorCodes.white,
-                              ),
-                              child: ListView.separated(
-                                padding: EdgeInsets.only(bottom: 40),
-                                physics: NeverScrollableScrollPhysics(),
-                                separatorBuilder:
-                                    (context, index) => SizedBox(height: 15),
-                                itemCount: itemCount,
-                                itemBuilder: (ctx, index) {
-                                  return notificationContainer(
-                                    notifstatus[index],
-                                    "Export Complete 🎉",
-                                    "1min",
-                                    textone[index],
-                                    texttwo[index],
-                                    textthree[index],
-                                    textfour[index],
-                                  );
-                                },
-                              ),
-                            ),
-                            Container(
-                              height: 90 * itemCount.toDouble(),
-                              width: 390,
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 0,
-                                vertical: 20,
-                              ),
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(16),
-                                color: colorCodes.white,
-                              ),
-                              child: ListView.separated(
-                                padding: EdgeInsets.only(bottom: 40),
-                                physics: NeverScrollableScrollPhysics(),
-                                separatorBuilder:
-                                    (context, index) => SizedBox(height: 15),
-                                itemCount: itemCount,
-                                itemBuilder: (ctx, index) {
-                                  return notificationContainer(
-                                    notifstatus[index],
-                                    "Export Complete 🎉",
-                                    "1min",
-                                    textone[index],
-                                    texttwo[index],
-                                    textthree[index],
-                                    textfour[index],
-                                  );
-                                },
-                              ),
-                            ),
-                          ],
+                                }
+
+                                final n = items[index];
+
+                                return notificationContainer(
+                                  n['status'] == 'Completed'
+                                      ? "completed"
+                                      : "not",
+                                  n['subject'] ?? '',
+                                  _timeAgo(n['sentAt']),
+                                  n['message'] ?? '',
+                                  "",
+                                  "",
+                                  "",
+                                );
+                              },
+                            );
+                          }),
+                          // children: [
+                          //   Container(
+                          //     height: 90 * itemCount.toDouble(),
+                          //     width: 390,
+                          //     padding: const EdgeInsets.symmetric(
+                          //       horizontal: 10,
+                          //       vertical: 20,
+                          //     ),
+                          //     decoration: BoxDecoration(
+                          //       borderRadius: BorderRadius.circular(16),
+                          //       color: colorCodes.white,
+                          //     ),
+                          //     child: ListView.separated(
+                          //       padding: EdgeInsets.only(bottom: 40),
+                          //       physics: NeverScrollableScrollPhysics(),
+                          //       separatorBuilder:
+                          //           (context, index) => SizedBox(height: 15),
+                          //       itemCount: itemCount,
+                          //       itemBuilder: (ctx, index) {
+                          //         return notificationContainer(
+                          //           notifstatus[index],
+                          //           "Export Complete 🎉",
+                          //           "1min",
+                          //           textone[index],
+                          //           texttwo[index],
+                          //           textthree[index],
+                          //           textfour[index],
+                          //         );
+                          //       },
+                          //     ),
+                          //   ),
+                          //   Container(
+                          //     height: 90 * itemCount.toDouble(),
+                          //     width: 390,
+                          //     padding: const EdgeInsets.symmetric(
+                          //       horizontal: 10,
+                          //       vertical: 20,
+                          //     ),
+                          //     decoration: BoxDecoration(
+                          //       borderRadius: BorderRadius.circular(16),
+                          //       color: colorCodes.white,
+                          //     ),
+                          //     child: ListView.separated(
+                          //       padding: EdgeInsets.only(bottom: 40),
+                          //       physics: NeverScrollableScrollPhysics(),
+                          //       separatorBuilder:
+                          //           (context, index) => SizedBox(height: 15),
+                          //       itemCount: itemCount,
+                          //       itemBuilder: (ctx, index) {
+                          //         return notificationContainer(
+                          //           notifstatus[index],
+                          //           "Export Complete 🎉",
+                          //           "1min",
+                          //           textone[index],
+                          //           texttwo[index],
+                          //           textthree[index],
+                          //           textfour[index],
+                          //         );
+                          //       },
+                          //     ),
+                          //   ),
+                          //   Container(
+                          //     height: 90 * itemCount.toDouble(),
+                          //     width: 390,
+                          //     padding: const EdgeInsets.symmetric(
+                          //       horizontal: 10,
+                          //       vertical: 20,
+                          //     ),
+                          //     decoration: BoxDecoration(
+                          //       borderRadius: BorderRadius.circular(16),
+                          //       color: colorCodes.white,
+                          //     ),
+                          //     child: ListView.separated(
+                          //       padding: EdgeInsets.only(bottom: 40),
+                          //       physics: NeverScrollableScrollPhysics(),
+                          //       separatorBuilder:
+                          //           (context, index) => SizedBox(height: 15),
+                          //       itemCount: itemCount,
+                          //       itemBuilder: (ctx, index) {
+                          //         return notificationContainer(
+                          //           notifstatus[index],
+                          //           "Export Complete 🎉",
+                          //           "1min",
+                          //           textone[index],
+                          //           texttwo[index],
+                          //           textthree[index],
+                          //           textfour[index],
+                          //         );
+                          //       },
+                          //     ),
+                          //   ),
+                          //   Container(
+                          //     height: 90 * itemCount.toDouble(),
+                          //     width: 390,
+                          //     padding: const EdgeInsets.symmetric(
+                          //       horizontal: 0,
+                          //       vertical: 20,
+                          //     ),
+                          //     decoration: BoxDecoration(
+                          //       borderRadius: BorderRadius.circular(16),
+                          //       color: colorCodes.white,
+                          //     ),
+                          //     child: ListView.separated(
+                          //       padding: EdgeInsets.only(bottom: 40),
+                          //       physics: NeverScrollableScrollPhysics(),
+                          //       separatorBuilder:
+                          //           (context, index) => SizedBox(height: 15),
+                          //       itemCount: itemCount,
+                          //       itemBuilder: (ctx, index) {
+                          //         return notificationContainer(
+                          //           notifstatus[index],
+                          //           "Export Complete 🎉",
+                          //           "1min",
+                          //           textone[index],
+                          //           texttwo[index],
+                          //           textthree[index],
+                          //           textfour[index],
+                          //         );
+                          //       },
+                          //     ),
+                          //   ),
+                          // ],
                         ),
                       ),
                     ],
@@ -358,6 +401,17 @@ class _NotificationScreenState extends State<NotificationScreen>
       ),
       bottomNavigationBar: Bottomnavigationbar(1),
     );
+  }
+
+  String _timeAgo(String? iso) {
+    if (iso == null) return '';
+    final date = DateTime.parse(iso);
+    final diff = DateTime.now().difference(date);
+
+    if (diff.inMinutes < 1) return 'Just now';
+    if (diff.inMinutes < 60) return '${diff.inMinutes}m';
+    if (diff.inHours < 24) return '${diff.inHours}h';
+    return '${diff.inDays}d';
   }
 
   Widget notificationTabBar(
