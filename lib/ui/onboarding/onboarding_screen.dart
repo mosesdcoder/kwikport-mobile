@@ -55,10 +55,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             onboardingView(
               "assets/images/onboardingFrame 2.png",
               'How It Works',
-              'Pick a KwikTicket. Your share of a real export contractency assigned',
+              'Pick a KwikTicket. Your share of a real export contract assigned',
               'Join with goods (Product Supply) or funds (KwikProcure)',
               'Verified agents handle documentation, logistics & delivery',
-              'Earnings land in your KwikLC Walleterified agents handle documentation, logistics & delivery',
+              'Earnings land in your KwikLC Wallet',
             ),
             onboardingView(
               "assets/images/onboardingFrame 3.png",

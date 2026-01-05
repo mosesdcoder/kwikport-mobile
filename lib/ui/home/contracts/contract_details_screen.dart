@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:kwik_port/api/model/dashboard_model.dart';
+import 'package:kwik_port/api/utils/money_util.dart';
 import 'package:kwik_port/colors/color.dart';
 import 'package:kwik_port/main.dart';
 import 'package:kwik_port/ui/home/contracts/contract_details_delivered_screen.dart';
@@ -230,18 +231,18 @@ class _ContractDetailsScreenState extends State<ContractDetailsScreen>
                                           children: [
                                             TextSpan(
                                               text:
-                                                  "${widget.contract.fulfilledQuantity}",
+                                                  "${widget.contract.fulfilledQuantity} tons",
                                             ),
                                             TextSpan(text: " / "),
                                             TextSpan(
                                               text:
-                                                  "${widget.contract.totalAmount}",
+                                                  "${widget.contract.totalQuantity} tons",
                                             ),
                                           ],
                                         ),
                                       ),
                                       Text(
-                                        "${(progress * 100).toStringAsFixed(0)}% completed",
+                                        "${(widget?.contract?.fulfillmentPercentage)?.toStringAsFixed(2)}% completed",
                                         style: kwikTextStlye(
                                           12.0,
                                           FontWeight.w500,
@@ -307,7 +308,7 @@ class _ContractDetailsScreenState extends State<ContractDetailsScreen>
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Text(
-                                "${widget.contract.totalAmount}",
+                                "\$${widget.contract.totalAmountInUSD?.toStringAsFixed(2) ?? '0.00'}",
                                 style: kwikTextStlye(
                                   14.0,
                                   FontWeight.w600,
@@ -443,16 +444,16 @@ class _ContractDetailsScreenState extends State<ContractDetailsScreen>
                               contractDetailHeadingAndSubtitletwo(
                                 "Moisture Content",
                                 "Bean Count",
-                                "${widget.contract.buyerSpecification?.moistureContent ?? "N/A"}",
+                                "≤${widget.contract.buyerSpecification?.moistureContent ?? "N/A"}",
                                 "${widget.contract.buyerSpecification?.commodityCountPerMeasurement ?? "N/A"}",
                               ),
                               SizedBox(height: 10),
                               contractDetailHeadingAndSubtitletwo(
-                                "Buyer",
-                                "Destination",
-                                widget.contract.buyerSpecification?.buyerName ??
-                                    "N/A",
-                                widget.contract.destinationCountry,
+                                "Defective Bean",
+                                "Fat Content",
+                                "≤${widget.contract.buyerSpecification?.defectsInPercentage ?? "N/A"}",
+                                    
+                                "≥${widget.contract.buyerSpecification?.fatContentInPercentage ?? "N/A"}",
                               ),
                             ],
                           ),
@@ -498,7 +499,7 @@ class _ContractDetailsScreenState extends State<ContractDetailsScreen>
                                     MainAxisAlignment.spaceBetween,
                                 children: [
                                   Text(
-                                    "${widget.contract.pricePerUnitInNGN ?? "0"}",
+                                    "${MoneyUtils.formatMoney(widget.contract.pricePerUnitInNGN!, symbol: '₦')}",
                                     style: TextStyle(
                                       fontSize: 14.0,
                                       fontWeight: FontWeight.w600,
@@ -506,7 +507,7 @@ class _ContractDetailsScreenState extends State<ContractDetailsScreen>
                                     ),
                                   ),
                                   Text(
-                                    "${widget.contract.buyerSpecification!.buyerPricePerUnit ?? "N/A"}",
+                                    "${MoneyUtils.formatMoney(widget.contract.buyerSpecification!.buyerPricePerUnit, symbol: '\$')}",
                                     style: kwikTextStlye(
                                       14.0,
                                       FontWeight.w600,

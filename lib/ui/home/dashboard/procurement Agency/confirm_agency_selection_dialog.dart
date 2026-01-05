@@ -19,6 +19,7 @@ class ConfirmAgencySelectionDialog extends StatefulWidget {
   final KwikTicketModel? kwikticket;
 
   final agencyName, serviceFee, totalcostTons, totalCost, agencyId;
+  final String? agencyFeeDisplay;
   const ConfirmAgencySelectionDialog({
     super.key,
     required this.serviceFee,
@@ -27,6 +28,7 @@ class ConfirmAgencySelectionDialog extends StatefulWidget {
     required this.agencyName,
     required this.kwikticket,
     required this.agencyId,
+    this.agencyFeeDisplay,
   });
 
   @override
@@ -36,6 +38,19 @@ class ConfirmAgencySelectionDialog extends StatefulWidget {
 
 class _ConfirmAgencySelectionDialogState
     extends State<ConfirmAgencySelectionDialog> {
+  
+  @override
+  void initState() {
+    super.initState();
+    debugPrint('📋 ConfirmAgencySelectionDialog Received Values:');
+    debugPrint('  - Agency Name: ${widget.agencyName}');
+    debugPrint('  - Service Fee: ${widget.serviceFee}');
+    debugPrint('  - Total Cost Tons: ${widget.totalcostTons}');
+    debugPrint('  - Total Cost: ${widget.totalCost}');
+    debugPrint('  - Agency Fee Display: ${widget.agencyFeeDisplay}');
+    debugPrint('  - Agency ID: ${widget.agencyId}');
+  }
+  
   @override
   Widget build(BuildContext context) {
     final selectagencyProvider = Provider.of<ExportStageApi>(context);
@@ -162,24 +177,36 @@ class _ConfirmAgencySelectionDialogState
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceBetween,
                                 children: [
-                                  Text(
-                                    "Total Cost (${widget.kwikticket?.quantityToFulfill} tons)",
-                                    textAlign: TextAlign.center,
-                                    style: kwikTextStlye(
-                                      10.0,
-                                      FontWeight.w500,
-                                      colorCodes.black,
-                                    ),
+                                  Builder(
+                                    builder: (context) {
+                                      final displayText = "Total Cost (${widget.totalcostTons ?? 0} tons)";
+                                      debugPrint('💰 Displaying Total Cost Text: $displayText');
+                                      return Text(
+                                        displayText,
+                                        textAlign: TextAlign.center,
+                                        style: kwikTextStlye(
+                                          10.0,
+                                          FontWeight.w500,
+                                          colorCodes.black,
+                                        ),
+                                      );
+                                    },
                                   ),
-                                  Text(
-                                    "${widget.kwikticket?.kwikTicketAmount}",
-                                    textAlign: TextAlign.center,
-                                    style: TextStyle(
-                                      fontFamily: "",
-                                      fontSize: 10.0,
-                                      fontWeight: FontWeight.w500,
-                                      color: colorCodes.black,
-                                    ),
+                                  Builder(
+                                    builder: (context) {
+                                      final displayValue = widget.agencyFeeDisplay ?? "\$0.00";
+                                      debugPrint('💵 Displaying Agency Fee: $displayValue');
+                                      return Text(
+                                        displayValue,
+                                        textAlign: TextAlign.center,
+                                        style: TextStyle(
+                                          fontFamily: "",
+                                          fontSize: 10.0,
+                                          fontWeight: FontWeight.w500,
+                                          color: colorCodes.black,
+                                        ),
+                                      );
+                                    },
                                   ),
                                 ],
                               ),
@@ -289,6 +316,9 @@ class _ConfirmAgencySelectionDialogState
                                     'procurementInProgress',
                                     true,
                                   );
+                                  // Mark selection done and hide banner persistently
+                                  await prefs.setBool('procurementSelected', true);
+                                  await prefs.setBool('showProcurement', false);
                                   await prefs.setBool(
                                     'procurementCompleted',
                                     false,
@@ -340,24 +370,33 @@ class _ConfirmAgencySelectionDialogState
                                       return AgencySelectionConfirmedDialog(
                                         serviceFee: "${widget.serviceFee}",
                                         totalcostTons:
-                                            "${widget.kwikticket?.quantityToFulfill}",
+                                          "${widget.totalcostTons ?? 0}",
                                         totalCost:
-                                            "${widget.kwikticket?.kwikTicketAmount}",
+                                          widget.agencyFeeDisplay ?? "\$0.00",
                                         continueFunc: () async {
-                                          Navigator.push(
-                                            parentContext,
-                                            MaterialPageRoute(
-                                              builder:
-                                                  (_) => ExportJourneyScreen(
-                                                    kwikticket:
-                                                        widget.kwikticket,
-                                                    exporterContractId:
-                                                        exportId,
-                                                    // ?.exporterContractId ??
-                                                    // '',
-                                                  ),
-                                            ),
+                                          final dashboardApi = Provider.of<DashboardApi>(parentContext, listen: false);
+                                          await dashboardApi.fetchDashboard();
+                                          
+                                          final export = dashboardApi.data?.exports.firstWhere(
+                                            (e) => e.contractId == exportId,
+                                            orElse: () => throw Exception("Export not found"),
                                           );
+                                          
+                                          if (export != null) {
+                                            Navigator.push(
+                                              parentContext,
+                                              MaterialPageRoute(
+                                                builder:
+                                                    (_) => ExportJourneyScreen(
+                                                      kwikticket:
+                                                          widget.kwikticket,
+                                                      exporterContractId:
+                                                          exportId,
+                                                      exportData: export,
+                                                    ),
+                                              ),
+                                            );
+                                          }
                                         },
                                         agencyName: widget.agencyName,
                                       );

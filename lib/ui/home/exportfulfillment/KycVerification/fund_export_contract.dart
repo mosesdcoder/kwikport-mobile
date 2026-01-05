@@ -344,7 +344,7 @@ class _FundExportContractState extends State<FundExportContract> {
                                       ),
                                       Text(
 
-                                        "${MoneyUtils.formatMoney(widget.kwikticket.grossEarning)}",
+                                        "${MoneyUtils.formatMoney(widget.kwikticket.projectedIncomeInDollars, symbol: "\$", decimalDigits: 2)}",
                                         textAlign: TextAlign.start,
                                         style: kwikTextStlye(
                                           12.0,

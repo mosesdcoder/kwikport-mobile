@@ -284,6 +284,8 @@ class _ContractScreenState extends State<ContractScreen>
                             ],
                           ),
                         ),
+
+                        SizedBox(height: 20,)
                         // FilterResultScreen(),
                       ],
                     ),
@@ -347,10 +349,14 @@ class _ContractScreenState extends State<ContractScreen>
                   .toList();
 
       if (selectedCategory != null) {
-        filteredContracts =
-            filteredContracts
-                .where((c) => c.contractCategory == selectedCategory!.value)
-                .toList();
+        print('🔍 Filtering by category: ${selectedCategory!.name} (value: ${selectedCategory!.value})');
+        filteredContracts = filteredContracts.where((c) {
+          print('Contract: ${c.commodityName}, Category: ${c.contractCategory}, Type: ${c.contractCategory.runtimeType}');
+          // Skip contracts with null category
+          if (c.contractCategory == null) return false;
+          return c.contractCategory == selectedCategory!.value;
+        }).toList();
+        print('✅ Filtered contracts count: ${filteredContracts.length}');
       }
       return ListView.separated(
         physics: const NeverScrollableScrollPhysics(),
@@ -370,14 +376,14 @@ class _ContractScreenState extends State<ContractScreen>
             contract.commodityName,
             "assets/images/icons/tick-circle.png",
             contract.contractStatus, //== 0 ? "Active" : "Closed",
-            contract.totalQuantity, // "100 tons",
+            "${contract.totalQuantity ?? 0}", // "100 tons",
             "assets/images/icons/Country.png",
             contract.destinationCountry,
             progressValue,
             "${tonsRemaining}", // "20 tons",
-            "${contract.totalQuantity}", //100 tons",
-            "${percentageLeft}% left",
-            "${contract.totalAmount}",
+            "${contract.totalQuantity ?? 0}", //100 tons",
+            "${percentageLeft.toStringAsFixed(1)}% left",
+            "\$${contract.totalAmountInUSD?.toStringAsFixed(2) ?? '0.00'}",
             "assets/images/icons/Trending up.png",
             "${contract.profitRatio?.toStringAsFixed(2) ?? '0.00'}%",
             () {
@@ -394,6 +400,7 @@ class _ContractScreenState extends State<ContractScreen>
                 ),
               );
             },
+            "${contract.totalAmountInUSD?.toStringAsFixed(2) ?? '0.00'}",
           );
         },
       );

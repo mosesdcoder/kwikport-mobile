@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:kwik_port/colors/color.dart';
+import 'package:kwik_port/ui/home/wallet/wallet_screen.dart';
 import 'package:kwik_port/utils/text/textstyle.dart';
 
 Widget dashboardBalanceContainer(
@@ -59,9 +60,17 @@ Widget dashboardBalanceContainer(
           ),
         ),
         SizedBox(height: 12),
-        Text(
-          "View Wallet",
-          style: kwikTextStlye(12.0, FontWeight.w300, HexColor("#D6E7FF")),
+        InkWell(
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => WalletScreen()),
+            );
+          },
+          child: Text(
+            "View Wallet",
+            style: kwikTextStlye(12.0, FontWeight.w300, HexColor("#D6E7FF")),
+          ),
         ),
       ],
     ),

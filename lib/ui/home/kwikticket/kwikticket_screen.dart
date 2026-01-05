@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:kwik_port/api/model/dashboard_model.dart';
+import 'package:kwik_port/api/utils/money_util.dart';
 import 'package:kwik_port/colors/color.dart';
 import 'package:kwik_port/main.dart';
 import 'package:kwik_port/ui/home/exportfulfillment/export_fulfillment_screen.dart';
@@ -136,7 +137,7 @@ class _KwikticketScreenState extends State<KwikticketScreen> {
                       "Selected Capacity",
                       "Commodity Cost",
                       "${widget.kwikticket.quantityToFulfill} Tons",
-                      "${widget.kwikticket.kwikTicketAmount}",
+                      "${MoneyUtils.formatMoney(widget.kwikticket.kwikTicketAmount ?? 0)}",
                       // "20.5 tons",
                       // "₦246,000,000",
                       fontFamily: "",
@@ -167,7 +168,7 @@ class _KwikticketScreenState extends State<KwikticketScreen> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          "₦${widget.kwikticket.contract?.buyerSpecification?.buyerPricePerUnit}",
+                          "${MoneyUtils.formatMoney(widget.kwikticket.contract?.buyerSpecification?.buyerPricePerUnit ?? 0)}",
                           style: kwikTextStlye(
                             14.0,
                             FontWeight.w600,
@@ -182,7 +183,7 @@ class _KwikticketScreenState extends State<KwikticketScreen> {
                               width: 16,
                             ),
                             Text(
-                              "${widget.kwikticket.grossEarning}%",
+                              "${MoneyUtils.formatMoney(widget.kwikticket.projectedIncomeInDollars ?? 0, symbol: "\$")}",
                               style: kwikTextStlye(
                                 14.0,
                                 FontWeight.w600,

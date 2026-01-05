@@ -6,7 +6,7 @@ import 'package:kwik_port/api/controller/home/dashboard_api.dart';
 import 'package:kwik_port/api/controller/kwikTickets/get_kwik_ticket_api.dart';
 import 'package:kwik_port/api/model/dashboard_model.dart';
 import 'package:kwik_port/colors/color.dart';
-import 'package:kwik_port/ui/home/dashboard/exportJourney/export_journey_screen.dart';
+import 'package:kwik_port/ui/home/dashboard/exportJourney/current_export_stage_screen.dart';
 import 'package:kwik_port/ui/home/dashboard/myexports/my_espoort_utils.dart';
 import 'package:kwik_port/ui/home/kwikticket/ticket_details_container.dart';
 import 'package:kwik_port/utils/button/bottom_navigatior_bar.dart';
@@ -40,6 +40,11 @@ class _MyExportsScreenState extends State<MyExportsScreen>
     // TODO: implement initState
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
+    _tabController.addListener(() {
+      if (!_tabController.indexIsChanging) {
+        setState(() {}); // Rebuild to update height
+      }
+    });
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Provider.of<DashboardApi>(context, listen: false).fetchDashboard();
       isLoading = true;
@@ -50,7 +55,7 @@ class _MyExportsScreenState extends State<MyExportsScreen>
   Widget build(BuildContext context) {
     final dashboardApi = Provider.of<DashboardApi>(context);
     final exports = dashboardApi.data?.exports ?? [];
-    final activeTickets = dashboardApi.data?.exports.length ?? 0;
+    final activeTickets = dashboardApi?.activeKwikTicketsCount??0; //.data?.exports.length ?? 0;
     final completed = dashboardApi.completedExportsCount;
 
     return Scaffold(
@@ -140,10 +145,9 @@ class _MyExportsScreenState extends State<MyExportsScreen>
                                     ? exports
                                         .where((e) => e.completedAt == null)
                                         .length
-                                    : 1
-                                // exports
-                                //     .where((e) => e.completedAt != null)
-                                //     .length
+                                    : exports
+                                        .where((e) => e.completedAt != null)
+                                        .length
                                 )
                                 .toDouble() *
                             458,
@@ -253,7 +257,7 @@ class _MyExportsScreenState extends State<MyExportsScreen>
           export?.contractUniqueId ?? "Unknown",
           // "", //
           export?.commodityName ?? "Unknown Commodity",
-          (export?.kwikTickets?.contract?.contractType == 1
+          (export?.kwikTicket?.contract?.contractType == 1
               ? "International Buyer"
               : "Local Buyer"),
           // "", //
@@ -263,20 +267,18 @@ class _MyExportsScreenState extends State<MyExportsScreen>
           export.buyerName, // // "", //          ticket.kwikTicketAmount.toString()),
             "\₦${NumberFormat('#,##0.00').format(export.contractTotalAmount)}",
          // export.contractTotalAmount.toString() ?? "0", // (export?.buyerSpecification?.buyerName?.toString() ?? "N/A"),
-          export.estimatedCompletionDate, // (export?.exportCommission?.toString() ?? "N/A"),
-          // "", // "", //   DateFormat('yyyy-MM-dd').format(ticket.createdAt ?? DateTime.now()),
+          export.estimatedCompletionDate,
           export.completedAt == null ? true : false,
           () {
-            //viewexportFunc
             Navigator.push(
               context,
               MaterialPageRoute(
                 builder:
-                    (_) => ExportJourneyScreen(
-                      exporterContractId: export.id ?? '',
-                      kwikticket:
+                    (_) => CurrentExportStageScreen(
+                      exportData: export,
+                      kwikticket: 
                           kwikTickets
-                              .first, //export.kwikTicketId, // optional if exists
+                              .first,
                     ),
               ),
             );

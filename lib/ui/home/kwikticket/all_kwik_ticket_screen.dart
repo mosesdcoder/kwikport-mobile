@@ -283,24 +283,59 @@ class _AllKwikTicketScreenState extends State<AllKwikTicketScreen>
     // }
     // ✅ If no tickets match this category
     if (filteredTickets.isEmpty) {
+      String emptyMessage;
+      switch (statusFilter) {
+        case "awaiting":
+          emptyMessage = "No awaiting tickets";
+          break;
+        case "active":
+          emptyMessage = "No active tickets";
+          break;
+        case "fulfilled":
+          emptyMessage = "No fulfilled tickets";
+          break;
+        default:
+          emptyMessage = "No tickets found";
+      }
+      
       return Center(
         child: Padding(
-          padding: const EdgeInsets.only(top: 50),
+          padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 60),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Image.asset(
-                'assets/images/icons/empty_box.png', // optional placeholder icon
-                height: 100,
-                color: Colors.grey.shade400,
+              Container(
+                height: 120,
+                width: 120,
+                decoration: BoxDecoration(
+                  color: colorCodes.whiteSmoke,
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  Icons.receipt_long_outlined,
+                  size: 60,
+                  color: colorCodes.graniteGrey.withOpacity(0.4),
+                ),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 24),
               Text(
-                'No tickets found in this category.',
+                emptyMessage,
                 style: TextStyle(
+                  fontFamily: 'Poppins',
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
+                  color: colorCodes.black,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'Your tickets will appear here once available',
+                style: TextStyle(
+                  fontFamily: 'Poppins',
                   fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                  color: Colors.grey.shade600,
+                  fontWeight: FontWeight.w400,
+                  color: colorCodes.graniteGrey,
                 ),
                 textAlign: TextAlign.center,
               ),

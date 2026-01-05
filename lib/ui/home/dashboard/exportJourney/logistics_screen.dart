@@ -6,7 +6,7 @@ import 'package:kwik_port/api/controller/home/dashboard_api.dart';
 import 'package:kwik_port/api/model/dashboard_model.dart';
 import 'package:kwik_port/api/utils/money_util.dart';
 import 'package:kwik_port/colors/color.dart';
-import 'package:kwik_port/ui/home/dashboard/exportJourney/export_journey_screen.dart';
+import 'package:kwik_port/ui/home/dashboard/exportJourney/current_export_stage_screen.dart';
 import 'package:kwik_port/ui/home/dashboard/procurement%20Agency/agency_container.dart';
 import 'package:kwik_port/ui/home/dashboard/procurement%20Agency/agency_details_dialog.dart';
 import 'package:kwik_port/ui/home/dashboard/procurement%20Agency/agency_selection_confirmed_dialog.dart';
@@ -16,12 +16,12 @@ import 'package:kwik_port/utils/button/loading_dialog.dart';
 import 'package:kwik_port/utils/text/textstyle.dart';
 import 'package:provider/provider.dart';
 
-class PackagingAndDocumentation extends StatefulWidget {
+class LogisticsScreen extends StatefulWidget {
   final KwikTicketModel? kwikticket;
   final int stageType;
   final String exporterContractId;
 
-  const PackagingAndDocumentation({
+  const LogisticsScreen({
     super.key,
     required this.kwikticket,
     required this.stageType,
@@ -29,11 +29,10 @@ class PackagingAndDocumentation extends StatefulWidget {
   });
 
   @override
-  State<PackagingAndDocumentation> createState() =>
-      _PackagingAndDocumentationState();
+  State<LogisticsScreen> createState() => _LogisticsScreenState();
 }
 
-class _PackagingAndDocumentationState extends State<PackagingAndDocumentation> {
+class _LogisticsScreenState extends State<LogisticsScreen> {
   @override
   void initState() {
     super.initState();
@@ -61,7 +60,7 @@ class _PackagingAndDocumentationState extends State<PackagingAndDocumentation> {
             alignment: Alignment.centerLeft,
             child: backNavRow(
               context,
-              "Packaging & Documentation",
+              "Logistics & Transportation",
               fontSize: 18.0,
               fontWeight: FontWeight.w500,
             ),
@@ -96,7 +95,7 @@ class _PackagingAndDocumentationState extends State<PackagingAndDocumentation> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        "Export Documentation & Packaging",
+                        "Logistics & Transportation",
                         style: kwikTextStlye(
                           14.0,
                           FontWeight.w600,
@@ -104,7 +103,7 @@ class _PackagingAndDocumentationState extends State<PackagingAndDocumentation> {
                         ),
                       ),
                       Text(
-                        "Your gross export earning is already credited in your KwikLC wallet. Agency fees for Packaging, Quality & Documentation will be automatically deducted in USD before withdrawal becomes available",
+                        "Select a trusted logistics agency to handle transportation of your commodities. Agency fees will be automatically deducted in USD from your KwikLC wallet.",
                         textAlign: TextAlign.start,
                         style: kwikTextStlye(
                           12.0,
@@ -122,7 +121,7 @@ class _PackagingAndDocumentationState extends State<PackagingAndDocumentation> {
           Align(
             alignment: Alignment.centerLeft,
             child: Text(
-              "Select Packaging Agency",
+              "Select Logistics Agency",
               style: kwikTextStlye(16.0, FontWeight.w600, colorCodes.black),
             ),
           ),
@@ -184,7 +183,6 @@ class _PackagingAndDocumentationState extends State<PackagingAndDocumentation> {
                       stageType: widget.stageType,
                     );
 
-                    // Store selected agency in provider
                     if (context.mounted) {
                       context
                           .read<SelectedAgencyProvider>()
@@ -198,10 +196,8 @@ class _PackagingAndDocumentationState extends State<PackagingAndDocumentation> {
                           builder: (BuildContext context) {
                             return AgencySelectionConfirmedDialog(
                               serviceFee: MoneyUtils.formatMoney(serviceFeeInUSD, symbol: "\$", decimalDigits: 2),
-                              totalcostTons:
-                                  "${widget.kwikticket?.totalQuantity ?? '0'} tons",
-                              totalCost:
-                                  "₦${widget.kwikticket?.kwikTicketAmount ?? '0'}",
+                              totalcostTons: "${widget.kwikticket?.totalQuantity ?? '0'} tons",
+                              totalCost: "₦${widget.kwikticket?.kwikTicketAmount ?? '0'}",
                               continueFunc: () async {
                                 Navigator.pop(context);
 
@@ -214,12 +210,11 @@ class _PackagingAndDocumentationState extends State<PackagingAndDocumentation> {
                                 );
 
                                 if (export != null && context.mounted) {
-                                  Navigator.push(
+                                  Navigator.pushReplacement(
                                     context,
                                     MaterialPageRoute(
-                                      builder: (_) => ExportJourneyScreen(
+                                      builder: (_) => CurrentExportStageScreen(
                                         kwikticket: widget.kwikticket,
-                                        exporterContractId: widget.exporterContractId,
                                         exportData: export,
                                       ),
                                     ),

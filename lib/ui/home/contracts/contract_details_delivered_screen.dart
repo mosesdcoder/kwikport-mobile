@@ -3,6 +3,7 @@ import 'package:hexcolor/hexcolor.dart';
 import 'package:kwik_port/api/controller/kwikTickets/create_kwikticket_api.dart';
 import 'package:kwik_port/api/model/dashboard_model.dart';
 import 'package:kwik_port/api/model/userModel.dart';
+import 'package:kwik_port/api/utils/money_util.dart';
 import 'package:kwik_port/colors/color.dart';
 import 'package:kwik_port/main.dart';
 import 'package:kwik_port/ui/home/contracts/generate_contract_ticket_dialog.dart';
@@ -48,49 +49,53 @@ class _ContractDetailsDeliveredScreenState
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Row(
-                children: [
-                  InkWell(
-                    onTap: () {
-                      currentIndex = 2;
-                      Navigator.pop(context);
-                    },
-                    child: Image.asset(
-                      'assets/images/icons/button back.png',
-                      height: 48,
-                      width: 48,
+              Expanded(
+                child: Row(
+                  children: [
+                    InkWell(
+                      onTap: () {
+                        currentIndex = 2;
+                        Navigator.pop(context);
+                      },
+                      child: Image.asset(
+                        'assets/images/icons/button back.png',
+                        height: 48,
+                        width: 48,
+                      ),
                     ),
-                  ),
-                  SizedBox(width: 12),
-                  Column(
-                    children: [
-                      FittedBox(
-                        child: Text(
-                          "Contract details",
-                          style: TextStyle(
-                            fontFamily: 'Poppins',
-                            fontSize: 18.0,
-                            fontWeight: FontWeight.w600,
-                            color: colorCodes.black,
+                    SizedBox(width: 12),
+                    Flexible(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "Contract details",
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              fontFamily: 'Poppins',
+                              fontSize: 18.0,
+                              fontWeight: FontWeight.w600,
+                              color: colorCodes.black,
+                            ),
                           ),
-                        ),
-                      ),
-                      SizedBox(height: 2),
-                      FittedBox(
-                        child: Text(
-                          widget.contract.contractId,
-                          style: TextStyle(
-                            fontFamily: 'Poppins',
-                            fontSize: 14.0,
-                            fontWeight: FontWeight.w500,
-                            color: colorCodes.aluminium,
+                          SizedBox(height: 2),
+                          Text(
+                            widget.contract.contractId,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              fontFamily: 'Poppins',
+                              fontSize: 14.0,
+                              fontWeight: FontWeight.w500,
+                              color: colorCodes.aluminium,
+                            ),
                           ),
-                        ),
+                        ],
                       ),
-                    ],
-                  ),
-                ],
+                    ),
+                  ],
+                ),
               ),
+              SizedBox(width: 8),
               Row(
                 children: [
                   Image.asset(
@@ -295,27 +300,27 @@ class _ContractDetailsDeliveredScreenState
                 SizedBox(height: 4),
                 overviewRichText(
                   "Price per Ton (₦)",
-                  "₦${widget.contract.pricePerUnitInNGN}",
+                  "${MoneyUtils.formatMoney(widget.contract.pricePerUnitInNGN)}",
                 ),
                 SizedBox(height: 4),
                 overviewRichText(
                   "Projected Earnings per Ton (USD)",
-                  "${widget.contract.pricePerUnitInUSD}",
+                  "${MoneyUtils.formatMoney(widget.contract.pricePerUnitInUSD, symbol: '\$')}",
                 ),
                 SizedBox(height: 4),
                 overviewRichText(
                   "Contract Duration",
-                  "${widget.contract.contractDuration} days from activation",
+                  "${widget.contract.exportNumberOfDays} days from activation",
                 ),
                 SizedBox(height: 4),
                 overviewRichText(
                   "Buyer Price per Ton (NGN)",
-                  "${widget.contract.buyerSpecification?.buyerPricePerUnit}",
+                  "${MoneyUtils.formatMoney(widget.contract.buyerSpecification?.buyerPricePerUnit)}",
                 ),
                 SizedBox(height: 4),
                 overviewRichText(
                   "Quick Snapshot",
-                  "${widget.contract.totalQuantity} tons | ₦${widget.contract.buyerSpecification?.buyerPricePerUnit}ton | ${widget.contract.pricePerUnitInUSD} projected earnings",
+                  "${widget.contract.totalQuantity} tons | ${MoneyUtils.formatMoney(widget.contract.buyerSpecification?.buyerPricePerUnit)}ton | ${MoneyUtils.formatMoney(widget.contract.pricePerUnitInUSD)} projected earnings",
                 ),
                 SizedBox(height: 34),
                 Text(
@@ -756,15 +761,16 @@ class _ContractDetailsDeliveredScreenState
             ),
           ),
           SizedBox(height: 35),
-          kwikbutton("Generate KwikTicket", () {
-            if (checkterms == true) {
-              showDialog(
-                barrierDismissible: false,
-                context: context,
-
-                builder: (BuildContext context) {
-                  return GenerateContractTicketDialog(
-                    contract: widget.contract,
+          kwikbutton(
+            "Generate KwikTicket",
+            checkterms
+                ? () {
+                    showDialog(
+                      barrierDismissible: false,
+                      context: context,
+                      builder: (BuildContext context) {
+                        return GenerateContractTicketDialog(
+                          contract: widget.contract,
                     // generateFunc: () async {
                     //   final newTicket = await createTicketApi
                     //       .createKwikTicket(
@@ -810,11 +816,13 @@ class _ContractDetailsDeliveredScreenState
 
                     //   currentIndex = 3;
                     // },
-                  );
-                },
-              );
-            }
-          }),
+                        );
+                      },
+                    );
+                  }
+                : null,
+            enabled: checkterms,
+          ),
           SizedBox(height: 55),
         ],
       ),

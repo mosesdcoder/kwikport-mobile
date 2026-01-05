@@ -291,6 +291,10 @@ Widget ticketDetailContainer(
             ),
           ],
         ),
+         SizedBox(
+          width: 342,
+          
+        ),
       ],
     ),
   );
@@ -486,6 +490,7 @@ Widget exporttDetailContainer(
                   ),
                 ],
               ),
+                SizedBox(width: 15),
             ],
           ),
         ),
@@ -527,7 +532,9 @@ Widget exporttDetailContainer(
         ),
       ],
     ),
+
   );
+
 }
 
 dataDetail(title1, title2, detail1, detail2) {
