@@ -118,6 +118,7 @@ class _FreightForwardingStageScreenState extends State<FreightForwardingStageScr
                             agencyName: agency.name,
                             kwikticket: widget.kwikticket,
                             agencyId: agency.id,
+                            agencyType: 5,
                           ),
                         );
                       },

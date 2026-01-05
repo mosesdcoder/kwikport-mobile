@@ -118,6 +118,7 @@ class _LogisticsStageScreenState extends State<LogisticsStageScreen> {
                             agencyName: agency.name,
                             kwikticket: widget.kwikticket,
                             agencyId: agency.id,
+                            agencyType: 4,
                           ),
                         );
                       },

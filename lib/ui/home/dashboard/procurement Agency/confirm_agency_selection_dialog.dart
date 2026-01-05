@@ -20,6 +20,7 @@ class ConfirmAgencySelectionDialog extends StatefulWidget {
 
   final agencyName, serviceFee, totalcostTons, totalCost, agencyId;
   final String? agencyFeeDisplay;
+  final int agencyType;
   const ConfirmAgencySelectionDialog({
     super.key,
     required this.serviceFee,
@@ -29,6 +30,7 @@ class ConfirmAgencySelectionDialog extends StatefulWidget {
     required this.kwikticket,
     required this.agencyId,
     this.agencyFeeDisplay,
+    this.agencyType = 1,
   });
 
   @override
@@ -270,6 +272,7 @@ class _ConfirmAgencySelectionDialogState
                           final exportId = selectedExport.id;
 
                           debugPrint("✅ Selected Export ID: $exportId");
+                          debugPrint("🎯 Using Agency Type: ${widget.agencyType}");
                           selectagencyProvider
                               .selectAgency(
                                 exporterContractId: exportId,
@@ -280,7 +283,7 @@ class _ConfirmAgencySelectionDialogState
                                 //
                                 // widget.kwikticket?.exporter?.id ?? '',
                                 agencyId: widget.agencyId,
-                                stageType: 2,
+                                stageType: widget.agencyType,
                               )
                               .then((_) async {
                                 if (!mounted) return;

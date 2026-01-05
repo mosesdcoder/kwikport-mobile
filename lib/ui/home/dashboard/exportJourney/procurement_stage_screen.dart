@@ -129,6 +129,7 @@ class _ProcurementStageScreenState extends State<ProcurementStageScreen> {
                             agencyName: agency.name,
                             kwikticket: widget.kwikticket,
                             agencyId: agency.id,
+                            agencyType: 2,
                           ),
                         );
                       },

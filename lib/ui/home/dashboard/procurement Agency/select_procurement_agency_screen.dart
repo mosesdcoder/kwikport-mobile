@@ -44,6 +44,15 @@ class _SelectProcurementAgencyScreenState
     debugPrint('  - AgencyType: ${widget.agencyType}');
     debugPrint('  - KwikTicket exists: ${widget.kwikticket != null}');
     debugPrint('  - KwikTicket ID: ${widget.kwikticket?.id}');
+    
+    if (widget.kwikticket != null) {
+      debugPrint('  - quantityToFulfill: ${widget.kwikticket!.quantityToFulfill}');
+      debugPrint('  - totalQuantity: ${widget.kwikticket!.totalQuantity}');
+      debugPrint('  - contract exists: ${widget.kwikticket!.contract != null}');
+      if (widget.kwikticket!.contract != null) {
+        debugPrint('  - contract.totalQuantity: ${widget.kwikticket!.contract!.totalQuantity}');
+      }
+    }
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       final prefs = await SharedPreferences.getInstance();
@@ -93,13 +102,22 @@ class _SelectProcurementAgencyScreenState
   }
 
   Future<void> _fetchInitialAgency() async {
+    debugPrint('📡 _fetchInitialAgency called');
+    
     final agencyApi = Provider.of<GetAgencyApi>(context, listen: false);
     final tonnage = _getTonnage();
+    
+    debugPrint('  - Tonnage for API call: $tonnage');
+    
     if (tonnage == null) {
+      debugPrint('  ❌ Tonnage is null, showing error');
       _showTonnageError();
       return;
     }
+    
+    debugPrint('  ✅ Fetching agencies with tonnage: $tonnage, agencyType: ${widget.agencyType}');
     await agencyApi.fetchAgenciesByStageType(widget.agencyType, tonnage: tonnage);
+    debugPrint('  - Fetch completed. Agencies count: ${agencyApi.agencies.length}');
   }
 
   Future<void> _refresh() async {
@@ -138,6 +156,7 @@ class _SelectProcurementAgencyScreenState
   }
 
   void _showTonnageError() {
+    debugPrint('⚠️ Showing tonnage error snackbar');
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text('Error: Unable to determine tonnage for agency calculation'),
@@ -319,6 +338,7 @@ class _SelectProcurementAgencyScreenState
                           debugPrint('  - totalcostTons: $tonnage');
                           debugPrint('  - totalCost: $totalCostNGN');
                           debugPrint('  - agencyFeeDisplay: $formattedAgencyFee');
+                          debugPrint('  - agencyType: ${widget.agencyType}');
                           
                           showDialog(
                             barrierDismissible: false,
@@ -332,6 +352,7 @@ class _SelectProcurementAgencyScreenState
                                   agencyName: agency.name,
                                   kwikticket: widget.kwikticket,
                                   agencyId: agency.id,
+                                  agencyType: widget.agencyType,
                                 ),
                           );
                         },

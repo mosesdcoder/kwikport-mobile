@@ -135,6 +135,7 @@ class _PackagingStageScreenState extends State<PackagingStageScreen> {
                             agencyName: agency.name,
                             kwikticket: widget.kwikticket,
                             agencyId: agency.id,
+                            agencyType: 3,
                           ),
                         );
                       },
