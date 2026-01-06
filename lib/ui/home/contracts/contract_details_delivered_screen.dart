@@ -126,11 +126,21 @@ class _ContractDetailsDeliveredScreenState
               children: [
                 Stack(
                   children: [
-                    Image.network(
-                      widget.contract.commodityImage ??
-                          "https://kwikport.s3.eu-west-3.amazonaws.com/commodity-images/cocoa.png",
-                      height: 238,
-                      width: 342,
+                    Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(16),
+
+                        child: Image.network(
+                          widget.contract.commodityImage ??
+                              "https://kwikport.s3.eu-west-3.amazonaws.com/commodity-images/cocoa.png",
+                          height: 238,
+                          width: 342,
+                          fit: BoxFit.fill,
+                        ),
+                      ),
                     ),
                     Positioned(
                       top: 35,
@@ -765,7 +775,6 @@ class _ContractDetailsDeliveredScreenState
                 builder: (BuildContext context) {
                   return GenerateContractTicketDialog(
                     contract: widget.contract,
-                  
                   );
                 },
               );

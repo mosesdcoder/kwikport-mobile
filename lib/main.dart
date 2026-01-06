@@ -106,7 +106,9 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         colorScheme: colorScheme.copyWith(background: colorCodes.whiteSmoke),
       ),
-      home: const MediaQuery(data: MediaQueryData(), child: SplashScreen()),
+      home:
+      // Scaffold(body: Center(child: Text('App Started'))),
+      const MediaQuery(data: MediaQueryData(), child: SplashScreen()),
     );
   }
 }

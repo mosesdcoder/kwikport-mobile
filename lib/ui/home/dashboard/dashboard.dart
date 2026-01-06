@@ -317,7 +317,11 @@ class _DashboardState extends State<Dashboard> {
         dashboardApi.data?.totalExportContractBalance ?? 0.0;
     print('Total Export Contract Balance: $totalExportContractBalance');
     print('KwikTicket passed to MyExportsScreen: ${widget}');
-    print('dashboard data: ${dashboardApi.data?.exports.first.toJson()}');
+    // print('dashboard data: ${dashboardApi.data?.exports.first.toJson()}');
+    if (dashboardApi.data?.exports != null &&
+        dashboardApi.data!.exports.isNotEmpty) {
+      print('dashboard data: ${dashboardApi.data!.exports.first.toJson()}');
+    }
 
     final activeTickets = dashboardApi.activeKwikTicketsCount;
     // final activeContracts = dashboardApi.getActiveExportsCount;

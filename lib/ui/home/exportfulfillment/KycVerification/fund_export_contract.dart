@@ -346,7 +346,7 @@ class _FundExportContractState extends State<FundExportContract> {
                       SizedBox(height: 15),
                       paymentContainer(
                         "Kwik Balance",
-                        "Available: ${MoneyUtils.formatMoney(dashboardApi.data!.walletBalance)}",
+                        "Available: ${MoneyUtils.formatMoney(dashboardApi.data?.walletBalance ?? 0.0)}",
                         selectKwikBalance,
                         () {
                           setState(() {
@@ -587,7 +587,7 @@ class _FundExportContractState extends State<FundExportContract> {
                               await fundTicketApi
                                   .fundTicket(
                                     kwikTicketId: widget.kwikticket.id,
-                                    exporterId: widget.kwikticket.exporter!.id,
+                                    exporterId: widget.kwikticket.exporter?.id ?? "",
                                     fundingMethod: 1,
                                   )
                                   .then((_) {
@@ -622,7 +622,7 @@ class _FundExportContractState extends State<FundExportContract> {
                               await fundTicketApi
                                   .fundTicket(
                                     kwikTicketId: widget.kwikticket.id,
-                                    exporterId: widget.kwikticket.exporter!.id,
+                                    exporterId: widget.kwikticket.exporter?.id ?? "",
                                     fundingMethod: 2,
                                   )
                                   .then((_) {
