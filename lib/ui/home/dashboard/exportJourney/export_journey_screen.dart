@@ -239,6 +239,68 @@ class _ExportJourneyScreenState extends State<ExportJourneyScreen> {
     }
   }
 
+  // ❌ NOT USED - Commenting out for now
+  // Future<void> _initJourney() async {
+  //   await _resetJourneyPersistency();
+  //   _resetUIState();
+  //   await _fetchAllStages();
+  //
+  //   _autoRefreshTimer = Timer.periodic(const Duration(seconds: 30), (_) async {
+  //     await _autoRefreshIncompleteStages();
+  //   });
+  //
+  //   setState(() => isLoading = false);
+  // }
+
+  // ❌ NOT USED - Commenting out for now
+  // Future<void> _resetJourneyPersistency() async {
+  //   final prefs = await SharedPreferences.getInstance();
+  //   await prefs.remove('activeExportContractId');
+  //   await prefs.remove('journeyInProgress');
+  //   await prefs.remove('procurementCompleted');
+  //   await prefs.remove('procurementInProgress');
+  //   await prefs.remove('packagingCompleted');
+  //   await prefs.remove('packagingInProgress');
+  //   await prefs.remove('procurementStartTime');
+  //
+  //   await prefs.setString('activeExportContractId', widget.exporterContractId);
+  //   await prefs.setBool('journeyInProgress', true);
+  // }
+
+  // ❌ NOT USED - Commenting out for now
+  // void _resetUIState() {
+  //   stageStates = [
+  //     StageStatus.pending,
+  //     StageStatus.pending,
+  //     StageStatus.pending,
+  //     StageStatus.pending,
+  //     StageStatus.pending,
+  //   ];
+  //   stageSubStages.clear();
+  //
+  //   final exportProvider = Provider.of<ExportSubStageApi>(
+  //     context,
+  //     listen: false,
+  //   );
+  //   exportProvider.subStages = [];
+  // }
+
+  // ❌ NOT USED - Commenting out for now
+  // Future<void> _fetchAllStages() async {
+  //   for (int stage = 1; stage <= _stageTitles.length; stage++) {
+  //     await _fetchStage(stage);
+  //   }
+  // }
+
+  // ❌ NOT USED - Commenting out for now
+  // Future<void> _autoRefreshIncompleteStages() async {
+  //   for (int stage = 1; stage <= _stageTitles.length; stage++) {
+  //     if (stageStates[stage - 1] != StageStatus.completed) {
+  //       await _fetchStage(stage);
+  //     }
+  //   }
+  // }
+
   @override
   void dispose() {
     _autoRefreshTimer?.cancel();
