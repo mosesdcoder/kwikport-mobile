@@ -4,6 +4,7 @@ import 'package:kwik_port/colors/color.dart';
 import 'package:kwik_port/utils/text/textstyle.dart';
 
 Widget walletBalanceContainer(
+  balance,
   walletTitle,
   backgroundColor,
   color1,
@@ -11,6 +12,8 @@ Widget walletBalanceContainer(
   starimg,
   lastUpdated,
   walletId,
+  isVisible,
+  visibilityFunc,
 ) {
   return Container(
     height: 203,
@@ -47,7 +50,7 @@ Widget walletBalanceContainer(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 Text(
-                  "N45,658.02",
+                  balance,
 
                   style: kwikTextStlye(
                     24.0,
@@ -58,6 +61,7 @@ Widget walletBalanceContainer(
                 ),
                 SizedBox(width: 4),
                 InkWell(
+                  onTap: visibilityFunc,
                   child: Container(
                     height: 27,
                     width: 27,
@@ -67,7 +71,9 @@ Widget walletBalanceContainer(
                       borderRadius: BorderRadius.circular(50),
                     ),
                     child: Image.asset(
-                      "assets/images/icons/eye-slash.png",
+                      isVisible == true
+                          ? 'assets/images/icons/eye.png'
+                          : "assets/images/icons/eye-slash.png",
                       height: 18,
                       width: 18,
                       color: colorCodes.white,

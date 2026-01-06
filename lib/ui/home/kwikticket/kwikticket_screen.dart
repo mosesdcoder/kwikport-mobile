@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:kwik_port/api/model/dashboard_model.dart';
+import 'package:kwik_port/api/utils/money_util.dart';
 import 'package:kwik_port/colors/color.dart';
 import 'package:kwik_port/main.dart';
 import 'package:kwik_port/ui/home/exportfulfillment/export_fulfillment_screen.dart';
@@ -27,6 +28,7 @@ class KwikticketScreen extends StatefulWidget {
 }
 
 class _KwikticketScreenState extends State<KwikticketScreen> {
+  
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -134,8 +136,8 @@ class _KwikticketScreenState extends State<KwikticketScreen> {
                     contractDetailHeadingAndSubtitletwo(
                       "Selected Capacity",
                       "Commodity Cost",
-                      "${widget.kwikticket.contract?.totalQuantity} Tons",
-                      "${widget.kwikticket.kwikTicketAmount}",
+                      "${widget.kwikticket.quantityToFulfill} Tons",
+                      "${MoneyUtils.formatMoney(widget.kwikticket.kwikTicketAmount ?? 0)}",
                       // "20.5 tons",
                       // "₦246,000,000",
                       fontFamily: "",
@@ -166,7 +168,7 @@ class _KwikticketScreenState extends State<KwikticketScreen> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          "₦${widget.kwikticket.contract?.buyerSpecification?.buyerPricePerUnit}",
+                          "${MoneyUtils.formatMoney(widget.kwikticket.contract?.buyerSpecification?.buyerPricePerUnit ?? 0)}",
                           style: kwikTextStlye(
                             14.0,
                             FontWeight.w600,
@@ -181,7 +183,7 @@ class _KwikticketScreenState extends State<KwikticketScreen> {
                               width: 16,
                             ),
                             Text(
-                              "${widget.kwikticket.contract?.projectedIncome}%",
+                              "${MoneyUtils.formatMoney(widget.kwikticket.projectedIncomeInDollars ?? 0, symbol: "\$")}",
                               style: kwikTextStlye(
                                 14.0,
                                 FontWeight.w600,
@@ -207,7 +209,7 @@ class _KwikticketScreenState extends State<KwikticketScreen> {
                           ),
                         ),
                         Text(
-                          "Status",
+                          "Ticket Status",
                           style: kwikTextStlye(
                             12.0,
                             FontWeight.w300,
@@ -262,14 +264,14 @@ class _KwikticketScreenState extends State<KwikticketScreen> {
                         ),
                       ],
                     ),
-                    SizedBox(height: 22),
+                    SizedBox(height: 33),
                     Container(
-                      height: 58,
-                      width: 335,
+                      height: 87,
+                      width: 345,
                       alignment: Alignment.center,
                       padding: EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 10,
+                        horizontal: 6,
+                        vertical: 8,
                       ),
                       decoration: BoxDecoration(
                         color: colorCodes.white,
@@ -292,7 +294,7 @@ class _KwikticketScreenState extends State<KwikticketScreen> {
                           SizedBox(
                             width: 232,
                             child: Text(
-                              "This ticket represents your secured allocation in this export contract.",
+                              "This ticket represents your secured allocation in this export contract, please note that this ticket is only valid for 24 hours.",
                               style: kwikTextStlye(
                                 12.0,
                                 FontWeight.w300,
@@ -307,7 +309,7 @@ class _KwikticketScreenState extends State<KwikticketScreen> {
                 ),
               ),
               SizedBox(height: 20),
-              kwikbutton("Fulfill Ticket", () {
+              kwikbutton("Activate Ticket", () {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
@@ -319,7 +321,7 @@ class _KwikticketScreenState extends State<KwikticketScreen> {
                 );
                 currentIndex = 3;
               }),
-              SizedBox(height: 40),
+              SizedBox(height: 80),
             ],
           ),
         ],

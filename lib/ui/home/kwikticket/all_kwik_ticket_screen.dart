@@ -1,9 +1,13 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:kwik_port/api/controller/kwikTickets/get_kwik_ticket_api.dart';
+import 'package:kwik_port/api/model/dashboard_model.dart';
 import 'package:kwik_port/colors/color.dart';
 import 'package:kwik_port/main.dart';
+import 'package:kwik_port/ui/home/exportfulfillment/KycVerification/fund_export_contract.dart';
+import 'package:kwik_port/ui/home/exportfulfillment/export_fulfillment_screen.dart';
 import 'package:kwik_port/ui/home/kwikticket/ticket_details_container.dart';
 import 'package:kwik_port/utils/button/back_nav_header.dart';
 import 'package:kwik_port/utils/button/bottom_navigatior_bar.dart';
@@ -11,10 +15,30 @@ import 'package:provider/provider.dart';
 import 'package:swipe_refresh/swipe_refresh.dart';
 
 class AllKwikTicketScreen extends StatefulWidget {
-  const AllKwikTicketScreen({super.key});
+  final KwikTicketModel? kwikticket;
+  final String? pendingKwikticketId;
+
+  const AllKwikTicketScreen({
+    super.key,
+    this.kwikticket,
+    this.pendingKwikticketId,
+  });
 
   @override
   State<AllKwikTicketScreen> createState() => _AllKwikTicketScreenState();
+}
+
+enum KwikTicketStatusEnum {
+  active(1),
+  awaitingPayment(2),
+
+  completed(3),
+  expired(4),
+  paid(5),
+  cancelled(6);
+
+  final int value;
+  const KwikTicketStatusEnum(this.value);
 }
 
 class _AllKwikTicketScreenState extends State<AllKwikTicketScreen>
@@ -64,11 +88,13 @@ class _AllKwikTicketScreenState extends State<AllKwikTicketScreen>
           // Adjust filtering based on your backend status codes
           switch (statusFilter) {
             case "awaiting":
-              return t.kwikTicketStatus == 1;
+              return t.kwikTicketStatus ==
+                  KwikTicketStatusEnum.awaitingPayment.value;
             case "active":
-              return t.kwikTicketStatus == 2;
+              return t.kwikTicketStatus == KwikTicketStatusEnum.active.value;
+
             case "fulfilled":
-              return t.kwikTicketStatus == 4;
+              return t.kwikTicketStatus == KwikTicketStatusEnum.paid.value;
             default:
               return true;
           }
@@ -134,6 +160,7 @@ class _AllKwikTicketScreenState extends State<AllKwikTicketScreen>
                           ticketProvider,
                           statusFilter: "active",
                         ),
+
                         _buildTicketList(
                           ticketProvider,
                           statusFilter: "fulfilled",
@@ -204,6 +231,7 @@ class _AllKwikTicketScreenState extends State<AllKwikTicketScreen>
         tabs: [
           Tab(text: "Awaiting"),
           Tab(text: "Active"),
+
           Tab(text: "Fulfilled"),
         ],
       ),
@@ -229,24 +257,93 @@ class _AllKwikTicketScreenState extends State<AllKwikTicketScreen>
 
     final filteredTickets =
         provider.tickets.where((t) {
-          // Adjust filtering based on your backend status codes
           switch (statusFilter) {
             case "awaiting":
-              return t.kwikTicketStatus == 1;
+              return t.kwikTicketStatus ==
+                  KwikTicketStatusEnum.awaitingPayment.value;
             case "active":
-              return t.kwikTicketStatus == 2;
+              return t.kwikTicketStatus == KwikTicketStatusEnum.active.value;
             case "fulfilled":
-              return t.kwikTicketStatus == 4;
+              return t.kwikTicketStatus == KwikTicketStatusEnum.paid.value;
             default:
               return true;
           }
         }).toList();
+
+    // 🔥 Sort newest ticket on top
+    // filteredTickets.sort((a, b) {
+    //   final dateA = a.createdAt ?? DateTime(2000);
+    //   final dateB = b.createdAt ?? DateTime(2000);
+    //   return dateB.compareTo(dateA);
+    // });
     // final allTickets = provider.tickets;
 
+    // if (filteredTickets.isEmpty) {
+    //   return const Center(child: Text("No tickets found"));
+    // }
+    // ✅ If no tickets match this category
     if (filteredTickets.isEmpty) {
-      return const Center(child: Text("No tickets found"));
+      String emptyMessage;
+      switch (statusFilter) {
+        case "awaiting":
+          emptyMessage = "No awaiting tickets";
+          break;
+        case "active":
+          emptyMessage = "No active tickets";
+          break;
+        case "fulfilled":
+          emptyMessage = "No fulfilled tickets";
+          break;
+        default:
+          emptyMessage = "No tickets found";
+      }
+      
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 60),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                height: 120,
+                width: 120,
+                decoration: BoxDecoration(
+                  color: colorCodes.whiteSmoke,
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  Icons.receipt_long_outlined,
+                  size: 60,
+                  color: colorCodes.graniteGrey.withOpacity(0.4),
+                ),
+              ),
+              const SizedBox(height: 24),
+              Text(
+                emptyMessage,
+                style: TextStyle(
+                  fontFamily: 'Poppins',
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
+                  color: colorCodes.black,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'Your tickets will appear here once available',
+                style: TextStyle(
+                  fontFamily: 'Poppins',
+                  fontSize: 14,
+                  fontWeight: FontWeight.w400,
+                  color: colorCodes.graniteGrey,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
+        ),
+      );
     }
-
     return ListView.separated(
       shrinkWrap: true,
       physics: NeverScrollableScrollPhysics(),
@@ -269,18 +366,22 @@ class _AllKwikTicketScreenState extends State<AllKwikTicketScreen>
           (contract?.totalAmount?.toString() ??
               ticket.kwikTicketAmount.toString()),
           (buyerSpec?.buyerPricePerUnit?.toString() ?? "N/A"),
-          (contract?.projectedIncome?.toString() ?? "N/A"),
-          // ticket.contract?.contractType == 1
-          //     ? "International Buyer"
-          //     : "Local Buyer" ?? "",
-          // ticket.contract?.totalQuantity.toString() ?? "",
-          // ticket.contract?.destinationCountry ?? "",
+          (ticket?.grossEarning?.toString() ?? "N/A"),
 
-          // ticket.contract?.totalAmount ?? "",
-          // ticket.contract?.buyerSpecification?.buyerPricePerUnit ?? "",
-          // ticket.contract?.projectedIncome ?? "",
-          "",
+          DateFormat('yyyy-MM-dd').format(ticket.createdAt ?? DateTime.now()),
           ticket.kwikTicketStatus,
+          () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder:
+                    (context) => ExportFulfillmentScreen(
+                      kwikticket: ticket,
+                     // kwikTicketId: ticket.id!,
+                    ),
+              ),
+            );
+          },
           context,
         );
       },

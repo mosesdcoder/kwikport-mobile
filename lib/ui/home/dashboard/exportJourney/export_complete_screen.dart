@@ -1,17 +1,29 @@
 import 'package:flutter/material.dart';
+import 'package:kwik_port/api/model/dashboard_model.dart';
 import 'package:kwik_port/colors/color.dart';
 import 'package:kwik_port/ui/home/dashboard/dashboard.dart';
 import 'package:kwik_port/utils/text/textstyle.dart';
+import 'dart:developer' as developer;
 
 class ExportCompleteScreen extends StatefulWidget {
-  const ExportCompleteScreen({super.key});
+  final KwikTicketModel? kwikticket;
+  const ExportCompleteScreen({super.key, required this.kwikticket});
 
   @override
   State<ExportCompleteScreen> createState() => _ExportCompleteScreenState();
+  
 }
 
 class _ExportCompleteScreenState extends State<ExportCompleteScreen> {
   @override
+  void initState() {
+  super.initState();
+
+  developer.log(
+    'Commodity ID: ${widget.kwikticket?.commodity?.id}',
+    name: 'ExportCompleteScreen',
+  );
+}
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: colorCodes.azureBlue,
@@ -111,7 +123,7 @@ class _ExportCompleteScreenState extends State<ExportCompleteScreen> {
                           ),
                           SizedBox(width: 6),
                           SizedBox(
-                            width: 270,
+                            width: 280,
                             child: Text(
                               "Congratulations! Your export journey has been completed successfully. Your earnings have been credited to your KwikBalance.",
                               textAlign: TextAlign.start,
@@ -125,6 +137,7 @@ class _ExportCompleteScreenState extends State<ExportCompleteScreen> {
                         ],
                       ),
                     ),
+                    
                     SizedBox(height: 10),
                     Container(
                       height: 54,
@@ -164,7 +177,8 @@ class _ExportCompleteScreenState extends State<ExportCompleteScreen> {
                                         ),
                                       ),
                                       Text(
-                                        "Premium Cocoa Bean",
+                                        widget.kwikticket?.commodity?.id?? //.contract?.commodityName ??
+                                            '',
                                         style: kwikTextStlye(
                                           12.0,
                                           FontWeight.w500,
@@ -237,7 +251,7 @@ class _ExportCompleteScreenState extends State<ExportCompleteScreen> {
                                         ),
                                       ),
                                       Text(
-                                        "₦187,425.00",
+                                        "₦${widget.kwikticket?.projectedIncomeInDollars ?? '0.00'}",
 
                                         style: kwikTextStlye(
                                           fontFamily: "",
@@ -311,7 +325,8 @@ class _ExportCompleteScreenState extends State<ExportCompleteScreen> {
                           ),
                         ),
                         child: Text(
-                          "Share Milestone",
+                          "Continue",
+                          // "Share Milestone",
                           style: kwikTextStlye(
                             14.0,
                             FontWeight.w500,

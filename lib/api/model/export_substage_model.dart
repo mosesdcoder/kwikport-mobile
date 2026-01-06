@@ -31,30 +31,36 @@ class ExportSubStageModel {
     return ExportSubStageModel(
       id: json['id']?.toString() ?? '',
       subStageName: json['subStageName']?.toString() ?? '',
-      order: (json['order'] is int) ? json['order'] : int.tryParse('${json['order']}') ?? 0,
-      estimatedDays: (json['estimatedDays'] is int) ? json['estimatedDays'] : int.tryParse('${json['estimatedDays']}') ?? 0,
+      order:
+          (json['order'] is int)
+              ? json['order']
+              : int.tryParse('${json['order']}') ?? 0,
+      estimatedDays:
+          (json['estimatedDays'] is int)
+              ? json['estimatedDays']
+              : int.tryParse('${json['estimatedDays']}') ?? 0,
       startDate: _parse(json['startDate']),
       completedDate: _parse(json['completedDate']),
       estimatedCompletionDate: _parse(json['estimatedCompletionDate']),
-      isCompleted: json['isCompleted'] == true,
-      isActive: json['isActive'] == true,
+      isCompleted:
+          json['isCompleted'] as bool? ?? false, // ✅ must match API field name
+      isActive: json['isActive'] as bool? ?? false,
       notes: json['notes']?.toString(),
       hangfireJobId: json['hangfireJobId']?.toString(),
     );
   }
 
   Map<String, dynamic> toJson() => {
-        'id': id,
-        'subStageName': subStageName,
-        'order': order,
-        'estimatedDays': estimatedDays,
-        'startDate': startDate?.toIso8601String(),
-        'completedDate': completedDate?.toIso8601String(),
-        'estimatedCompletionDate': estimatedCompletionDate?.toIso8601String(),
-        'isCompleted': isCompleted,
-        'isActive': isActive,
-        'notes': notes,
-        'hangfireJobId': hangfireJobId,
-      };
+    'id': id,
+    'subStageName': subStageName,
+    'order': order,
+    'estimatedDays': estimatedDays,
+    'startDate': startDate?.toIso8601String(),
+    'completedDate': completedDate?.toIso8601String(),
+    'estimatedCompletionDate': estimatedCompletionDate?.toIso8601String(),
+    'isCompleted': isCompleted,
+    'isActive': isActive,
+    'notes': notes,
+    'hangfireJobId': hangfireJobId,
+  };
 }
-

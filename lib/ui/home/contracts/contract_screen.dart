@@ -275,15 +275,17 @@ class _ContractScreenState extends State<ContractScreen>
                               _buildContractList(contractProvider), // All
                               _buildContractList(
                                 contractProvider,
-                                statusFilter: 0,
+                                statusFilter: "Active",
                               ), // Open
                               _buildContractList(
                                 contractProvider,
-                                statusFilter: 1,
+                                statusFilter: "Closed",
                               ), // Closed
                             ],
                           ),
                         ),
+
+                        SizedBox(height: 20,)
                         // FilterResultScreen(),
                       ],
                     ),
@@ -293,6 +295,7 @@ class _ContractScreenState extends State<ContractScreen>
             ),
           ],
         ),
+        
         bottomNavigationBar: Bottomnavigationbar(2),
       ),
     );
@@ -300,7 +303,7 @@ class _ContractScreenState extends State<ContractScreen>
 
   Widget _buildContractList(
     GetContractApi contractProvider, {
-    int? statusFilter,
+    String? statusFilter,
   }) {
     if (contractProvider.loading) {
       return Center(child: kwikportloader());
@@ -346,12 +349,15 @@ class _ContractScreenState extends State<ContractScreen>
                   .toList();
 
       if (selectedCategory != null) {
-        filteredContracts =
-            filteredContracts
-                .where((c) => c.contractCategory == selectedCategory!.value)
-                .toList();
+        print('🔍 Filtering by category: ${selectedCategory!.name} (value: ${selectedCategory!.value})');
+        filteredContracts = filteredContracts.where((c) {
+          print('Contract: ${c.commodityName}, Category: ${c.contractCategory}, Type: ${c.contractCategory.runtimeType}');
+          // Skip contracts with null category
+          if (c.contractCategory == null) return false;
+          return c.contractCategory == selectedCategory!.value;
+        }).toList();
+        print('✅ Filtered contracts count: ${filteredContracts.length}');
       }
-
       return ListView.separated(
         physics: const NeverScrollableScrollPhysics(),
         shrinkWrap: true,
@@ -359,20 +365,27 @@ class _ContractScreenState extends State<ContractScreen>
         itemCount: filteredContracts.length,
         itemBuilder: (_, index) {
           final contract = filteredContracts[index];
+          var tonsRemaining =
+              contract.totalQuantity! - contract.fulfilledQuantity!;
+          var percentageLeft =
+              (tonsRemaining / contract.totalQuantity! ?? 0) * 100;
+          double progressValue = tonsRemaining / contract.totalQuantity!;
+
           return avaiableontractContainer(
             contract.commodityImage ?? "assets/images/cocoa.png",
             contract.commodityName,
             "assets/images/icons/tick-circle.png",
             contract.contractStatus, //== 0 ? "Active" : "Closed",
-            "100 tons",
+            "${contract.totalQuantity ?? 0}", // "100 tons",
             "assets/images/icons/Country.png",
             contract.destinationCountry,
-            "20 tons",
-            "100 tons",
-            "20%",
-            "${contract.totalAmount}",
+            progressValue,
+            "${tonsRemaining}", // "20 tons",
+            "${contract.totalQuantity ?? 0}", //100 tons",
+            "${percentageLeft.toStringAsFixed(1)}% left",
+            "\$${contract.totalAmountInUSD?.toStringAsFixed(2) ?? '0.00'}",
             "assets/images/icons/Trending up.png",
-            "${contract.projectedIncome?.toStringAsFixed(2) ?? '0.00'}%",
+            "${contract.profitRatio?.toStringAsFixed(2) ?? '0.00'}%",
             () {
               Navigator.push(
                 context,
@@ -387,6 +400,7 @@ class _ContractScreenState extends State<ContractScreen>
                 ),
               );
             },
+            "${contract.totalAmountInUSD?.toStringAsFixed(2) ?? '0.00'}",
           );
         },
       );
@@ -404,8 +418,6 @@ class _ContractScreenState extends State<ContractScreen>
         borderRadius: BorderRadius.circular(100),
       ),
       child: TabBar(
-        // indicatorColor: colorCodes.teaGreen,
-        // labelPadding: const EdgeInsets.symmetric(vertical: 12),
         indicatorSize: TabBarIndicatorSize.tab,
 
         labelColor: colorCodes.white,
@@ -419,13 +431,8 @@ class _ContractScreenState extends State<ContractScreen>
           fontFamily: 'Poppins',
           fontSize: 14.0,
           fontWeight: FontWeight.w500,
-          // color: colorCodes
         ),
 
-        // indicatorPadding: const EdgeInsets.symmetric(
-        //   vertical: 4,
-        //   horizontal: 4,
-        // ),
         indicator: BoxDecoration(
           borderRadius: BorderRadius.circular(100),
           border: Border.all(color: colorCodes.frenchSkyBlue),

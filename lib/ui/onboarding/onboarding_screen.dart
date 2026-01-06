@@ -4,6 +4,7 @@ import 'package:kwik_port/ui/onboarding/auth/login_screen.dart';
 import 'package:kwik_port/ui/onboarding/auth/signup_screen.dart';
 import 'package:kwik_port/utils/button/kwik_button.dart';
 import 'package:kwik_port/utils/text/textstyle.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
@@ -54,10 +55,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             onboardingView(
               "assets/images/onboardingFrame 2.png",
               'How It Works',
-              'Pick a KwikTicket. Your share of a real export contractency assigned',
+              'Pick a KwikTicket. Your share of a real export contract assigned',
               'Join with goods (Product Supply) or funds (KwikProcure)',
               'Verified agents handle documentation, logistics & delivery',
-              'Earnings land in your KwikLC Walleterified agents handle documentation, logistics & delivery',
+              'Earnings land in your KwikLC Wallet',
             ),
             onboardingView(
               "assets/images/onboardingFrame 3.png",
@@ -82,6 +83,16 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     );
   }
 
+  Future<void> completeOnboarding(BuildContext context) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('hasSeenOnboarding', true);
+
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (_) => const SignupScreen()),
+    );
+  }
+
   setCurrentPage(int value) {
     currentPage = value;
     setState(() {
@@ -95,10 +106,11 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   void boardDialog() {
     if (currentPage == 3) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => SignupScreen()),
-      );
+      // Navigator.push(
+      //   context,
+      //   MaterialPageRoute(builder: (context) => SignupScreen()),
+      // );
+      completeOnboarding(context);
     } else {
       _pageController.animateToPage(
         currentPage + 1,
@@ -396,7 +408,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     currentPage == 3
                         ? kwikbutton(
                           "Login",
-                          () {
+                          () async {
+                            final prefs = await SharedPreferences.getInstance();
+                            await prefs.setBool('hasSeenOnboarding', true);
                             Navigator.push(
                               context,
                               MaterialPageRoute(

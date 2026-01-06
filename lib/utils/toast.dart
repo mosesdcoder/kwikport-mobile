@@ -24,7 +24,10 @@ void showToastContainer(
     child: ClipRRect(
       borderRadius: BorderRadius.circular(10),
       child: Container(
-        height: 93,
+        constraints: BoxConstraints(
+          minHeight: 73,
+          maxHeight: 120,
+        ),
         width: 390,
         padding: const EdgeInsets.only(
           left: 10,
@@ -40,10 +43,11 @@ void showToastContainer(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
           children: [
             Text(
               title,
-              textAlign: TextAlign.center,
+              textAlign: TextAlign.start,
               style: TextStyle(
                 fontSize: 16,
                 color: colorCodes.white,
@@ -51,13 +55,17 @@ void showToastContainer(
               ),
             ),
             SizedBox(height: 6),
-            Text(
-              message,
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 14,
-                color: colorCodes.graniteGrey,
-                fontWeight: FontWeight.w500,
+            Flexible(
+              child: Text(
+                message,
+                textAlign: TextAlign.start,
+                maxLines: 3,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  fontSize: 14,
+                  color: colorCodes.graniteGrey,
+                  fontWeight: FontWeight.w500,
+                ),
               ),
             ),
           ],

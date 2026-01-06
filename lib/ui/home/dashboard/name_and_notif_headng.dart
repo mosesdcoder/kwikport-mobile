@@ -31,17 +31,68 @@ Widget nameAndNotifHeading(
                 border: Border.all(color: colorCodes.white, width: 2.0),
               ),
               child: Center(
-                child: FittedBox(
-                  child: Text(
-                    _generateInitials(fullname),
-                    style: TextStyle(
-                      fontFamily: "Poppins",
-                      color: HexColor("#FF8A00"), // Set your desired text color
-                      fontWeight: FontWeight.w600,
-                      fontSize: 20,
-                    ),
-                  ),
+                child: CircleAvatar(
+                  radius: 25, // slightly smaller to show border effect
+                  backgroundColor: Colors.transparent,
+                  backgroundImage:
+                      (userDataVar?.image != null &&
+                              userDataVar!.image!.isNotEmpty)
+                          ? NetworkImage(userDataVar!.image!)
+                          : null,
+                  child:
+                      (userDataVar?.image == null ||
+                              userDataVar!.image!.isEmpty)
+                          ? FittedBox(
+                            child: Text(
+                              _generateInitials(
+                                "${userDataVar?.firstName!.toUpperCase()} ${userDataVar?.lastName!.toUpperCase()}",
+                              ),
+                              style: TextStyle(
+                                fontFamily: "Poppins",
+                                color: HexColor("#FF8A00"),
+                                fontWeight: FontWeight.w600,
+                                fontSize: 20,
+                              ),
+                            ),
+                          )
+                          : null,
                 ),
+                // userDataVar?.image != null && userDataVar!.image!.isNotEmpty
+                //     ? Image.network(
+                //       userDataVar!.image!,
+                //       fit: BoxFit.cover,
+                //       width: 51,
+                //       height: 51,
+                //       errorBuilder: (context, error, stackTrace) {
+                //         // fallback to initials if network image fails
+                //         return FittedBox(
+                //           child: Text(
+                //             _generateInitials(
+                //               "${userDataVar?.firstName!.toUpperCase()} ${userDataVar?.lastName!.toUpperCase()}",
+                //             ),
+                //             style: TextStyle(
+                //               fontFamily: "Poppins",
+                //               color: HexColor("#33B1FF"),
+                //               fontWeight: FontWeight.w600,
+                //               fontSize: 20,
+                //             ),
+                //           ),
+                //         );
+                //       },
+                //     )
+                //     : FittedBox(
+                //       child: Text(
+                //         _generateInitials(fullname),
+                //         style: TextStyle(
+                //           fontFamily: "Poppins",
+                //           color: HexColor(
+                //             "#FF8A00",
+                //           ), // Set your desired text color
+                //           fontWeight: FontWeight.w600,
+                //           fontSize: 20,
+                //         ),
+                //       ),
+                //     ),
               ),
             ),
           ),
@@ -153,17 +204,68 @@ Widget nameAndNotifHeading2(
                 border: Border.all(color: colorCodes.white, width: 2.0),
               ),
               child: Center(
-                child: FittedBox(
-                  child: Text(
-                    _generateInitials(fullName),
-                    style: TextStyle(
-                      fontFamily: "Poppins",
-                      color: HexColor("#FF8A00"), // Set your desired text color
-                      fontWeight: FontWeight.w600,
-                      fontSize: 20,
-                    ),
-                  ),
+                child: CircleAvatar(
+                  radius: 25, // slightly smaller to show border effect
+                  backgroundColor: Colors.transparent,
+                  backgroundImage:
+                      (userDataVar?.image != null &&
+                              userDataVar!.image!.isNotEmpty)
+                          ? NetworkImage(userDataVar!.image!)
+                          : null,
+                  child:
+                      (userDataVar?.image == null ||
+                              userDataVar!.image!.isEmpty)
+                          ? FittedBox(
+                            child: Text(
+                              _generateInitials(
+                                "${userDataVar?.firstName!.toUpperCase()} ${userDataVar?.lastName!.toUpperCase()}",
+                              ),
+                              style: TextStyle(
+                                fontFamily: "Poppins",
+                                color: HexColor("#FF8A00"),
+                                fontWeight: FontWeight.w600,
+                                fontSize: 20,
+                              ),
+                            ),
+                          )
+                          : null,
                 ),
+                // userDataVar?.image != null && userDataVar!.image!.isNotEmpty
+                //     ? Image.network(
+                //       userDataVar!.image!,
+                //       fit: BoxFit.cover,
+                //       width: 51,
+                //       height: 51,
+                //       errorBuilder: (context, error, stackTrace) {
+                //         // fallback to initials if network image fails
+                //         return FittedBox(
+                //           child: Text(
+                //             _generateInitials(
+                //               "${userDataVar?.firstName!.toUpperCase()} ${userDataVar?.lastName!.toUpperCase()}",
+                //             ),
+                //             style: TextStyle(
+                //               fontFamily: "Poppins",
+                //               color: HexColor("#33B1FF"),
+                //               fontWeight: FontWeight.w600,
+                //               fontSize: 20,
+                //             ),
+                //           ),
+                //         );
+                //       },
+                //     )
+                //     : FittedBox(
+                //       child: Text(
+                //         _generateInitials(fullName),
+                //         style: TextStyle(
+                //           fontFamily: "Poppins",
+                //           color: HexColor(
+                //             "#FF8A00",
+                //           ), // Set your desired text color
+                //           fontWeight: FontWeight.w600,
+                //           fontSize: 20,
+                //         ),
+                //       ),
+                //     ),
               ),
             ),
           ),

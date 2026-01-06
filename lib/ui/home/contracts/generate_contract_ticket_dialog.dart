@@ -4,9 +4,11 @@ import 'package:kwik_port/api/controller/contractsApi/calculate_commodity_cost.d
 import 'package:kwik_port/api/controller/kwikTickets/create_kwikticket_api.dart';
 import 'package:kwik_port/api/model/dashboard_model.dart';
 import 'package:kwik_port/api/model/userModel.dart';
+import 'package:kwik_port/api/utils/money_util.dart';
 import 'package:kwik_port/colors/color.dart';
 import 'package:kwik_port/main.dart';
 import 'package:kwik_port/ui/home/contracts/kwikticket_created_successfully.dart';
+import 'package:kwik_port/ui/home/kwikticket/save_pending_ticket.dart';
 import 'package:kwik_port/utils/button/kwik_button.dart';
 import 'package:kwik_port/utils/text/textstyle.dart';
 import 'package:kwik_port/utils/textFields/goods_volume_field.dart';
@@ -160,7 +162,12 @@ class _GenerateContractTicketDialogState
                     ],
                   ),
                   SizedBox(height: 12),
-                  Image.asset("assets/images/cocoa.png", height: 52, width: 52),
+                  Image.network(
+                    widget.contract.commodityImage ??
+                        "https://kwikport.s3.eu-west-3.amazonaws.com/commodity-images/cocoa.png",
+                    height: 52,
+                    width: 52,
+                  ),
                   SizedBox(height: 8),
                   Text(
                     "Agricultural Commodity ",
@@ -172,7 +179,7 @@ class _GenerateContractTicketDialogState
                   ),
                   SizedBox(height: 2),
                   Text(
-                    "Cocoa bean",
+                    widget.contract.commodityName ?? "N/A",
                     style: kwikTextStlye(
                       20.0,
                       FontWeight.w600,
@@ -257,9 +264,9 @@ class _GenerateContractTicketDialogState
                   SizedBox(height: 24),
 
                   marketRateContainer(
-                    "${widget.contract.buyerSpecification?.buyerPricePerUnit}",
+                    "${MoneyUtils.formatMoney(widget.contract.pricePerUnitInNGN?.toStringAsFixed(2) ?? 'N/A') }",
                     "Total Cost (${volumeController.text} tons)",
-                    "₦${totalCost ?? 0}",
+                    "${MoneyUtils.formatMoney(totalCost?.toStringAsFixed(2) ?? '0')}",
                     volumeController.text,
                   ),
                   SizedBox(height: 24),
@@ -285,6 +292,11 @@ class _GenerateContractTicketDialogState
                           .then((newTicket) {
                             if (createTicketApi.isSuccessful == true &&
                                 newTicket != null) {
+                              newTicket.quantityToFulfill = double.tryParse(
+                                volumeController.text,
+                              );
+                              savePendingTicket(newTicket.uniqueId!);
+
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
@@ -359,7 +371,7 @@ Widget marketRateContainer(pricePerTon, totalCost, totalCostPrice, volume) {
               ),
             ),
             Text(
-              pricePerTon,
+              "${(pricePerTon)}",// pricePerTon}",
               style: kwikTextStlye(
                 14.0,
                 FontWeight.w600,

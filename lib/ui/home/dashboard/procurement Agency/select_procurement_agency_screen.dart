@@ -5,19 +5,26 @@ import 'package:flutter_countdown_timer/flutter_countdown_timer.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:kwik_port/api/controller/agency/get_agency_api.dart';
 import 'package:kwik_port/api/model/dashboard_model.dart';
+import 'package:kwik_port/api/utils/money_util.dart';
 import 'package:kwik_port/colors/color.dart';
 import 'package:kwik_port/ui/home/dashboard/procurement%20Agency/agency_container.dart';
+import 'package:kwik_port/ui/home/dashboard/procurement%20Agency/agency_details_dialog.dart';
 import 'package:kwik_port/ui/home/dashboard/procurement%20Agency/confirm_agency_selection_dialog.dart';
 import 'package:kwik_port/utils/button/back_nav_header.dart';
 import 'package:kwik_port/utils/button/bottom_navigatior_bar.dart';
-import 'package:kwik_port/utils/button/loading_dialog.dart';
 import 'package:kwik_port/utils/text/textstyle.dart';
 import 'package:provider/provider.dart';
-import 'package:swipe_refresh/swipe_refresh.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SelectProcurementAgencyScreen extends StatefulWidget {
   final KwikTicketModel? kwikticket;
-  const SelectProcurementAgencyScreen({super.key, required this.kwikticket});
+  final int agencyType;
+
+  const SelectProcurementAgencyScreen({
+    super.key,
+    required this.kwikticket,
+    this.agencyType = 1,
+  });
 
   @override
   State<SelectProcurementAgencyScreen> createState() =>
@@ -27,223 +34,341 @@ class SelectProcurementAgencyScreen extends StatefulWidget {
 class _SelectProcurementAgencyScreenState
     extends State<SelectProcurementAgencyScreen> {
   final ScrollController _scrollController = ScrollController();
+  int endTime = DateTime.now().millisecondsSinceEpoch;
 
-  int endTime = DateTime.now().millisecondsSinceEpoch + 86400000; // 24 hours
+  @override
+  void initState() {
+    super.initState();
 
-  int itemCount = 5;
-  // List agencyName = [
-  //   "AgriSource Hub Ltd.",
-  //   "FarmLink Aggregators",
-  //   "GreenGate Procurement",
-  //   "AgroTrust Services",
-  //   "HarvestPoint Aggregators",
-  // ];
-  // String reviewStar = '4.8';
-  // String ratingStr = reviewStar.split('/')[0].replaceAll('(', '').trim();
-  // double agencyrating = double.tryParse('4.8') ?? 0.0; // Safely parse rating
-  final _controller = StreamController<SwipeRefreshState>.broadcast();
-  Stream<SwipeRefreshState> get _stream => _controller.stream;
+    debugPrint('🎬 SelectProcurementAgencyScreen initialized');
+    debugPrint('  - AgencyType: ${widget.agencyType}');
+    debugPrint('  - KwikTicket exists: ${widget.kwikticket != null}');
+    debugPrint('  - KwikTicket ID: ${widget.kwikticket?.id}');
+    
+    if (widget.kwikticket != null) {
+      debugPrint('  - quantityToFulfill: ${widget.kwikticket!.quantityToFulfill}');
+      debugPrint('  - totalQuantity: ${widget.kwikticket!.totalQuantity}');
+      debugPrint('  - contract exists: ${widget.kwikticket!.contract != null}');
+      if (widget.kwikticket!.contract != null) {
+        debugPrint('  - contract.totalQuantity: ${widget.kwikticket!.contract!.totalQuantity}');
+      }
+    }
+
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final prefs = await SharedPreferences.getInstance();
+      final savedExportId = prefs.getString('activeExportContractId');
+      final currentExportId = widget.kwikticket?.exportContractId;
+
+      if (savedExportId == null || savedExportId != currentExportId) {
+        await prefs.remove('procurementStartTime');
+      }
+
+      await prefs.setString('activeExportContractId', currentExportId ?? '');
+
+      final startTime =
+          prefs.getInt('procurementStartTime') ??
+          DateTime.now().millisecondsSinceEpoch;
+
+      await prefs.setInt('procurementStartTime', startTime);
+
+      setState(() {
+        endTime = startTime + const Duration(hours: 24).inMilliseconds;
+      });
+
+      _fetchInitialAgency();
+    });
+
+    _scrollController.addListener(_scrollListener);
+  }
+
   void _scrollListener() {
     final agencyApi = Provider.of<GetAgencyApi>(context, listen: false);
 
     if (_scrollController.position.pixels >=
         _scrollController.position.maxScrollExtent - 200) {
-      // near bottom → fetch more
       if (!agencyApi.loading && agencyApi.hasMore) {
-        agencyApi.fetchAgencies(loadMore: true);
+        final tonnage = _getTonnage();
+        if (tonnage == null) {
+          _showTonnageError();
+          return;
+        }
+        agencyApi.fetchAgencies(
+          tonnage: tonnage,
+          agencyType: widget.agencyType,
+          loadMore: true,
+        );
       }
     }
   }
 
-  @override
-  void initState() {
-    super.initState();
-    // Schedule the API call after the first build phase
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _fetchInitialAgency();
-    });
-    // _scrollController = ScrollController();
-    _scrollController.addListener(_scrollListener);
-  }
-
   Future<void> _fetchInitialAgency() async {
+    debugPrint('📡 _fetchInitialAgency called');
+    
     final agencyApi = Provider.of<GetAgencyApi>(context, listen: false);
-    agencyApi.fetchAgenciesByStageType(2);
+    final tonnage = _getTonnage();
+    
+    debugPrint('  - Tonnage for API call: $tonnage');
+    
+    if (tonnage == null) {
+      debugPrint('  ❌ Tonnage is null, showing error');
+      _showTonnageError();
+      return;
+    }
+    
+    debugPrint('  ✅ Fetching agencies with tonnage: $tonnage, agencyType: ${widget.agencyType}');
+    await agencyApi.fetchAgenciesByStageType(widget.agencyType, tonnage: tonnage);
+    debugPrint('  - Fetch completed. Agencies count: ${agencyApi.agencies.length}');
   }
 
   Future<void> _refresh() async {
-    final api = Provider.of<GetAgencyApi>(context, listen: false);
-    await api.fetchAgenciesByStageType(2);
-    _controller.sink.add(SwipeRefreshState.hidden);
-    // _controller.sink.add(SwipeRefreshState.hidden);
+    final agencyApi = Provider.of<GetAgencyApi>(context, listen: false);
+    final tonnage = _getTonnage();
+    if (tonnage == null) {
+      _showTonnageError();
+      return;
+    }
+    await agencyApi.fetchAgenciesByStageType(widget.agencyType, tonnage: tonnage);
+  }
+
+  int? _getTonnage() {
+    // Try multiple sources for tonnage with fallbacks
+    final quantityToFulfill = widget.kwikticket?.quantityToFulfill;
+    final totalQuantity = widget.kwikticket?.totalQuantity;
+    final contractQuantity = widget.kwikticket?.contract?.totalQuantity;
+
+    debugPrint('🔢 Tonnage calculation:');
+    debugPrint('  - quantityToFulfill: $quantityToFulfill');
+    debugPrint('  - totalQuantity: $totalQuantity');
+    debugPrint('  - contract.totalQuantity: $contractQuantity');
+
+    // Find the first non-null and non-zero value
+    final tonnage = (quantityToFulfill != null && quantityToFulfill > 0)
+        ? quantityToFulfill.toInt()
+        : (totalQuantity != null && totalQuantity > 0)
+            ? totalQuantity.toInt()
+            : (contractQuantity != null && contractQuantity > 0)
+                ? contractQuantity.toInt()
+                : null;
+
+    debugPrint('  - Final tonnage used: $tonnage');
+
+    return tonnage;
+  }
+
+  void _showTonnageError() {
+    debugPrint('⚠️ Showing tonnage error snackbar');
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Error: Unable to determine tonnage for agency calculation'),
+        backgroundColor: Colors.red,
+        duration: Duration(seconds: 4),
+      ),
+    );
   }
 
   @override
   void dispose() {
     _scrollController.dispose();
-    _controller.close();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     final agencyProvider = Provider.of<GetAgencyApi>(context);
-    // final selectagencyPRovider = Provider.of<ExportStageApi>(context);
 
     return Scaffold(
-      extendBody: true,
       backgroundColor: colorCodes.whiteSmoke,
-      body: ListView(
-        controller: _scrollController,
-        // physics: const AlwaysScrollableScrollPhysics(),
-        children: [
-          SizedBox(
-            height: MediaQuery.of(context).size.height - 20,
 
-            child: SwipeRefresh.adaptive(
-              stateStream: _stream,
-              onRefresh: _refresh,
-
-              children: [
-                Padding(
-                  // physics: NeverScrollableScrollPhysics(),
-                  padding: EdgeInsets.only(
-                    left: 20,
-                    right: 20,
-                    bottom: 70,
-                    top: 40,
-                  ),
-
-                  child: Column(
-                    children: [
-                      backNavRow(
-                        context,
-                        "Select Procurement Agency",
-                        fontSize: 18.0,
-                        imgsize: 36.0,
-                      ),
-                      SizedBox(height: 31),
-                      Image.asset(
-                        "assets/images/icons/procuement_select_check.png",
-                        height: 96,
-                        width: 113,
-                      ),
-                      SizedBox(height: 31),
-                      Text(
-                        "Choose a procurement agency\nfor your export contract",
-                        textAlign: TextAlign.center,
-                        style: kwikTextStlye(
-                          18.0,
-                          FontWeight.w600,
-                          colorCodes.black,
-                        ),
-                      ),
-                      SizedBox(height: 5),
-                      Text(
-                        "Your selection will be locked in 24 hours.",
-                        style: kwikTextStlye(
-                          14.0,
-                          FontWeight.w300,
-                          colorCodes.graniteGrey,
-                        ),
-                      ),
-                      SizedBox(height: 17),
-                      _infoBox(),
-                      const SizedBox(height: 20),
-                      _timerBox(),
-                      const SizedBox(height: 20),
-                      agencyProvider.loading
-                          ? Center(child: kwikportloader())
-                          : _buildAgencyList(
-                            agencyProvider,
-                            // selectagencyPRovider,
-                          ),
-                    ],
-                  ),
-                  // ),
-                  // ],
-                ),
-              ],
+      // ✅ FIXED APPBAR
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(85),
+        child: AppBar(
+          backgroundColor: colorCodes.whiteSmoke,
+          elevation: 0,
+          automaticallyImplyLeading: false,
+          flexibleSpace: Padding(
+            padding: const EdgeInsets.only(left: 20, top: 42, bottom: 15),
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: backNavRow(
+                context,
+                "Select Procurement Agency",
+                fontSize: 18.0,
+                imgsize: 36.0,
+              ),
             ),
           ),
-        ],
-      ),
-      bottomNavigationBar: Bottomnavigationbar(1),
-    );
-  }
-
-  int daysToHours(int days) {
-    return days * 24;
-  }
-
-  Widget _buildAgencyList(
-    GetAgencyApi agencyProvider,
-    // ExportStageApi selectagencyPRovider,
-  ) {
-    if (agencyProvider.agencies.isEmpty) {
-      return Center(
-        child: Text(
-          "No agencies available at the moment.",
-          style: kwikTextStlye(14.0, FontWeight.w400, colorCodes.black),
         ),
-      );
-    }
-
-    return SizedBox(
-      height: 250 * 3.toDouble(),
-      child: ListView.separated(
-        physics: const NeverScrollableScrollPhysics(),
-        shrinkWrap: true,
-        separatorBuilder: (context, index) => const SizedBox(height: 20),
-        itemCount: agencyProvider.agencies.length,
-        itemBuilder: (ctx, index) {
-          final agency = agencyProvider.agencies[index];
-          final name = agency.name;
-          final rating = (agency.rating?.toDouble());
-          final fee = agency.serviceFee.toString() ?? '0';
-          final days = agency.numberOfDaysToDeliver.toString() ?? '-';
-
-          return procurementAgencyContainer(
-            "assets/images/icons/dashboard/procurement_agency_logo.png",
-            name,
-            rating,
-            "\$$fee",
-            "#62,000",
-            "$days days",
-            "${daysToHours(int.tryParse(days) ?? 0)}hours",
-            "120 reviews",
-            () {},
-            () {
-              showDialog(
-                barrierDismissible: false,
-                context: context,
-                builder: (BuildContext context) {
-                  return ConfirmAgencySelectionDialog(
-                    serviceFee: "\$$fee",
-                    totalcostTons: widget.kwikticket?.totalQuantity, // "20.5",
-                    totalCost:
-                        "${widget.kwikticket?.kwikTicketAmount}", // "₦246,000,000",
-
-                    agencyName: agency.name,
-                    kwikticket: widget.kwikticket,
-                    agencyId: agency.id,
-                  );
-                },
-              );
-              // Navigator.pop(context);
-            },
-          );
-        },
       ),
+
+      body:
+          agencyProvider.loading && agencyProvider.agencies.isEmpty
+              ? const Center(child: CircularProgressIndicator())
+              : RefreshIndicator(
+                onRefresh: _refresh,
+                child: ListView.builder(
+                  controller: _scrollController,
+                  padding: const EdgeInsets.fromLTRB(20, 20, 20, 100),
+                  itemCount: agencyProvider.agencies.length + 5,
+                  itemBuilder: (context, index) {
+                    if (index == 0) {
+                      return Column(
+                        children: [
+                          Center(
+                            child: Image.asset(
+                              "assets/images/icons/procuement_select_check.png",
+                              height: 96,
+                              width: 113,
+                            ),
+                          ),
+                          const SizedBox(height: 31),
+                          Text(
+                            "Choose a procurement agency\nfor your export contract",
+                            textAlign: TextAlign.center,
+                            style: kwikTextStlye(
+                              18.0,
+                              FontWeight.w600,
+                              colorCodes.black,
+                            ),
+                          ),
+                          const SizedBox(height: 5),
+                          Text(
+                            "Your selection will be locked in 24 hours.",
+                            textAlign: TextAlign.center,
+                            style: kwikTextStlye(
+                              14.0,
+                              FontWeight.w300,
+                              colorCodes.graniteGrey,
+                            ),
+                          ),
+                          const SizedBox(height: 17),
+                        ],
+                      );
+                    }
+
+                    if (index == 1) return _infoBox();
+                    if (index == 2) return const SizedBox(height: 20);
+                    if (index == 3) return _timerBox();
+                    if (index == 4) return const SizedBox(height: 20);
+
+                    final agencyIndex = index - 5;
+
+                    if (agencyIndex >= agencyProvider.agencies.length) {
+                      return const SizedBox.shrink();
+                    }
+
+                    final agency = agencyProvider.agencies[agencyIndex];
+                    final serviceFeeNGN = agency.serviceFeePerTon ?? agency.serviceFee ?? 0;
+                    final serviceFeeUSD =
+                        agency.serviceFeePerTonInUSD ??
+                        agency.serviceFeeInUSD ??
+                        0;
+                    final days = agency.numberOfDaysToDeliver ?? 0;
+                    debugPrint(
+                      'Rendering agency=${agency.name} serviceFeeUSD=$serviceFeeUSD serviceFeeNGN=$serviceFeeNGN',
+                    );
+                    final rating = agency.rating?.toDouble();
+
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 20),
+                      child: procurementAgencyContainer(
+                        "assets/images/icons/dashboard/procurement_agency_logo.png",
+                        agency.name,
+                        agency.rating?.toDouble(),
+                        MoneyUtils.formatMoney(serviceFeeUSD, symbol: "\$"),
+                        MoneyUtils.formatMoney(
+                          serviceFeeNGN,
+                          symbol: "₦",
+                          decimalDigits: 2,
+                        ),
+                        "$days days",
+                        "${days * 24} hours",
+                        rating != null
+                            ? "${rating.toStringAsFixed(1)} stars"
+                            : "No rating",
+                        agency,
+                        () {
+                          showDialog(
+                            context: context,
+                            builder: (_) => AgencyDetailsDialog(agency: agency),
+                          );
+                        },
+                        () {
+                          debugPrint('🚀 SELECT BUTTON CLICKED for ${agency.name}');
+                          
+                          // Get tonnage from kwikticket with fallbacks
+                          debugPrint('🔍 Checking kwikticket for tonnage:');
+                          debugPrint('  - kwikticket exists: ${widget.kwikticket != null}');
+                          debugPrint('  - quantityToFulfill: ${widget.kwikticket?.quantityToFulfill}');
+                          debugPrint('  - totalQuantity: ${widget.kwikticket?.totalQuantity}');
+                          debugPrint('  - contract exists: ${widget.kwikticket?.contract != null}');
+                          debugPrint('  - contract.totalQuantity: ${widget.kwikticket?.contract?.totalQuantity}');
+                          
+                          final tonnage = widget.kwikticket?.quantityToFulfill ?? 
+                                          widget.kwikticket?.totalQuantity ?? 
+                                          widget.kwikticket?.contract?.totalQuantity ?? 
+                                          0;
+                          
+                          // Calculate total cost based on tonnage
+                          final serviceFeePerTon = agency.serviceFeePerTon ?? 0;
+                          final serviceFeePerTonUSD = agency.serviceFeePerTonInUSD ?? 0;
+                          final totalCostNGN = serviceFeePerTon * tonnage;
+                          final totalCostUSD = serviceFeePerTonUSD * tonnage;
+                          
+                          debugPrint('🧮 Calculation for ${agency.name}:');
+                          debugPrint('  - Tonnage: $tonnage');
+                          debugPrint('  - Service fee per ton (NGN): $serviceFeePerTon');
+                          debugPrint('  - Service fee per ton (USD): $serviceFeePerTonUSD');
+                          debugPrint('  - Total cost (NGN): $totalCostNGN');
+                          debugPrint('  - Total cost (USD): $totalCostUSD');
+                          
+                          final formattedServiceFee = MoneyUtils.formatMoney(
+                            serviceFeePerTonUSD,
+                            symbol: "\$",
+                            decimalDigits: 2,
+                          );
+                          final formattedAgencyFee = MoneyUtils.formatMoney(
+                            totalCostUSD,
+                            symbol: "\$",
+                            decimalDigits: 2,
+                          );
+                          
+                          debugPrint('📦 Passing to Dialog:');
+                          debugPrint('  - serviceFee: $formattedServiceFee');
+                          debugPrint('  - totalcostTons: $tonnage');
+                          debugPrint('  - totalCost: $totalCostNGN');
+                          debugPrint('  - agencyFeeDisplay: $formattedAgencyFee');
+                          debugPrint('  - agencyType: ${widget.agencyType}');
+                          
+                          showDialog(
+                            barrierDismissible: false,
+                            context: context,
+                            builder:
+                                (_) => ConfirmAgencySelectionDialog(
+                                  serviceFee: formattedServiceFee,
+                                  totalcostTons: tonnage,
+                                  totalCost: totalCostNGN,
+                                  agencyFeeDisplay: formattedAgencyFee,
+                                  agencyName: agency.name,
+                                  kwikticket: widget.kwikticket,
+                                  agencyId: agency.id,
+                                  agencyType: widget.agencyType,
+                                ),
+                          );
+                        },
+                      ),
+                    );
+                  },
+                ),
+              ),
+
+      bottomNavigationBar: Bottomnavigationbar(1),
     );
   }
 
   Widget _infoBox() {
     return Container(
-      height: 119,
-      width: 390,
-      alignment: Alignment.center,
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 15),
+      padding: const EdgeInsets.all(15),
       decoration: BoxDecoration(
         color: HexColor("#D0E1FB").withOpacity(0.3),
         borderRadius: BorderRadius.circular(16),
@@ -251,34 +376,12 @@ class _SelectProcurementAgencyScreenState
       ),
       child: Row(
         children: [
-          Image.asset(
-            "assets/images/icons/blue_info.png",
-            height: 25,
-            width: 25,
-          ),
+          Image.asset("assets/images/icons/blue_info.png", height: 25),
           const SizedBox(width: 10),
-          SizedBox(
-            width: 260,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  "Payment Information",
-                  style: kwikTextStlye(
-                    14.0,
-                    FontWeight.w600,
-                    colorCodes.bluetiful,
-                  ),
-                ),
-                Text(
-                  "Agency fees will be automatically deducted in USD from your KwikLC wallet balance. Your gross export earnings are already secured in your wallet.",
-                  style: kwikTextStlye(
-                    11.0,
-                    FontWeight.w300,
-                    colorCodes.bluetiful,
-                  ),
-                ),
-              ],
+          Expanded(
+            child: Text(
+              "Agency fees will be deducted in USD from your KwikLC wallet.",
+              style: kwikTextStlye(12.0, FontWeight.w400, colorCodes.bluetiful),
             ),
           ),
         ],
@@ -288,10 +391,7 @@ class _SelectProcurementAgencyScreenState
 
   Widget _timerBox() {
     return Container(
-      height: 80,
-      width: 390,
-      alignment: Alignment.center,
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 15),
+      padding: const EdgeInsets.all(15),
       decoration: BoxDecoration(
         color: colorCodes.floralWhite,
         borderRadius: BorderRadius.circular(16),
@@ -302,11 +402,9 @@ class _SelectProcurementAgencyScreenState
           Image.asset(
             "assets/images/icons/time_remaining_yellow.png",
             height: 34,
-            width: 34,
           ),
           const SizedBox(width: 10),
-          SizedBox(
-            width: 250,
+          Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -320,11 +418,10 @@ class _SelectProcurementAgencyScreenState
                 ),
                 CountdownTimer(
                   endTime: endTime,
-                  endWidget: const Text('00 : 00 : 00'),
-                  textStyle: TextStyle(
+                  endWidget: const Text("00 : 00 : 00"),
+                  textStyle: const TextStyle(
                     fontWeight: FontWeight.w600,
                     fontSize: 18,
-                    color: colorCodes.rufous,
                   ),
                 ),
               ],

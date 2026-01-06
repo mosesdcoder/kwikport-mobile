@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:kwik_port/api/model/export_substage_model.dart';
 import 'package:kwik_port/api/utils/utils.dart';
+import 'package:kwik_port/ui/home/dashboard/exportJourney/export_journey_screen.dart';
 
 class ExportSubStageApi extends ChangeNotifier {
   bool loading = false;
@@ -11,11 +12,11 @@ class ExportSubStageApi extends ChangeNotifier {
   List<ExportSubStageModel> subStages = [];
 
   /// GET: get-substages?ExporterContractId=xxx&MainStage=1
-  getSubStages({
+  Future<List<ExportSubStageModel>?> getSubStages({
     required String exporterContractId,
     required int mainStage,
   }) async {
-    if (loading) return;
+    if (loading) return null;
     loading = true;
     notifyListeners();
 
@@ -29,20 +30,34 @@ class ExportSubStageApi extends ChangeNotifier {
         final data = json.decode(response.body);
         if (data['isSuccessful'] == true && data['data'] != null) {
           final list = data['data'] as List;
-          subStages =
-              list.map((j) => ExportSubStageModel.fromJson(j)).toList(growable: true);
+          final List<ExportSubStageModel> subStages = list
+              .map((j) => ExportSubStageModel.fromJson(j))
+              .toList(growable: true);
           message = data['message'] ?? '';
+          debugPrint('Raw JSON for stage $mainStage: ${response.body}');
+          for (final s in subStages) {
+            debugPrint(
+              '${s.subStageName}: isCompleted=${s.isCompleted}, isActive=${s.isActive}',
+            );
+          }
+          debugPrint(
+            "Fetched ${subStages.length} substages for stage $mainStage",
+          );
+          return subStages;
         } else {
           subStages = [];
           message = data['message'] ?? 'No substages';
+          return null;
         }
       } else {
         subStages = [];
         message = 'Failed to load substages (${response.statusCode})';
+        return null;
       }
     } catch (e) {
       subStages = [];
       message = 'Error: $e';
+      return null;
     } finally {
       loading = false;
       notifyListeners();
@@ -50,7 +65,7 @@ class ExportSubStageApi extends ChangeNotifier {
   }
 
   /// POST /ExportSubStage/progress
-   markProgress({
+  markProgress({
     required String exporterContractId,
     required int mainStage,
   }) async {
@@ -64,8 +79,10 @@ class ExportSubStageApi extends ChangeNotifier {
         'mainStage': mainStage,
       };
 
-      final response =
-          await HttpService.postRequest('/ExportSubStage/progress', body);
+      final response = await HttpService.postRequest(
+        '/ExportSubStage/progress',
+        body,
+      );
 
       debugPrint('progress: ${response.statusCode}, ${response.body}');
 
@@ -99,8 +116,10 @@ class ExportSubStageApi extends ChangeNotifier {
     try {
       final body = {'subStageId': subStageId, 'notes': notes ?? ''};
 
-      final response =
-          await HttpService.postRequest('/ExportSubStage/complete', body);
+      final response = await HttpService.postRequest(
+        '/ExportSubStage/complete',
+        body,
+      );
 
       debugPrint('complete: ${response.statusCode}, ${response.body}');
       if (response.statusCode == 200) {
@@ -119,5 +138,20 @@ class ExportSubStageApi extends ChangeNotifier {
       notifyListeners();
       return false;
     }
+  }
+}
+
+class ExportJourneyProvider with ChangeNotifier {
+  List<StageStatus> stageStates = [
+    StageStatus.inProgress, // Procurement
+    StageStatus.pending, // Packaging
+    StageStatus.pending, // Logistics
+    StageStatus.pending, // Freight Forwarding
+    StageStatus.pending, // Final Export
+  ];
+
+  void updateStage(int index, StageStatus status) {
+    stageStates[index] = status;
+    notifyListeners();
   }
 }

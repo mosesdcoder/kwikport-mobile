@@ -66,7 +66,7 @@ class _ExportFulfillmentScreenState extends State<ExportFulfillmentScreen> {
               ),
               SizedBox(height: 40),
               Text(
-                "How would you like to fulfill your export?",
+                "How would you like to activate your export?",
                 style: kwikTextStlye(24.0, FontWeight.w600, colorCodes.black),
                 textAlign: TextAlign.center,
               ),
@@ -151,7 +151,7 @@ class _ExportFulfillmentScreenState extends State<ExportFulfillmentScreen> {
                   ],
                 ),
               ),
-              SizedBox(height: 50),
+              SizedBox(height: 100),
             ],
           ),
         ],
@@ -287,44 +287,44 @@ class _ExportFulfillmentScreenState extends State<ExportFulfillmentScreen> {
               "",
               () async {
                 // setState(() => fundTicketApi.loading = true);
-                showDialog(
-                  context: context,
-                  builder: (BuildContext context) {
-                    return LoadingDialog();
-                  },
-                );
-                await fundTicketApi.fundTicket(
-                  kwikTicketId: widget.kwikticket.id, //.toString(),
-                  exporterId: widget.kwikticket.exporter!.id, //.toString(),
-                );
-                Navigator.pop(context);
+                // showDialog(
+                //   context: context,
+                //   builder: (BuildContext context) {
+                //     return LoadingDialog();
+                //   },
+                // );
+                // await fundTicketApi.fundTicket(
+                //   kwikTicketId: widget.kwikticket.id, //.toString(),
+                //   exporterId: widget.kwikticket.exporter!.id, //.toString(),
+                // );
+                // Navigator.pop(context);
                 // setState(() => fundTicketApi.loading = false);
 
-                if (fundTicketApi.isSuccessful == true &&
-                    fundTicketApi.authorizationUrl != null) {
-                  debugPrint("Fund Ticket id: ${widget.kwikticket.id}");
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder:
-                          (_) => FundExportContract(
-                            kwikticket: widget.kwikticket,
-                            url: fundTicketApi.authorizationUrl!,
-                            kwikTicketId: widget.kwikticket.id,
-                            referenceNumber: fundTicketApi.paymentReference!,
-                            paymentMethod: fundTicketApi.provider!,
-                          ),
-                    ),
-                  );
-                } else {
-                  showToastContainer(
-                    "Fund Ticket",
-                    fundTicketApi.message,
-                    colorCodes.mistyRose,
-                    colorCodes.portlandOrange,
-                    context,
-                  );
-                }
+                // if (fundTicketApi.isSuccessful == true &&
+                //     fundTicketApi.authorizationUrl != null) {
+                //   debugPrint("Fund Ticket id: ${widget.kwikticket.id}");
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder:
+                        (_) => FundExportContract(
+                          kwikticket: widget.kwikticket,
+                          // url: fundTicketApi.authorizationUrl!,
+                          kwikTicketId: widget.kwikticket.id,
+                          // referenceNumber: fundTicketApi.paymentReference!,
+                          // paymentMethod: fundTicketApi.provider!,
+                        ),
+                  ),
+                );
+                // } else {
+                //   showToastContainer(
+                //     "Fund Ticket",
+                //     fundTicketApi.message,
+                //     colorCodes.mistyRose,
+                //     colorCodes.portlandOrange,
+                //     context,
+                //   );
+                // }
 
                 currentIndex = 3;
               },

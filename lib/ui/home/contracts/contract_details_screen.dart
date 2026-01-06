@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:kwik_port/api/model/dashboard_model.dart';
+import 'package:kwik_port/api/utils/money_util.dart';
 import 'package:kwik_port/colors/color.dart';
 import 'package:kwik_port/main.dart';
 import 'package:kwik_port/ui/home/contracts/contract_details_delivered_screen.dart';
@@ -12,15 +13,8 @@ import 'package:kwik_port/utils/text/textstyle.dart';
 
 class ContractDetailsScreen extends StatefulWidget {
   final ContractModel contract;
-  // final int contractStatus;
-  // final String? contractId; // or String depending on your backend response
 
-  const ContractDetailsScreen({
-    super.key,
-    // required this.contractId,
-    // required this.contractStatus,
-    required this.contract,
-  });
+  const ContractDetailsScreen({super.key, required this.contract});
 
   @override
   State<ContractDetailsScreen> createState() => _ContractDetailsScreenState();
@@ -30,20 +24,20 @@ class _ContractDetailsScreenState extends State<ContractDetailsScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
   late String contractId;
+
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
-    // contractId = widget.contractId!;
-    // Optional: if you plan to fetch contract details from API
-    // WidgetsBinding.instance.addPostFrameCallback((_) {
-    //   Provider.of<ContractDetailsApi>(context, listen: false)
-    //       .fetchContractDetails(widget.contractId);
-    // });
   }
 
   @override
   Widget build(BuildContext context) {
+       var tonsRemaining =
+              widget.contract.totalQuantity! - widget.contract.fulfilledQuantity!;
+          var percentageLeft =
+              (tonsRemaining / widget.contract.totalQuantity! ?? 0) * 100;
+          double progressValue = tonsRemaining / widget.contract.totalQuantity!;
     return Scaffold(
       extendBody: true,
       backgroundColor: colorCodes.whiteSmoke,
@@ -82,17 +76,25 @@ class _ContractDetailsScreenState extends State<ContractDetailsScreen>
                   children: [
                     Stack(
                       children: [
-                        Image.network(
-                          widget.contract.commodityImage ??
-                              "https://kwikport.s3.eu-west-3.amazonaws.com/commodity-images/cocoa.png",
-                          height: 238,
-                          width: 342,
+                        Container(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(16),
+
+                            child: Image.network(
+                              widget.contract.commodityImage ??
+                                  "https://kwikport.s3.eu-west-3.amazonaws.com/commodity-images/cocoa.png",
+                              height: 238,
+                              width: 342,
+                              fit: BoxFit.fill,
+                            ),
+                          ),
                         ),
                         Positioned(
                           top: 35,
                           right: 17,
-                          // bottom: 0,
-                          // left: 0,
                           child: Container(
                             height: 25,
                             width: 48,
@@ -111,8 +113,6 @@ class _ContractDetailsScreenState extends State<ContractDetailsScreen>
                             ),
                             child: Text(
                               "${widget.contract.contractStatus}",
-                              // ? "Active"
-                              // : "Closed",
                               style: kwikTextStlye(
                                 10.0,
                                 FontWeight.w500,
@@ -159,6 +159,7 @@ class _ContractDetailsScreenState extends State<ContractDetailsScreen>
                 child: contractDetailsTabBar(_tabController),
               ),
               SizedBox(height: 10),
+
               SizedBox(
                 height: 410,
                 child: TabBarView(
@@ -191,44 +192,71 @@ class _ContractDetailsScreenState extends State<ContractDetailsScreen>
                             ),
                           ),
                           SizedBox(height: 4),
-                          LinearProgressIndicator(
-                            backgroundColor: HexColor("#D6E7FF"),
-                            minHeight: 8,
-                            value: 0.21,
-                            borderRadius: BorderRadius.circular(12),
-                            color: colorCodes.azureBlue,
-                          ),
-                          SizedBox(height: 4),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              RichText(
-                                textAlign: TextAlign.center,
-                                text: TextSpan(
-                                  style: TextStyle(
-                                    fontFamily: 'Poppins',
-                                    fontSize: 10.0,
-                                    fontWeight: FontWeight.w500,
-                                    color: colorCodes.graniteGrey,
-                                  ),
 
-                                  children: [
-                                    TextSpan(text: "20 tons"),
-                                    TextSpan(text: " / "),
-                                    TextSpan(text: "100 tons"),
-                                  ],
-                                ),
-                              ),
-                              Text(
-                                "20% left",
-                                style: kwikTextStlye(
-                                  12.0,
-                                  FontWeight.w500,
-                                  colorCodes.graniteGrey,
-                                ),
-                              ),
-                            ],
+                          // -------- DYNAMIC PROGRESS BAR ----------
+                          Builder(
+                            builder: (_) {
+                              double progress = 0.0;
+
+                              if (widget.contract.totalAmount != 0) {
+                                progress =
+                                    widget.contract.fulfilledQuantity! /
+                                    widget.contract.totalAmount!;
+                              }
+
+                              return Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  LinearProgressIndicator(
+                                    backgroundColor: HexColor("#D6E7FF"),
+                                    minHeight: 8,
+                                    value: progress.clamp(0.0, 1.0),
+                                    borderRadius: BorderRadius.circular(12),
+                                    color: colorCodes.azureBlue,
+                                  ),
+                                  SizedBox(height: 4),
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      RichText(
+                                        textAlign: TextAlign.center,
+                                        text: TextSpan(
+                                          style: TextStyle(
+                                            fontFamily: 'Poppins',
+                                            fontSize: 10.0,
+                                            fontWeight: FontWeight.w500,
+                                            color: colorCodes.graniteGrey,
+                                          ),
+                                          children: [
+                                            TextSpan(
+                                              text:
+                                                  "${widget.contract.fulfilledQuantity} tons",
+                                            ),
+                                            TextSpan(text: " / "),
+                                            TextSpan(
+                                              text:
+                                                  "${widget.contract.totalQuantity} tons",
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      Text(
+                                        "${(widget?.contract?.fulfillmentPercentage)?.toStringAsFixed(2)}% completed",
+                                        style: kwikTextStlye(
+                                          12.0,
+                                          FontWeight.w500,
+                                          colorCodes.graniteGrey,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              );
+                            },
                           ),
+
+                          // ------------------------------------------
                           SizedBox(height: 12),
                           SizedBox(
                             width: 358,
@@ -249,10 +277,11 @@ class _ContractDetailsScreenState extends State<ContractDetailsScreen>
                           SizedBox(height: 20),
                           contractDetailHeadingAndSubtitle(
                             "Buyer",
-                            "${widget.contract.buyerSpecification?.buyerName ?? "N/A"}",
                             "Destination",
+                            "${widget.contract.buyerSpecification?.buyerName ?? "N/A"}",
                             widget.contract.destinationCountry,
                           ),
+
                           SizedBox(height: 20),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -266,7 +295,7 @@ class _ContractDetailsScreenState extends State<ContractDetailsScreen>
                                 ),
                               ),
                               Text(
-                                "Gross Value",
+                                "Profit Ratio",
                                 style: kwikTextStlye(
                                   12.0,
                                   FontWeight.w300,
@@ -279,7 +308,7 @@ class _ContractDetailsScreenState extends State<ContractDetailsScreen>
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Text(
-                                "${widget.contract.totalAmount}",
+                                "\$${widget.contract.totalAmountInUSD?.toStringAsFixed(2) ?? '0.00'}",
                                 style: kwikTextStlye(
                                   14.0,
                                   FontWeight.w600,
@@ -294,7 +323,7 @@ class _ContractDetailsScreenState extends State<ContractDetailsScreen>
                                     width: 16,
                                   ),
                                   Text(
-                                    "${widget.contract.projectedIncome}",
+                                    "${widget.contract.profitRatio?.toStringAsFixed(2) ?? 'N/A'}%",
                                     style: kwikTextStlye(
                                       14.0,
                                       FontWeight.w600,
@@ -318,7 +347,7 @@ class _ContractDetailsScreenState extends State<ContractDetailsScreen>
                                 ),
                               ),
                               Text(
-                                "Status",
+                                "Contract Status",
                                 style: kwikTextStlye(
                                   12.0,
                                   FontWeight.w300,
@@ -333,7 +362,7 @@ class _ContractDetailsScreenState extends State<ContractDetailsScreen>
                               Text(
                                 widget.contract.contractType == 1
                                     ? "International Buyer"
-                                    : "Local Buyer", //  "Freight on board (FOB)",
+                                    : "Local Buyer",
                                 style: kwikTextStlye(
                                   14.0,
                                   FontWeight.w600,
@@ -347,7 +376,11 @@ class _ContractDetailsScreenState extends State<ContractDetailsScreen>
                                 decoration: BoxDecoration(
                                   border: Border.all(
                                     width: 1.2,
-                                    color: colorCodes.mediumSeaGreen,
+                                    color:
+                                        widget.contract.contractStatus ==
+                                                "Active"
+                                            ? colorCodes.mediumSeaGreen
+                                            : colorCodes.portlandOrange,
                                   ),
                                   borderRadius: BorderRadius.circular(22),
                                   color: colorCodes.aeroblue,
@@ -359,11 +392,14 @@ class _ContractDetailsScreenState extends State<ContractDetailsScreen>
                                       "assets/images/icons/tick-circle.png",
                                       height: 16,
                                       width: 16,
+                                      color:
+                                          widget.contract.contractStatus ==
+                                                  "Active"
+                                              ? colorCodes.mediumSeaGreen
+                                              : colorCodes.portlandOrange,
                                     ),
                                     Text(
-                                      widget.contract.contractStatus == 0
-                                          ? "Open"
-                                          : "Closed",
+                                      "${widget.contract.contractStatus}",
                                       style: kwikTextStlye(
                                         10.0,
                                         FontWeight.w500,
@@ -378,6 +414,8 @@ class _ContractDetailsScreenState extends State<ContractDetailsScreen>
                         ],
                       ),
                     ),
+
+                    // ---- DETAILS TAB ----
                     Column(
                       children: [
                         Container(
@@ -406,17 +444,16 @@ class _ContractDetailsScreenState extends State<ContractDetailsScreen>
                               contractDetailHeadingAndSubtitletwo(
                                 "Moisture Content",
                                 "Bean Count",
-                                "${widget.contract.buyerSpecification?.moistureContent ?? "N/A"}", //   "≤7.5%",
+                                "≤${widget.contract.buyerSpecification?.moistureContent ?? "N/A"}",
                                 "${widget.contract.buyerSpecification?.commodityCountPerMeasurement ?? "N/A"}",
                               ),
                               SizedBox(height: 10),
                               contractDetailHeadingAndSubtitletwo(
-                                "Buyer",
-                                "Destination",
-
-                                widget.contract.buyerSpecification?.buyerName ??
-                                    "N/A",
-                                widget.contract.destinationCountry,
+                                "Defective Bean",
+                                "Fat Content",
+                                "≤${widget.contract.buyerSpecification?.defectsInPercentage ?? "N/A"}",
+                                    
+                                "≥${widget.contract.buyerSpecification?.fatContentInPercentage ?? "N/A"}",
                               ),
                             ],
                           ),
@@ -462,17 +499,15 @@ class _ContractDetailsScreenState extends State<ContractDetailsScreen>
                                     MainAxisAlignment.spaceBetween,
                                 children: [
                                   Text(
-                                    "${widget.contract.buyerSpecification?.buyerPricePerUnit ?? "N/A"}",
+                                    "${MoneyUtils.formatMoney(widget.contract.pricePerUnitInNGN!, symbol: '₦')}",
                                     style: TextStyle(
-                                      fontFamily: "",
                                       fontSize: 14.0,
                                       fontWeight: FontWeight.w600,
                                       color: colorCodes.black,
                                     ),
                                   ),
-
                                   Text(
-                                    "${widget.contract.pricePerUnitInUSD}",
+                                    "${MoneyUtils.formatMoney(widget.contract.buyerSpecification!.buyerPricePerUnit, symbol: '\$')}",
                                     style: kwikTextStlye(
                                       14.0,
                                       FontWeight.w600,
@@ -516,17 +551,13 @@ class _ContractDetailsScreenState extends State<ContractDetailsScreen>
       height: 50,
       width: 179,
       padding: EdgeInsets.symmetric(horizontal: 4, vertical: 4),
-
       decoration: BoxDecoration(
         color: colorCodes.white,
         borderRadius: BorderRadius.circular(100),
         border: Border.all(width: 1.2, color: colorCodes.antiFlashWhite),
       ),
       child: TabBar(
-        // indicatorColor: colorCodes.teaGreen,
-        // labelPadding: const EdgeInsets.symmetric(vertical: 12),
         indicatorSize: TabBarIndicatorSize.tab,
-
         labelColor: colorCodes.white,
         labelStyle: const TextStyle(
           fontFamily: 'Poppins',
@@ -538,13 +569,7 @@ class _ContractDetailsScreenState extends State<ContractDetailsScreen>
           fontFamily: 'Poppins',
           fontSize: 14.0,
           fontWeight: FontWeight.w500,
-          // color: colorCodes
         ),
-
-        // indicatorPadding: const EdgeInsets.symmetric(
-        //   vertical: 4,
-        //   horizontal: 4,
-        // ),
         indicator: BoxDecoration(
           borderRadius: BorderRadius.circular(100),
           border: Border.all(color: colorCodes.frenchSkyBlue),
@@ -557,7 +582,6 @@ class _ContractDetailsScreenState extends State<ContractDetailsScreen>
               colorCodes.azureBlue,
             ],
           ),
-          color: colorCodes.white,
         ),
         controller: _tabController,
         tabs: [Tab(text: "Overview"), Tab(text: "Details")],

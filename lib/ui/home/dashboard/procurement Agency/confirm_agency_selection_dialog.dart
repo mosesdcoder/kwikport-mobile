@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:kwik_port/api/controller/agency/export_stage_api.dart';
@@ -11,11 +13,14 @@ import 'package:kwik_port/utils/button/loading_dialog.dart';
 import 'package:kwik_port/utils/text/textstyle.dart';
 import 'package:kwik_port/utils/toast.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ConfirmAgencySelectionDialog extends StatefulWidget {
   final KwikTicketModel? kwikticket;
 
   final agencyName, serviceFee, totalcostTons, totalCost, agencyId;
+  final String? agencyFeeDisplay;
+  final int agencyType;
   const ConfirmAgencySelectionDialog({
     super.key,
     required this.serviceFee,
@@ -24,6 +29,8 @@ class ConfirmAgencySelectionDialog extends StatefulWidget {
     required this.agencyName,
     required this.kwikticket,
     required this.agencyId,
+    this.agencyFeeDisplay,
+    this.agencyType = 1,
   });
 
   @override
@@ -33,11 +40,27 @@ class ConfirmAgencySelectionDialog extends StatefulWidget {
 
 class _ConfirmAgencySelectionDialogState
     extends State<ConfirmAgencySelectionDialog> {
+  
+  @override
+  void initState() {
+    super.initState();
+    debugPrint('📋 ConfirmAgencySelectionDialog Received Values:');
+    debugPrint('  - Agency Name: ${widget.agencyName}');
+    debugPrint('  - Service Fee: ${widget.serviceFee}');
+    debugPrint('  - Total Cost Tons: ${widget.totalcostTons}');
+    debugPrint('  - Total Cost: ${widget.totalCost}');
+    debugPrint('  - Agency Fee Display: ${widget.agencyFeeDisplay}');
+    debugPrint('  - Agency ID: ${widget.agencyId}');
+  }
+  
   @override
   Widget build(BuildContext context) {
     final selectagencyProvider = Provider.of<ExportStageApi>(context);
     final dashboardApi = Provider.of<DashboardApi>(context);
-
+    // final matchingExport = dashboardApi.data?.exports?.firstWhere(
+    //   (exp) => exp.contractId == widget.kwikticket?.exportContractId,
+    //   orElse: () => dashboardApi.data!.exports!.last,
+    // );
     return SizedBox(
       width: 390,
       child: Dialog(
@@ -156,24 +179,36 @@ class _ConfirmAgencySelectionDialogState
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceBetween,
                                 children: [
-                                  Text(
-                                    "Total Cost (${widget.totalcostTons} tons)",
-                                    textAlign: TextAlign.center,
-                                    style: kwikTextStlye(
-                                      10.0,
-                                      FontWeight.w500,
-                                      colorCodes.black,
-                                    ),
+                                  Builder(
+                                    builder: (context) {
+                                      final displayText = "Total Cost (${widget.totalcostTons ?? 0} tons)";
+                                      debugPrint('💰 Displaying Total Cost Text: $displayText');
+                                      return Text(
+                                        displayText,
+                                        textAlign: TextAlign.center,
+                                        style: kwikTextStlye(
+                                          10.0,
+                                          FontWeight.w500,
+                                          colorCodes.black,
+                                        ),
+                                      );
+                                    },
                                   ),
-                                  Text(
-                                    widget.totalCost,
-                                    textAlign: TextAlign.center,
-                                    style: TextStyle(
-                                      fontFamily: "",
-                                      fontSize: 10.0,
-                                      fontWeight: FontWeight.w500,
-                                      color: colorCodes.black,
-                                    ),
+                                  Builder(
+                                    builder: (context) {
+                                      final displayValue = widget.agencyFeeDisplay ?? "\$0.00";
+                                      debugPrint('💵 Displaying Agency Fee: $displayValue');
+                                      return Text(
+                                        displayValue,
+                                        textAlign: TextAlign.center,
+                                        style: TextStyle(
+                                          fontFamily: "",
+                                          fontSize: 10.0,
+                                          fontWeight: FontWeight.w500,
+                                          color: colorCodes.black,
+                                        ),
+                                      );
+                                    },
                                   ),
                                 ],
                               ),
@@ -192,73 +227,181 @@ class _ConfirmAgencySelectionDialogState
                         ),
                         SizedBox(height: 20),
                         kwikbutton("Confirm Selection", () async {
+                          if (!mounted) return;
                           // Navigator.pop(context);
                           debugPrint(
                             '🛠 ExporterContractId: ${dashboardApi.data?.exports.last.id}', //widget.kwikticket?.exporter?.
                           );
                           // widget.kwikticket?.exporter?.id
                           //dashboardApi.data?.userProfile?.
+                          final parentContext = context;
                           showDialog(
-                            context: context,
+                            context: parentContext,
                             barrierDismissible: false,
                             builder: (_) => kwikportloader(),
                           );
+                          final exports = dashboardApi.data?.exports ?? [];
+                          // Filter for CommoditySourcing + KwikProcure
+                          final activeExports =
+                              exports
+                                  .where(
+                                    (exp) =>
+                                        exp.exportContractStage ==
+                                        "CommoditySourcing",
+                                    //     &&
+                                    // exp.contractFulfilmentMethod ==
+                                    //     "KwikProcure",
+                                  )
+                                  .toList();
 
-                          // final selectAgencyApi = Provider.of<ExportStageApi>(
-                          //   context,
-                          //   listen: false,
-                          // );
+                          // Sort by createdAt (latest first)
+                          activeExports.sort((a, b) {
+                            //  => DateTime.parse(
+                            //   b.createdDate,
+                            // ).compareTo(DateTime.parse(a.createdDate)),
+                            final aDate = a.createdAt ?? DateTime(1970);
+                            final bDate = b.createdAt ?? DateTime(1970);
+                            return bDate.compareTo(aDate);
+                          });
 
+                          // Pick the most recent export
+                          final selectedExport =
+                              activeExports.isNotEmpty
+                                  ? activeExports.first
+                                  : exports.first;
+                          final exportId = selectedExport.id;
+
+                          debugPrint("✅ Selected Export ID: $exportId");
+                          debugPrint("🎯 Using Agency Type: ${widget.agencyType}");
                           selectagencyProvider
                               .selectAgency(
-                                exporterContractId:
-                                    dashboardApi.data?.exports?.last.id ?? "",
+                                exporterContractId: exportId,
+                                // dashboardApi.data?.exports?.last.id ?? "",
+                                // matchingExport?.id ?? '',
                                 // widget.kwikticket?.exporter?.id ?? '',
                                 // ?.first
-
+                                //
                                 // widget.kwikticket?.exporter?.id ?? '',
                                 agencyId: widget.agencyId,
-                                stageType: 2,
+                                stageType: widget.agencyType,
                               )
-                              .then((_) {
-                                Navigator.pop(context);
+                              .then((_) async {
+                                if (!mounted) return;
+                                Navigator.pop(parentContext);
                                 if (selectagencyProvider.success) {
+                                  final prefs =
+                                      await SharedPreferences.getInstance();
+
+                                  // 🧹 Clear any previous ongoing journey data (override step)
+                                  // await prefs.remove('journeyInProgress');
+                                  // await prefs.remove('activeExportContractId');
+                                  // await prefs.remove('activeKwikTicket');
+                                  // await prefs.remove('procurementCompleted');
+                                  // await prefs.remove('procurementInProgress');
+
+                                  // 💾 Save the current ongoing journey
+                                  await prefs.setBool(
+                                    'journeyInProgress',
+                                    true,
+                                  );
+                                  await prefs.setString(
+                                    'activeExportContractId',
+                                    exportId ?? '',
+                                  );
+                                  await prefs.setString(
+                                    'activeKwikTicket',
+                                    jsonEncode(widget.kwikticket!.toJson()),
+                                  );
+                                  debugPrint(
+                                    "💾 Saving KwikTicket: ${jsonEncode(widget.kwikticket!.toJson())}",
+                                  );
+                                  await prefs.setBool(
+                                    'procurementInProgress',
+                                    true,
+                                  );
+                                  // Mark selection done and hide banner persistently
+                                  await prefs.setBool('procurementSelected', true);
+                                  await prefs.setBool('showProcurement', false);
+                                  await prefs.setBool(
+                                    'procurementCompleted',
+                                    false,
+                                  );
+                                  await prefs.setInt(
+                                    'procurementStartTime',
+                                    DateTime.now().millisecondsSinceEpoch,
+                                  );
+
+                                  debugPrint(
+                                    '✅ Journey data saved locally: '
+                                    'Contract ID = $exportId | Ticket = ${widget.kwikticket}',
+                                  );
+
+                                  // final prefs =
+                                  //     await SharedPreferences.getInstance();
+                                  // await prefs.setBool(
+                                  //   'procurementInProgress',
+                                  //   true,
+                                  // );
+                                  // await prefs.setBool(
+                                  //   'procurementCompleted',
+                                  //   false,
+                                  // );
+                                  // final contractId =
+                                  //     widget.kwikticket?.exportContractId;
+
+                                  // await prefs.setString(
+                                  //   'activeExportContractId',
+                                  //   exportId ?? '',
+                                  // );
+                                  // await prefs.setBool(
+                                  //   'procurementInProgress',
+                                  //   true,
+                                  // );
+                                  // await prefs.setBool(
+                                  //   'procurementCompleted',
+                                  //   false,
+                                  // );
+                                  // await prefs.setInt(
+                                  //   'procurementStartTime',
+                                  //   DateTime.now().millisecondsSinceEpoch,
+                                  // );
+                                  if (!mounted) return;
                                   showDialog(
                                     barrierDismissible: false,
-                                    context: context,
+                                    context: parentContext,
                                     builder: (BuildContext context) {
                                       return AgencySelectionConfirmedDialog(
                                         serviceFee: "${widget.serviceFee}",
                                         totalcostTons:
-                                            "${widget.totalcostTons}",
+                                          "${widget.totalcostTons ?? 0}",
                                         totalCost:
-                                            "${widget.kwikticket?.kwikTicketAmount}",
+                                          widget.agencyFeeDisplay ?? "\$0.00",
                                         continueFunc: () async {
-                                          Navigator.pushAndRemoveUntil(
-                                            context,
-                                            MaterialPageRoute(
-                                              builder:
-                                                  (_) => ExportJourneyScreen(
-                                                    kwikticket:
-                                                        widget.kwikticket,
-                                                    // ?.exporterContractId ??
-                                                    // '',
-                                                  ),
-                                            ),
-                                            (Route<dynamic> route) => false,
+                                          final dashboardApi = Provider.of<DashboardApi>(parentContext, listen: false);
+                                          await dashboardApi.fetchDashboard();
+                                          
+                                          final export = dashboardApi.data?.exports.firstWhere(
+                                            (e) => e.contractId == exportId,
+                                            orElse: () => throw Exception("Export not found"),
                                           );
-                                          // Navigator.push(
-                                          //   context,
-                                          //   MaterialPageRoute(
-                                          //     builder:
-                                          //         (context) => ExportJourneyScreen(
-                                          //           kwikticket: widget.kwikticket,
-                                          //           //     ?.exportContractId ??
-                                          //           // "Unknown id",
-                                          //         ),
-                                          //   ),
-                                          // );
+                                          
+                                          if (export != null) {
+                                            Navigator.push(
+                                              parentContext,
+                                              MaterialPageRoute(
+                                                builder:
+                                                    (_) => ExportJourneyScreen(
+                                                      kwikticket:
+                                                          widget.kwikticket,
+                                                      exporterContractId:
+                                                          exportId,
+                                                      exportData: export,
+                                                    ),
+                                              ),
+                                            );
+                                          }
                                         },
+                                        agencyName: widget.agencyName,
                                       );
                                     },
                                   );
@@ -273,7 +416,7 @@ class _ConfirmAgencySelectionDialogState
                                   );
                                 }
                               });
-                          Navigator.pop(context);
+                          // Navigator.pop(context);
                         }),
                         SizedBox(height: 12),
                         kwikbutton(
