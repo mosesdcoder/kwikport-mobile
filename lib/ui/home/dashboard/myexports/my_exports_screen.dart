@@ -7,6 +7,7 @@ import 'package:kwik_port/api/controller/kwikTickets/get_kwik_ticket_api.dart';
 import 'package:kwik_port/api/model/dashboard_model.dart';
 import 'package:kwik_port/colors/color.dart';
 import 'package:kwik_port/ui/home/dashboard/exportJourney/current_export_stage_screen.dart';
+import 'package:kwik_port/ui/home/dashboard/exportJourney/export_journey_screen.dart';
 import 'package:kwik_port/ui/home/dashboard/myexports/my_espoort_utils.dart';
 import 'package:kwik_port/ui/home/kwikticket/ticket_details_container.dart';
 import 'package:kwik_port/utils/button/bottom_navigatior_bar.dart';
@@ -57,6 +58,7 @@ class _MyExportsScreenState extends State<MyExportsScreen>
     final exports = dashboardApi.data?.exports ?? [];
     final activeTickets = dashboardApi?.activeKwikTicketsCount??0; //.data?.exports.length ?? 0;
     final completed = dashboardApi.completedExportsCount;
+    final activeExports = dashboardApi.activeExportsCount;
 
     return Scaffold(
       extendBody: true,
@@ -125,7 +127,7 @@ class _MyExportsScreenState extends State<MyExportsScreen>
                           contractStatusContainer(
                             "assets/images/icons/Trending up (1).png",
                             "Active Contracts",
-                            activeTickets.toString(),
+                            activeExports.toString(),
                           ),
                           SizedBox(width: 20),
                           contractStatusContainer(
@@ -136,7 +138,7 @@ class _MyExportsScreenState extends State<MyExportsScreen>
                         ],
                       ),
                       SizedBox(height: 15),
-                      myexportTabbar(_tabController, activeTickets, completed),
+                      myexportTabbar(_tabController, activeExports, completed),
                       SizedBox(height: 19),
                       SizedBox(
                         // height: 325 * dashboardApi.data?.exports.length??,
@@ -270,15 +272,24 @@ class _MyExportsScreenState extends State<MyExportsScreen>
           export.estimatedCompletionDate,
           export.completedAt == null ? true : false,
           () {
+            // ✅ Log the contractId being sent
+            print("==========================================");
+            print("🔍 Navigating to ExportJourneyScreen");
+            print("📋 Export Contract ID: ${export.exporterContractId}");
+            print("📋 Contract Unique ID: ${export.contractUniqueId}");
+            print("📋 Commodity: ${export.commodityName}");
+            print("📋 Buyer: ${export.buyerName}");
+            print("📋 Index: $index of ${filteredExports.length} exports");
+            print("==========================================");
+            
             Navigator.push(
               context,
               MaterialPageRoute(
                 builder:
-                    (_) => CurrentExportStageScreen(
+                    (_) => ExportJourneyScreen(
+                      kwikticket: kwikTickets.first,
+                      exporterContractId: export.exporterContractId ?? "",
                       exportData: export,
-                      kwikticket: 
-                          kwikTickets
-                              .first,
                     ),
               ),
             );

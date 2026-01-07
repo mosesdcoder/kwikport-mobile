@@ -154,7 +154,7 @@ class _ConfirmAgencySelectionDialogState
                                     MainAxisAlignment.spaceBetween,
                                 children: [
                                   Text(
-                                    "Service fee:",
+                                    "Service fee per ton:",
                                     textAlign: TextAlign.center,
                                     style: kwikTextStlye(
                                       14.0,
@@ -272,7 +272,16 @@ class _ConfirmAgencySelectionDialogState
                           final exportId = selectedExport.id;
 
                           debugPrint("✅ Selected Export ID: $exportId");
-                          debugPrint("🎯 Using Agency Type: ${widget.agencyType}");
+                          debugPrint("🎯 Using Agency Type (original): ${widget.agencyType}");
+                          
+                          final stageTypeForApi = widget.agencyType + 1;
+                          
+                          debugPrint("📤 PAYLOAD BEING SENT TO selectAgency API:");
+                          debugPrint("  ├─ exporterContractId: $exportId");
+                          debugPrint("  ├─ agencyId: ${widget.agencyId}");
+                          debugPrint("  ├─ stageType (agencyType + 1): $stageTypeForApi");
+                          debugPrint("  └─ Full payload: {exporterContractId: $exportId, agencyId: ${widget.agencyId}, stageType: $stageTypeForApi}");
+                          
                           selectagencyProvider
                               .selectAgency(
                                 exporterContractId: exportId,
@@ -283,7 +292,7 @@ class _ConfirmAgencySelectionDialogState
                                 //
                                 // widget.kwikticket?.exporter?.id ?? '',
                                 agencyId: widget.agencyId,
-                                stageType: widget.agencyType,
+                                stageType: stageTypeForApi,
                               )
                               .then((_) async {
                                 if (!mounted) return;
@@ -371,36 +380,13 @@ class _ConfirmAgencySelectionDialogState
                                     context: parentContext,
                                     builder: (BuildContext context) {
                                       return AgencySelectionConfirmedDialog(
+                                        kwikticket: widget.kwikticket,
+                                        exportData: selectedExport,
                                         serviceFee: "${widget.serviceFee}",
                                         totalcostTons:
                                           "${widget.totalcostTons ?? 0}",
                                         totalCost:
                                           widget.agencyFeeDisplay ?? "\$0.00",
-                                        continueFunc: () async {
-                                          final dashboardApi = Provider.of<DashboardApi>(parentContext, listen: false);
-                                          await dashboardApi.fetchDashboard();
-                                          
-                                          final export = dashboardApi.data?.exports.firstWhere(
-                                            (e) => e.contractId == exportId,
-                                            orElse: () => throw Exception("Export not found"),
-                                          );
-                                          
-                                          if (export != null) {
-                                            Navigator.push(
-                                              parentContext,
-                                              MaterialPageRoute(
-                                                builder:
-                                                    (_) => ExportJourneyScreen(
-                                                      kwikticket:
-                                                          widget.kwikticket,
-                                                      exporterContractId:
-                                                          exportId,
-                                                      exportData: export,
-                                                    ),
-                                              ),
-                                            );
-                                          }
-                                        },
                                         agencyName: widget.agencyName,
                                       );
                                     },

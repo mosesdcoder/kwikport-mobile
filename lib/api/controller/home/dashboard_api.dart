@@ -89,9 +89,12 @@ class DashboardApi extends ChangeNotifier {
     }
   }
 
-  // small helpers:
+  //small helpers:
   int get activeKwikTicketsCount =>
       _data?.kwikTickets.where((t) => t.isActive == true).length ?? 0;
+
+        int get activeExportsCount =>
+      _data?.exports.where((t) => t.isInProgress == true).length ?? 0;
 
   int get completedExportsCount =>
       _data?.exports.where((e) => e.completedAt != null).length ?? 0;

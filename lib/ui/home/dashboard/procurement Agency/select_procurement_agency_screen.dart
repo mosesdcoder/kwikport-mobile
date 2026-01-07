@@ -175,11 +175,40 @@ class _SelectProcurementAgencyScreenState
   @override
   Widget build(BuildContext context) {
     final agencyProvider = Provider.of<GetAgencyApi>(context);
+    
+    debugPrint('🎨 Build called - loading: ${agencyProvider.loading}, agencies: ${agencyProvider.agencies.length}');
+
+    if (agencyProvider.loading && agencyProvider.agencies.isEmpty) {
+      return Scaffold(
+        backgroundColor: colorCodes.whiteSmoke,
+        appBar: PreferredSize(
+          preferredSize: const Size.fromHeight(85),
+          child: AppBar(
+            backgroundColor: colorCodes.whiteSmoke,
+            elevation: 0,
+            automaticallyImplyLeading: false,
+            flexibleSpace: Padding(
+              padding: const EdgeInsets.only(left: 20, top: 42, bottom: 15),
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: backNavRow(
+                  context,
+                  "Select Agency",
+                  fontSize: 18.0,
+                  imgsize: 36.0,
+                ),
+              ),
+            ),
+          ),
+        ),
+        body: const Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    debugPrint('  ✅ Rendering full screen with ${agencyProvider.agencies.length} agencies');
 
     return Scaffold(
       backgroundColor: colorCodes.whiteSmoke,
-
-      // ✅ FIXED APPBAR
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(85),
         child: AppBar(
@@ -192,7 +221,7 @@ class _SelectProcurementAgencyScreenState
               alignment: Alignment.centerLeft,
               child: backNavRow(
                 context,
-                "Select Procurement Agency",
+                "Select Agency",
                 fontSize: 18.0,
                 imgsize: 36.0,
               ),
@@ -201,17 +230,16 @@ class _SelectProcurementAgencyScreenState
         ),
       ),
 
-      body:
-          agencyProvider.loading && agencyProvider.agencies.isEmpty
-              ? const Center(child: CircularProgressIndicator())
-              : RefreshIndicator(
+      body: RefreshIndicator(
                 onRefresh: _refresh,
                 child: ListView.builder(
                   controller: _scrollController,
                   padding: const EdgeInsets.fromLTRB(20, 20, 20, 100),
                   itemCount: agencyProvider.agencies.length + 5,
                   itemBuilder: (context, index) {
+                    debugPrint('  📦 Building item $index of ${agencyProvider.agencies.length + 5}');
                     if (index == 0) {
+                      debugPrint('    ➡️ Showing header');
                       return Column(
                         children: [
                           Center(
@@ -223,7 +251,7 @@ class _SelectProcurementAgencyScreenState
                           ),
                           const SizedBox(height: 31),
                           Text(
-                            "Choose a procurement agency\nfor your export contract",
+                            "Choose an agency\nfor your export contract",
                             textAlign: TextAlign.center,
                             style: kwikTextStlye(
                               18.0,
@@ -246,18 +274,45 @@ class _SelectProcurementAgencyScreenState
                       );
                     }
 
-                    if (index == 1) return _infoBox();
-                    if (index == 2) return const SizedBox(height: 20);
-                    if (index == 3) return _timerBox();
-                    if (index == 4) return const SizedBox(height: 20);
+                    if (index == 1) {
+                      debugPrint('    ➡️ Showing infoBox');
+                      try {
+                        return _infoBox();
+                      } catch (e, stack) {
+                        debugPrint('    ❌ Error in _infoBox: $e');
+                        debugPrint('    Stack: $stack');
+                        return SizedBox(height: 100, child: Center(child: Text('Error in infoBox: $e')));
+                      }
+                    }
+                    if (index == 2) {
+                      debugPrint('    ➡️ Showing spacer 1');
+                      return const SizedBox(height: 20);
+                    }
+                    if (index == 3) {
+                      debugPrint('    ➡️ Showing timerBox');
+                      try {
+                        return _timerBox();
+                      } catch (e, stack) {
+                        debugPrint('    ❌ Error in _timerBox: $e');
+                        debugPrint('    Stack: $stack');
+                        return SizedBox(height: 100, child: Center(child: Text('Error in timerBox: $e')));
+                      }
+                    }
+                    if (index == 4) {
+                      debugPrint('    ➡️ Showing spacer 2');
+                      return const SizedBox(height: 20);
+                    }
 
                     final agencyIndex = index - 5;
+                    debugPrint('    ➡️ Agency index: $agencyIndex');
 
                     if (agencyIndex >= agencyProvider.agencies.length) {
+                      debugPrint('    ⚠️ AgencyIndex $agencyIndex >= agencies.length ${agencyProvider.agencies.length}');
                       return const SizedBox.shrink();
                     }
 
                     final agency = agencyProvider.agencies[agencyIndex];
+                    debugPrint('    ✅ Rendering agency: ${agency.name}');
                     final serviceFeeNGN = agency.serviceFeePerTon ?? agency.serviceFee ?? 0;
                     final serviceFeeUSD =
                         agency.serviceFeePerTonInUSD ??
@@ -362,7 +417,7 @@ class _SelectProcurementAgencyScreenState
                 ),
               ),
 
-      bottomNavigationBar: Bottomnavigationbar(1),
+      //bottomNavigationBar: Bottomnavigationbar(1),
     );
   }
 

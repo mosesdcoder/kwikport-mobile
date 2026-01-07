@@ -20,12 +20,14 @@ class LogisticsScreen extends StatefulWidget {
   final KwikTicketModel? kwikticket;
   final int stageType;
   final String exporterContractId;
+  final ExportSummaryModel exportData;
 
   const LogisticsScreen({
     super.key,
     required this.kwikticket,
     required this.stageType,
     required this.exporterContractId,
+    required this.exportData,
   });
 
   @override
@@ -195,33 +197,12 @@ class _LogisticsScreenState extends State<LogisticsScreen> {
                           barrierDismissible: false,
                           builder: (BuildContext context) {
                             return AgencySelectionConfirmedDialog(
+                              kwikticket: widget.kwikticket!,
+                              exportData: widget.exportData,
                               serviceFee: MoneyUtils.formatMoney(serviceFeeInUSD, symbol: "\$", decimalDigits: 2),
                               totalcostTons: "${widget.kwikticket?.totalQuantity ?? '0'} tons",
                               totalCost: "₦${widget.kwikticket?.kwikTicketAmount ?? '0'}",
-                              continueFunc: () async {
-                                Navigator.pop(context);
-
-                                final dashboardApi = Provider.of<DashboardApi>(context, listen: false);
-                                await dashboardApi.fetchDashboard();
-
-                                final export = dashboardApi.data?.exports.firstWhere(
-                                  (e) => e.contractId == widget.exporterContractId,
-                                  orElse: () => throw Exception("Export not found"),
-                                );
-
-                                if (export != null && context.mounted) {
-                                  Navigator.pushReplacement(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (_) => CurrentExportStageScreen(
-                                        kwikticket: widget.kwikticket,
-                                        exportData: export,
-                                      ),
-                                    ),
-                                  );
-                                }
-                              },
-                              agencyName: agency.name,
+                              agencyName: agency.name ?? 'Unnamed Agency',
                             );
                           },
                         );

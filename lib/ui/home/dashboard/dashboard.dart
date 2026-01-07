@@ -345,6 +345,7 @@ class _DashboardState extends State<Dashboard> {
     }
 
     final activeTickets = dashboardApi.activeKwikTicketsCount;
+    final activeExports = dashboardApi.activeExportsCount;
     // final activeContracts = dashboardApi.getActiveExportsCount;
     final exportWalletBalance =
         dashboardApi.data?.totalExportContractBalance ?? 0.0;
@@ -416,7 +417,7 @@ class _DashboardState extends State<Dashboard> {
                                           "assets/images/icons/kwik_tickets.png",
                                           "My Exports",
                                           //"5", // "Active Kwiktickets",
-                                           activeTickets.toString().padLeft(
+                                           activeExports.toString().padLeft(
                                             2,
                                             '0',
                                           ),

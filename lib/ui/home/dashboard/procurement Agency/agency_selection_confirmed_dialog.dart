@@ -1,19 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:hexcolor/hexcolor.dart';
+import 'package:kwik_port/api/model/dashboard_model.dart';
 import 'package:kwik_port/colors/color.dart';
 import 'package:kwik_port/ui/home/dashboard/exportJourney/export_journey_screen.dart';
 import 'package:kwik_port/utils/button/kwik_button.dart';
 import 'package:kwik_port/utils/text/textstyle.dart';
 
 class AgencySelectionConfirmedDialog extends StatefulWidget {
-  final serviceFee, totalcostTons, totalCost, agencyName, continueFunc;
+  final serviceFee, totalcostTons, totalCost, agencyName;
+  final KwikTicketModel? kwikticket;
+  final ExportSummaryModel exportData;
+  
   const AgencySelectionConfirmedDialog({
     super.key,
     required this.serviceFee,
     required this.totalcostTons,
     required this.totalCost,
-    required this.continueFunc,
     required this.agencyName,
+    required this.kwikticket,
+    required this.exportData,
   });
 
   @override
@@ -175,7 +180,26 @@ class _AgencySelectionConfirmedDialogState
                   SizedBox(height: 50),
                   kwikbutton(
                     "Continue your export tracking",
-                    widget.continueFunc,
+                    () {
+                      debugPrint("🚗 'Continue your export tracking' clicked");
+                      debugPrint("  - ExportData ID: ${widget.exportData.contractId}");
+                      debugPrint("  - KwikTicket ID: ${widget.kwikticket?.id}");
+                      
+                      // Close all dialogs
+                      Navigator.of(context).popUntil((route) => route.isFirst);
+                      
+                      // Navigate to ExportJourneyScreen with the data we already have
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => ExportJourneyScreen(
+                            kwikticket: widget.kwikticket,
+                            exporterContractId: widget.exportData.contractId ?? "",
+                            exportData: widget.exportData,
+                          ),
+                        ),
+                      );
+                    },
                     buttonChild: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
