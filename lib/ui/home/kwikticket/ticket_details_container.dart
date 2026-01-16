@@ -16,8 +16,9 @@ Widget ticketDetailContainer(
 
   commodityCostPrice,
 
-  pricePerTon,
+   pricePerUnitInUSD,
   projectedIncome,
+  projectedIncomeInDollars,
   timeadded,
   kwiticketStatus,
   payforticketFunc,
@@ -92,6 +93,9 @@ Widget ticketDetailContainer(
           destination,
         ),
         SizedBox(height: 20.0),
+      
+    
+      
         Container(
           height: 115,
           width: 352,
@@ -102,6 +106,7 @@ Widget ticketDetailContainer(
           ),
           child: Column(
             children: [
+              // Commodity Cost Row (fixed)
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -114,41 +119,18 @@ Widget ticketDetailContainer(
                     ),
                   ),
                   Text(
-
-                    MoneyUtils.formatMoney(commodityCostPrice),
+                    MoneyUtils.formatMoney(commodityCostPrice,  decimalDigits: 2),
                     style: kwikTextStlye(
                       14.0,
                       FontWeight.w600,
                       colorCodes.textBlack,
                       fontFamily: "",
-                    ),  
+                    ),
                   ),
                 ],
               ),
               SizedBox(height: 6),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    "Buyer Price/Ton",
-                    style: kwikTextStlye(
-                      12.0,
-                      FontWeight.w300,
-                      colorCodes.graniteGrey,
-                    ),
-                  ),
-                  Text(
-
-                    MoneyUtils.formatMoney(pricePerTon),
-                    style: kwikTextStlye(
-                      14.0,
-                      FontWeight.w600,
-                      colorCodes.textBlack,
-                      fontFamily: "",
-                    ),
-                  ),
-                ],
-              ),
+         
               SizedBox(height: 6),
               SizedBox(
                 width: 310,
@@ -177,7 +159,7 @@ Widget ticketDetailContainer(
                       Text(
                           //"\₦${NumberFormat('#,##0.00').format(projectedIncome)}",
 
-                        MoneyUtils.formatMoney(projectedIncome),
+                        MoneyUtils.formatMoney(projectedIncomeInDollars, symbol: '\$', decimalDigits: 2),
                         style: kwikTextStlye(
                           14.0,
                           FontWeight.w500,

@@ -131,24 +131,15 @@ class _SelectProcurementAgencyScreenState
   }
 
   int? _getTonnage() {
-    // Try multiple sources for tonnage with fallbacks
     final quantityToFulfill = widget.kwikticket?.quantityToFulfill;
-    final totalQuantity = widget.kwikticket?.totalQuantity;
-    final contractQuantity = widget.kwikticket?.contract?.totalQuantity;
 
     debugPrint('🔢 Tonnage calculation:');
     debugPrint('  - quantityToFulfill: $quantityToFulfill');
-    debugPrint('  - totalQuantity: $totalQuantity');
-    debugPrint('  - contract.totalQuantity: $contractQuantity');
 
-    // Find the first non-null and non-zero value
+    // Only use quantityToFulfill, and ensure it's > 0
     final tonnage = (quantityToFulfill != null && quantityToFulfill > 0)
         ? quantityToFulfill.toInt()
-        : (totalQuantity != null && totalQuantity > 0)
-            ? totalQuantity.toInt()
-            : (contractQuantity != null && contractQuantity > 0)
-                ? contractQuantity.toInt()
-                : null;
+        : null;
 
     debugPrint('  - Final tonnage used: $tonnage');
 

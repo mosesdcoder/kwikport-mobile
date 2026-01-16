@@ -110,7 +110,7 @@ Widget nameAndNotifHeading(
                 ),
               ),
               Text(
-                "ID: ${userDataVar?.exporter?.exporterUniqueId}",
+                "ID: "+(userDataVar?.exporterUniqueId ?? "-"),
                 style: TextStyle(
                   fontFamily: 'Poppins',
                   fontSize: 14.0,
@@ -218,7 +218,7 @@ Widget nameAndNotifHeading2(
                           ? FittedBox(
                             child: Text(
                               _generateInitials(
-                                "${userDataVar?.firstName!.toUpperCase()} ${userDataVar?.lastName!.toUpperCase()}",
+                                "${userDataVar?.firstName?.toUpperCase()} ${userDataVar?.lastName?.toUpperCase()}",
                               ),
                               style: TextStyle(
                                 fontFamily: "Poppins",
@@ -283,7 +283,7 @@ Widget nameAndNotifHeading2(
                 ),
               ),
               Text(
-                "ID: ${userDataVar?.exporter?.exporterUniqueId}",
+                "ID: "+(userDataVar?.exporterUniqueId ?? "-"),
                 style: TextStyle(
                   fontFamily: 'Poppins',
                   fontSize: 14.0,

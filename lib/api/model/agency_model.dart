@@ -70,14 +70,22 @@ class AgencyModel {
               ? (json['serviceFee'] as num).toDouble()
               : (json['serviceFee'] != null
                   ? double.tryParse('${json['serviceFee']}')
-                  : null),
+                  : (json['totalCost'] is num)
+                      ? (json['totalCost'] as num).toDouble()
+                      : (json['totalCost'] != null
+                          ? double.tryParse('${json['totalCost']}')
+                          : null)),
       isDeleted: json['isDeleted'],
       serviceFeeInUSD:
           (json['serviceFeeInUSD'] is num)
               ? (json['serviceFeeInUSD'] as num).toDouble()
               : (json['serviceFeeInUSD'] != null
                   ? double.tryParse('${json['serviceFeeInUSD']}')
-                  : null),
+                  : (json['totalCostInUSD'] is num)
+                      ? (json['totalCostInUSD'] as num).toDouble()
+                      : (json['totalCostInUSD'] != null
+                          ? double.tryParse('${json['totalCostInUSD']}')
+                          : null)),
       agencyId: json['agencyId'],
       serviceFeePerTon:
           (json['serviceFeePerTon'] is num)

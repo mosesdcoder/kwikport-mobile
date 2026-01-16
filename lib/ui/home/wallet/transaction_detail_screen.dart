@@ -81,7 +81,7 @@ class TransactionDetailScreen extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Kwik Port',
+                            'KwikPort',
                             style: kwikTextStlye(16.0, FontWeight.w700, colorCodes.black),
                           ),
                           Text(
@@ -291,7 +291,7 @@ class TransactionDetailScreen extends StatelessWidget {
                       pw.Column(
                         crossAxisAlignment: pw.CrossAxisAlignment.start,
                         children: [
-                          pw.Text('Kwik Port',
+                          pw.Text('KwikPort',
                               style: pw.TextStyle(
                                 fontSize: 18,
                                 fontWeight: pw.FontWeight.bold,

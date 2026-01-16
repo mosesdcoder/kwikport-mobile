@@ -17,6 +17,8 @@ class UserSession {
   String? email;
   String? phoneNumber;
   String? image;
+  String? exporterUniqueId;
+  String? exporterId;
   ExporterModel? exporter;
   // List<ContractModel>? contracts;
 
@@ -29,6 +31,8 @@ class UserSession {
     this.phoneNumber,
     this.image,
     this.exporter,
+    this.exporterUniqueId,
+    this.exporterId,
     // this.contracts,
   });
 
@@ -41,6 +45,8 @@ class UserSession {
     'phoneNumber': phoneNumber,
     'image': image,
     'exporter': exporter?.toJson(),
+    'exporterUniqueId': exporterUniqueId,
+    'exporterId': exporterId,
     // 'contracts': contracts?.map((c) => c.toJson()).toList(),
   };
 
@@ -57,6 +63,8 @@ class UserSession {
           json['exporter'] != null
               ? ExporterModel.fromJson(json['exporter'])
               : null,
+      exporterUniqueId: json['exporterUniqueId'],
+      exporterId: json['exporterId'],
       // contracts:
       //     json['contracts'] != null
       //         ? (json['contracts'] as List)
@@ -74,6 +82,8 @@ class UserSession {
     String? phoneNumber,
     String? image,
     ExporterModel? exporter,
+    String? exporterUniqueId,
+    String? exporterId,
   }) {
     return UserSession(
       auth: auth ?? this.auth,
@@ -84,6 +94,8 @@ class UserSession {
       phoneNumber: phoneNumber ?? this.phoneNumber,
       image: image ?? this.image,
       exporter: exporter ?? this.exporter,
+      exporterUniqueId: exporterUniqueId ?? this.exporterUniqueId,
+      exporterId: exporterId ?? this.exporterId,
     );
   }
 }

@@ -168,7 +168,7 @@ class _KwikticketScreenState extends State<KwikticketScreen> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          "${MoneyUtils.formatMoney(widget.kwikticket.contract?.buyerSpecification?.buyerPricePerUnit ?? 0)}",
+                          "${MoneyUtils.formatMoney(widget.kwikticket.contract?.pricePerUnitInUSD ?? 0, decimalDigits: 2)}",
                           style: kwikTextStlye(
                             14.0,
                             FontWeight.w600,
@@ -183,7 +183,7 @@ class _KwikticketScreenState extends State<KwikticketScreen> {
                               width: 16,
                             ),
                             Text(
-                              "${MoneyUtils.formatMoney(widget.kwikticket.projectedIncomeInDollars ?? 0, symbol: "\$")}",
+                              "${MoneyUtils.formatMoney(widget.kwikticket.projectedIncomeInDollars ?? 0, symbol: "\$", decimalDigits: 2)}",
                               style: kwikTextStlye(
                                 14.0,
                                 FontWeight.w600,

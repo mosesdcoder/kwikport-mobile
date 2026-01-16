@@ -274,12 +274,12 @@ class _ConfirmAgencySelectionDialogState
                           debugPrint("✅ Selected Export ID: $exportId");
                           debugPrint("🎯 Using Agency Type (original): ${widget.agencyType}");
                           
-                          final stageTypeForApi = widget.agencyType + 1;
+                          final stageTypeForApi = widget.agencyType;
                           
                           debugPrint("📤 PAYLOAD BEING SENT TO selectAgency API:");
                           debugPrint("  ├─ exporterContractId: $exportId");
                           debugPrint("  ├─ agencyId: ${widget.agencyId}");
-                          debugPrint("  ├─ stageType (agencyType + 1): $stageTypeForApi");
+                          debugPrint("  ├─ stageType (agencyType): $stageTypeForApi");
                           debugPrint("  └─ Full payload: {exporterContractId: $exportId, agencyId: ${widget.agencyId}, stageType: $stageTypeForApi}");
                           
                           selectagencyProvider

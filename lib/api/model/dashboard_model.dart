@@ -75,6 +75,7 @@ class UserProfile {
   final String phoneNumber;
   final String businessName;
   final DateTime? createdAt;
+  final String exporterUniqueId;
 
   UserProfile({
     required this.id,
@@ -85,6 +86,7 @@ class UserProfile {
     required this.phoneNumber,
     required this.businessName,
     this.createdAt,
+    this.exporterUniqueId = '',
   });
 
   factory UserProfile.fromJson(Map<String, dynamic> json) {
@@ -98,6 +100,7 @@ class UserProfile {
       phoneNumber: json['phoneNumber'] ?? '',
       businessName: json['businessName'] ?? '',
       createdAt: created != null ? DateTime.tryParse(created) : null,
+      exporterUniqueId: json['exporterUniqueId'] ?? '',
     );
   }
   Map<String, dynamic> toJson() {
@@ -110,6 +113,7 @@ class UserProfile {
       'phoneNumber': phoneNumber,
       'businessName': businessName,
       'createdAt': createdAt?.toIso8601String(),
+      'exporterUniqueId': exporterUniqueId,
     };
   }
 }

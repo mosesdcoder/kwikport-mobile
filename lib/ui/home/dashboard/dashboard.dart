@@ -8,6 +8,7 @@ import 'package:kwik_port/api/controller/home/dashboard_api.dart';
 import 'package:kwik_port/api/controller/kwikTickets/get_kwik_ticket_api.dart';
 import 'package:kwik_port/api/model/dashboard_model.dart';
 import 'package:kwik_port/api/model/userModel.dart';
+import 'package:kwik_port/api/utils/money_util.dart';
 import 'package:kwik_port/colors/color.dart';
 import 'package:kwik_port/main.dart';
 import 'package:kwik_port/ui/home/contracts/available_contract_screen.dart';
@@ -339,7 +340,14 @@ class _DashboardState extends State<Dashboard> {
     print('KwikTicket passed to MyExportsScreen: ${widget}');
     
     if (dashboardApi.data?.exports.isNotEmpty ?? false) {
-      print('dashboard data: ${dashboardApi.data?.exports.first.toJson()}');
+      // Print all exports in chunks to avoid truncation
+      final exportsJson = dashboardApi.data!.exports.map((e) => e.toJson()).toList();
+      final exportsString = exportsJson.toString();
+      const chunkSize = 800;
+      for (var i = 0; i < exportsString.length; i += chunkSize) {
+        final end = (i + chunkSize < exportsString.length) ? i + chunkSize : exportsString.length;
+        print('dashboard data chunk: ${exportsString.substring(i, end)}');
+      }
     } else {
       print('dashboard data: No exports available');
     }
@@ -444,7 +452,18 @@ class _DashboardState extends State<Dashboard> {
                                           completed.toString().padLeft(2, '0'),
                                            //"15",
                                           context,
-                                          () {},
+                                          () {
+                                            currentIndex = 1;
+                                            Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder:
+                                                    ( _) => MyExportsScreen(
+                                                      exports: widget.exports,
+                                                    ),
+                                              ),
+                                            );
+                                          },
                                         ),
                                       ],
                                     ),
@@ -522,30 +541,42 @@ class _DashboardState extends State<Dashboard> {
                                           "Continue",
                                           () async {
                                             final dashboardApi = Provider.of<DashboardApi>(context, listen: false);
-                                            final export = dashboardApi.data?.exports.firstWhere(
-                                              (e) => e.contractId == exportContractId,
-                                              orElse: () => throw Exception("Export not found"),
-                                            );
-                                            
+                                            final exports = dashboardApi.data?.exports;
+                                            print('DEBUG: exportContractId: $exportContractId');
+                                            print('DEBUG: kwikticket: $kwikticket');
+                                            print('DEBUG: dashboardApi.data: ${dashboardApi.data}');
+                                            print('DEBUG: dashboardApi.data?.exports: $exports');
+                                            if (exports == null || exportContractId == null) {
+                                              ScaffoldMessenger.of(context).showSnackBar(
+                                                SnackBar(content: Text("Export data not available.")),
+                                              );
+                                              return;
+                                            }
+                                            final matches = exports.where((e) => e.contractId == exportContractId);
+                                            final export = matches.isNotEmpty ? matches.first : null;
                                             if (export != null) {
+                                              // Debug: Check kwikticket and commodity before navigation
+                                              debugPrint('Dashboard: kwikticket = $kwikticket');
+                                              debugPrint('Dashboard: export.kwikTicket = \\${export.kwikTicket}');
+                                              debugPrint('Dashboard: export.kwikTicket.commodity = \\${export.kwikTicket?.commodity}');
+                                              debugPrint('Dashboard: export.kwikTicket.commodity.name = \\${export.kwikTicket?.commodity?.name}');
                                               Navigator.push(
                                                 context,
                                                 MaterialPageRoute(
-                                                  builder:
-                                                      (context) =>
-                                                          ExportJourneyScreen(
-                                                            kwikticket:
-                                                                kwikticket,
-                                                            exporterContractId:
-                                                                exportContractId!,
-                                                            exportData: export,
-                                                          ),
+                                                  builder: (context) => ExportJourneyScreen(
+                                                    kwikticket: export.kwikTicket,
+                                                    exporterContractId: exportContractId!,
+                                                    exportData: export,
+                                                  ),
                                                 ),
+                                              );
+                                            } else {
+                                              ScaffoldMessenger.of(context).showSnackBar(
+                                                SnackBar(content: Text("Export not found.")),
                                               );
                                             }
                                           },
-                                          backgroundcolor:
-                                              colorCodes.portlandOrange,
+                                          backgroundcolor: colorCodes.portlandOrange,
                                         ),
                                       ),
                                     ],
@@ -673,7 +704,7 @@ class _DashboardState extends State<Dashboard> {
                                           "assets/images/icons/Country.png",
                                           contract.destinationCountry,
                                           // "\$12,500",
-                                          "\$${contract.totalAmount?.toStringAsFixed(2) ?? '0.00'}",
+                                          "${MoneyUtils.formatMoney(contract.totalAmountInUSD, symbol: "\$", decimalDigits: 2)}",
                                           () {
                                             currentIndex = 2;
                                             Navigator.push(

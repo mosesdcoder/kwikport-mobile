@@ -51,14 +51,15 @@ class CreateKwikticketApi extends ChangeNotifier {
           "projectedIncomeInDollars": projectedIncomeInDollars,
         };
 
+print("KwikTicket Create Request Body: $body");
         // Send POST request
         final response = await HttpService.postRequest(
           '/KwikTicket/create',
           body,
         );
         print("KwikTicket Create Response: ${response.body}");
-        // response.headers['Authorization'] = "Bearer $token";
-        // response.headers['Accept'] = "application/json";
+         response.headers['Authorization'] = "Bearer $token";
+         response.headers['Accept'] = "application/json";
         final data = json.decode(response.body);
         debugPrint("🎫 KwikTicket Response: $data");
 

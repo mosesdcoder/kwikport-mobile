@@ -88,18 +88,13 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                               )
                               : SizedBox(),
                     ),
+                    SizedBox(height: 85),
+                    kwikbutton(
+                      'Proceed & generate export ID',
+                      () => proceedFunc(createProfliePRovider),
+                      enabled: bussinessNamecontroller.text.isNotEmpty ? true : false,
+                    ),
                   ],
-                ),
-                Align(
-                  alignment: Alignment.bottomCenter,
-                  child: kwikbutton(
-                    'Proceed & generate export ID',
-                    () => proceedFunc(createProfliePRovider),
-
-                    enabled:
-                        // fullNamecontroller.text.isNotEmpty &&
-                        bussinessNamecontroller.text.isNotEmpty ? true : false,
-                  ),
                 ),
               ],
             ),

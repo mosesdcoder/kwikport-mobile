@@ -34,6 +34,7 @@ class DashboardApi extends ChangeNotifier {
       final response = await HttpService.getRequest(
         '/Dashboard/user-dashboard',
       );
+      debugPrint('🔵 /Dashboard/user-dashboard response: ' + response.body.toString());
       final decoded = json.decode(response.body);
       // Use the same ApiResponse<T> as in your project:
       final apiResponse = ApiResponse.fromJson(
@@ -54,6 +55,8 @@ class DashboardApi extends ChangeNotifier {
             lastName: userProfile.lastName,
             email: userProfile.email,
             phoneNumber: userProfile.phoneNumber,
+            exporterId: userProfile.exporterId,
+            exporterUniqueId: userProfile.exporterUniqueId,
             exporter:
                 userDataVar
                     ?.exporter, // keep exporter info if already available

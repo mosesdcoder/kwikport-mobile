@@ -308,7 +308,7 @@ class _ContractDetailsScreenState extends State<ContractDetailsScreen>
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Text(
-                                "\$${widget.contract.totalAmountInUSD?.toStringAsFixed(2) ?? '0.00'}",
+                                "${ MoneyUtils.formatMoney(widget.contract.totalAmountInUSD, decimalDigits: 2, symbol: '\$')}",
                                 style: kwikTextStlye(
                                   14.0,
                                   FontWeight.w600,
@@ -507,7 +507,7 @@ class _ContractDetailsScreenState extends State<ContractDetailsScreen>
                                     ),
                                   ),
                                   Text(
-                                    "${MoneyUtils.formatMoney(widget.contract.buyerSpecification!.buyerPricePerUnit, symbol: '\$')}",
+                                    "${MoneyUtils.formatMoney(widget.contract.pricePerUnitInUSD, decimalDigits: 2, symbol: '\$')}",
                                     style: kwikTextStlye(
                                       14.0,
                                       FontWeight.w600,

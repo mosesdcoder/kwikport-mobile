@@ -78,6 +78,18 @@ class GetAgencyApi extends ChangeNotifier {
         debugPrint(
           'calculateAgencyFee response: ${response.statusCode} ${response.body}',
         );
+        
+        // ✅ Log first agency details for debugging
+        if (decoded['data'] != null && decoded['data']['results'] != null) {
+          final List<dynamic> results = decoded['data']['results'];
+          if (results.isNotEmpty) {
+            debugPrint('==========================================');
+            debugPrint('🔍 First Agency from API:');
+            debugPrint(jsonEncode(results[0]));
+            debugPrint('==========================================');
+          }
+        }
+        
         if (decoded['isSuccessful'] == true &&
             decoded['data'] != null &&
             decoded['data']['results'] != null) {
@@ -98,6 +110,12 @@ class GetAgencyApi extends ChangeNotifier {
       loading = true;
       notifyListeners();
 
+      print("==========================================");
+      print("🔍 fetchAgenciesByStageType called:");
+      print("   - stageType: $stageType");
+      print("   - tonnage: $tonnage");
+      print("==========================================");
+
       // Always use calculateAgencyFee as the primary method
       final agenciesWithFees = await calculateAgencyFee(
         tonnage: tonnage,
@@ -108,6 +126,17 @@ class GetAgencyApi extends ChangeNotifier {
 
       agencies = agenciesWithFees;
       hasMore = false; // endpoint returns list for that stage — not paginated
+      
+      print("==========================================");
+      print("📡 API Response:");
+      print("   - Agencies count: ${agenciesWithFees.length}");
+      if (agenciesWithFees.isEmpty) {
+        print("   - ⚠️ No agencies returned for stageType $stageType with tonnage $tonnage");
+      } else {
+        print("   - ✅ Successfully fetched ${agenciesWithFees.length} agencies");
+      }
+      print("==========================================");
+      
       debugPrint(
         'Fetched ${agenciesWithFees.length} agencies with calculated fees for stageType $stageType',
       );

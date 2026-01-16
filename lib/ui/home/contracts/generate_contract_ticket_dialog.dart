@@ -271,11 +271,24 @@ class _GenerateContractTicketDialogState
                   ),
                   SizedBox(height: 24),
                   kwikbutton("Generate Ticket", () async {
+                    // Log all properties of userDataVar for debugging
+                    debugPrint('userDataVar:');
+                    debugPrint('  exporterId: 	${userDataVar?.exporterId}');
+                    debugPrint('  exporterUniqueId: 	${userDataVar?.exporterUniqueId}');
+                    debugPrint('  firstName: 	${userDataVar?.firstName}');
+                    debugPrint('  lastName: 	${userDataVar?.lastName}');
+                    debugPrint('  otherNames: 	${userDataVar?.otherNames}');
+                    debugPrint('  email: 	${userDataVar?.email}');
+                    debugPrint('  phoneNumber: 	${userDataVar?.phoneNumber}');
+                    debugPrint('  image: 	${userDataVar?.image}');
+                    debugPrint('  exporter: 	${userDataVar?.exporter}');
+                    debugPrint('  auth: 	${userDataVar?.auth}');
+
                     if (volumeController.text.isNotEmpty) {
                       await createTicketApi
                           .createKwikTicket(
                             exportContractId: widget.contract.id,
-                            exporterId: userDataVar?.exporter?.id ?? "",
+                            exporterId:  userDataVar?.exporterId ?? "",
                             // peggedDollarValue:
                             //     widget.contract.projectedIncome ?? 0.0,
                             // badge: "Gold",
@@ -290,6 +303,8 @@ class _GenerateContractTicketDialogState
                             // exporterId: widget.contract.exporterId ?? "N/A",
                           )
                           .then((newTicket) {
+                            debugPrint('KwikTicket API response:');
+                            debugPrint(newTicket != null ? newTicket.toString() : 'null');
                             if (createTicketApi.isSuccessful == true &&
                                 newTicket != null) {
                               newTicket.quantityToFulfill = double.tryParse(

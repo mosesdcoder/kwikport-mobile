@@ -30,12 +30,12 @@ class _AgencySelectionConfirmedDialogState
     extends State<AgencySelectionConfirmedDialog> {
   @override
   Widget build(BuildContext context) {
+    debugPrint('AgencySelectionConfirmedDialog: totalcostTons = \'${widget.totalcostTons}\'');
     return SizedBox(
       width: 390,
       child: Dialog(
         child: Container(
-          height: 704,
-
+          // height: 704, // Remove fixed height to allow scrolling
           width: 390,
           decoration: BoxDecoration(
             color: colorCodes.white,
@@ -43,25 +43,25 @@ class _AgencySelectionConfirmedDialogState
             border: Border.all(color: colorCodes.antiFlashWhite, width: 1.2),
           ),
           padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 24),
-          child: ListView(
-            children: [
-              Column(
-                children: [
-                  Image.asset(
-                    "assets/images/icons/procuement_select_check.png",
-                    height: 96,
-                    width: 113,
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Image.asset(
+                  "assets/images/icons/procuement_select_check.png",
+                  height: 96,
+                  width: 113,
+                ),
+                SizedBox(height: 40),
+                Text(
+                  "Agency Selection Confirmed!",
+                  style: kwikTextStlye(
+                    16.0,
+                    FontWeight.w500,
+                    colorCodes.black,
                   ),
-                  SizedBox(height: 40),
-                  Text(
-                    "Agency Selection Confirmed!",
-                    style: kwikTextStlye(
-                      16.0,
-                      FontWeight.w500,
-                      colorCodes.black,
-                    ),
-                  ),
-                  SizedBox(height: 25),
+                ),
+                SizedBox(height: 25),
                   Container(
                     height: 340,
 
@@ -140,7 +140,7 @@ class _AgencySelectionConfirmedDialogState
                                     MainAxisAlignment.spaceBetween,
                                 children: [
                                   Text(
-                                    "Total Cost (${widget.totalcostTons} tons)",
+                                    "Total Cost (${widget.totalcostTons} Tons)",
                                     textAlign: TextAlign.center,
                                     style: kwikTextStlye(
                                       10.0,
@@ -180,25 +180,51 @@ class _AgencySelectionConfirmedDialogState
                   SizedBox(height: 50),
                   kwikbutton(
                     "Continue your export tracking",
-                    () {
+                    () async {
+                      // Log debug info BEFORE any dialog or navigation
                       debugPrint("🚗 'Continue your export tracking' clicked");
                       debugPrint("  - ExportData ID: ${widget.exportData.contractId}");
                       debugPrint("  - KwikTicket ID: ${widget.kwikticket?.id}");
-                      
-                      // Close all dialogs
-                      Navigator.of(context).popUntil((route) => route.isFirst);
-                      
-                      // Navigate to ExportJourneyScreen with the data we already have
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => ExportJourneyScreen(
-                            kwikticket: widget.kwikticket,
-                            exporterContractId: widget.exportData.contractId ?? "",
-                            exportData: widget.exportData,
-                          ),
-                        ),
+
+                      // Show loading indicator
+                      showDialog(
+                        context: context,
+                        barrierDismissible: false,
+                        builder: (BuildContext context) {
+                          return Center(
+                            child: CircularProgressIndicator(
+                              valueColor: AlwaysStoppedAnimation<Color>(colorCodes.yellowOrange),
+                            ),
+                          );
+                        },
                       );
+
+                      // Small delay to ensure API has processed the selection
+                      await Future.delayed(Duration(milliseconds: 500));
+
+                      // Close loading dialog
+                      if (context.mounted) {
+                        Navigator.pop(context);
+                      }
+
+                      // Close all remaining dialogs and navigation stack
+                      if (context.mounted) {
+                        Navigator.of(context).popUntil((route) => route.isFirst);
+                      }
+
+                      // Navigate to ExportJourneyScreen
+                      if (context.mounted) {
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => ExportJourneyScreen(
+                              kwikticket: widget.kwikticket,
+                              exporterContractId: widget.exportData.exporterContractId ?? "",
+                              exportData: widget.exportData,
+                            ),
+                          ),
+                        );
+                      }
                     },
                     buttonChild: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -222,8 +248,7 @@ class _AgencySelectionConfirmedDialogState
                   ),
                 ],
               ),
-            ],
-          ),
+            ),
         ),
       ),
     );

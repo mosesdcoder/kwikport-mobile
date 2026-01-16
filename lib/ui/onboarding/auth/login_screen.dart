@@ -269,11 +269,7 @@ class _LoginScreenState extends State<LoginScreen> {
           ),
         ],
       ),
-      action: SnackBarAction(
-        label: 'Dismiss',
-        textColor: Colors.white,
-        onPressed: () => ScaffoldMessenger.of(context).hideCurrentSnackBar(),
-      ),
+      // Removed the action property so the SnackBar auto-dismisses
     );
     ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }

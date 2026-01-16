@@ -305,7 +305,7 @@ class _ContractDetailsDeliveredScreenState
                 SizedBox(height: 4),
                 overviewRichText(
                   "Projected Earnings per Ton (USD)",
-                  "${MoneyUtils.formatMoney(widget.contract.pricePerUnitInUSD, symbol: '\$')}",
+                  "${MoneyUtils.formatMoney(widget.contract.pricePerUnitInUSD, decimalDigits: 2, symbol: '\$')}",
                 ),
                 SizedBox(height: 4),
                 overviewRichText(
@@ -320,7 +320,7 @@ class _ContractDetailsDeliveredScreenState
                 SizedBox(height: 4),
                 overviewRichText(
                   "Quick Snapshot",
-                  "${widget.contract.totalQuantity} tons | ${MoneyUtils.formatMoney(widget.contract.buyerSpecification?.buyerPricePerUnit)}ton | ${MoneyUtils.formatMoney(widget.contract.pricePerUnitInUSD)} projected earnings",
+                  "${widget.contract.totalQuantity} tons | ${MoneyUtils.formatMoney(widget.contract.pricePerUnitInNGN)}/ton | ${MoneyUtils.formatMoney(widget.contract.pricePerUnitInUSD, decimalDigits: 2, symbol: "\$")} projected earnings",
                 ),
                 SizedBox(height: 34),
                 Text(
