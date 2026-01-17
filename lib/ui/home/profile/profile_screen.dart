@@ -343,9 +343,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       if (showProcurement != null)
                         await prefs.setBool('showProcurement', showProcurement);
 
-                      Navigator.push(
+                      Navigator.pushAndRemoveUntil(
                         context,
                         MaterialPageRoute(builder: (context) => LoginScreen()),
+                        (Route<dynamic> route) => false,
                       );
                     },
 
