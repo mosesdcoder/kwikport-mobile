@@ -20,6 +20,7 @@ Widget avaiableontractContainer(
   projectedReturnImg,
   projectedReturn,
   viewContractFunc,
+  totalAmountInUSD
 ) {
   return Container(
     height: 296,

@@ -234,17 +234,48 @@ class _LoginScreenState extends State<LoginScreen> {
               // );
               currentIndex = 1;
             } else {
-              showToastContainer(
-                "Login Failed",
-                loginProvider.message,
-                colorCodes.mistyRose,
-                colorCodes.portlandOrange,
+              _showErrorSnackBar(
                 context,
+                "Login Failed",
+                loginProvider.message ?? "Unable to login. Please check your credentials and try again.",
               );
             }
           });
       currentIndex = 1;
     }
+  }
+
+  void _showErrorSnackBar(BuildContext context, String title, String message) {
+    final snackBar = SnackBar(
+      behavior: SnackBarBehavior.floating,
+      margin: EdgeInsets.fromLTRB(16, 0, 16, 16),
+      backgroundColor: colorCodes.portlandOrange,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      duration: Duration(seconds: 4),
+      content: Row(
+        children: [
+          Icon(Icons.error_outline, color: Colors.white),
+          SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(title, style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
+                SizedBox(height: 2),
+                Text(message, maxLines: 3, overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
+              ],
+            ),
+          ),
+        ],
+      ),
+      action: SnackBarAction(
+        label: 'Dismiss',
+        textColor: Colors.white,
+        onPressed: () => ScaffoldMessenger.of(context).hideCurrentSnackBar(),
+      ),
+    );
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
 
   Widget signInContainer(img, text) {

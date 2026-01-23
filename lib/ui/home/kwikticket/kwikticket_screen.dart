@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:kwik_port/api/model/dashboard_model.dart';
+import 'package:kwik_port/api/utils/money_util.dart';
 import 'package:kwik_port/colors/color.dart';
 import 'package:kwik_port/main.dart';
 import 'package:kwik_port/ui/home/exportfulfillment/export_fulfillment_screen.dart';
@@ -27,7 +28,6 @@ class KwikticketScreen extends StatefulWidget {
 }
 
 class _KwikticketScreenState extends State<KwikticketScreen> {
-  
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -94,23 +94,25 @@ class _KwikticketScreenState extends State<KwikticketScreen> {
                   ],
                 ),
               ),
-              SizedBox(height: 20),
+              SizedBox(height: 10),
               Container(
-                height: 460,
+                height: 485,
                 width: 390,
-                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 29),
+                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
                 decoration: BoxDecoration(
                   image: DecorationImage(
+                    fit: BoxFit.fill,
                     image: AssetImage(
                       "assets/images/ticketdetail_bckground.png",
                     ),
                   ),
                 ),
                 child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.start,
                   crossAxisAlignment: CrossAxisAlignment.start,
 
                   children: [
+                    SizedBox(height: 15),
                     contractDetailHeadingAndSubtitletwo(
                       "Kwikticket ID",
                       "Exporter Name",
@@ -119,7 +121,7 @@ class _KwikticketScreenState extends State<KwikticketScreen> {
                       // "#Kwk-8989-09",
                       // "John  Gbenga",
                     ),
-                    SizedBox(height: 15),
+                    SizedBox(height: 12),
                     contractDetailHeadingAndSubtitletwo(
                       "Export Item",
                       "Contract type",
@@ -131,17 +133,17 @@ class _KwikticketScreenState extends State<KwikticketScreen> {
                       // "Cocoa bean",
                       // "Agricultural Commodity",
                     ),
-                    SizedBox(height: 15),
+                    SizedBox(height: 12),
                     contractDetailHeadingAndSubtitletwo(
                       "Selected Capacity",
                       "Commodity Cost",
                       "${widget.kwikticket.quantityToFulfill} Tons",
-                      "${widget.kwikticket.kwikTicketAmount}",
+                      "${MoneyUtils.formatMoney(widget.kwikticket.kwikTicketAmount ?? 0)}",
                       // "20.5 tons",
                       // "₦246,000,000",
                       fontFamily: "",
                     ),
-                    SizedBox(height: 15),
+                    SizedBox(height: 12),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -167,10 +169,11 @@ class _KwikticketScreenState extends State<KwikticketScreen> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          "₦${widget.kwikticket.contract?.buyerSpecification?.buyerPricePerUnit}",
+                          "${MoneyUtils.formatMoney(widget.kwikticket.contract?.buyerSpecification?.buyerPricePerUnit ?? 0)}",
                           style: kwikTextStlye(
                             14.0,
                             FontWeight.w600,
+                            fontFamily: "",
                             colorCodes.black,
                           ),
                         ),
@@ -182,7 +185,7 @@ class _KwikticketScreenState extends State<KwikticketScreen> {
                               width: 16,
                             ),
                             Text(
-                              "${widget.kwikticket.grossEarning}%",
+                              "${MoneyUtils.formatMoney(widget.kwikticket.projectedIncomeInDollars ?? 0, symbol: "\$")}",
                               style: kwikTextStlye(
                                 14.0,
                                 FontWeight.w600,
@@ -194,7 +197,7 @@ class _KwikticketScreenState extends State<KwikticketScreen> {
                       ],
                     ),
 
-                    SizedBox(height: 15),
+                    SizedBox(height: 18),
 
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -263,15 +266,12 @@ class _KwikticketScreenState extends State<KwikticketScreen> {
                         ),
                       ],
                     ),
-                    SizedBox(height: 33),
+                    SizedBox(height: 95),
                     Container(
                       height: 87,
                       width: 345,
                       alignment: Alignment.center,
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 6,
-                        vertical: 8,
-                      ),
+                      padding: EdgeInsets.symmetric(horizontal: 3, vertical: 4),
                       decoration: BoxDecoration(
                         color: colorCodes.white,
                         borderRadius: BorderRadius.circular(16),
@@ -304,6 +304,7 @@ class _KwikticketScreenState extends State<KwikticketScreen> {
                         ],
                       ),
                     ),
+                    SizedBox(height: 10),
                   ],
                 ),
               ),

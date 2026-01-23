@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:kwik_port/api/model/dashboard_model.dart';
+import 'package:kwik_port/api/utils/money_util.dart';
 import 'package:kwik_port/colors/color.dart';
 import 'package:kwik_port/ui/home/dashboard/dashboard.dart';
 import 'package:kwik_port/ui/home/dashboard/procurement%20Agency/select_procurement_agency_screen.dart';
@@ -152,7 +153,7 @@ class _ExportPaymentSucessfulDialogState
                 children: [
                   confirmeddetailRow(
                     "Gross Earnings:",
-                    " ${widget.kwikticket.grossEarning}",
+                    " ${MoneyUtils.formatMoney(widget.kwikticket.projectedIncomeInDollars, symbol: "\$", decimalDigits: 2)}",
                     fontFamily: "",
                   ),
                   SizedBox(height: 10),
@@ -220,12 +221,17 @@ class _ExportPaymentSucessfulDialogState
             kwikbutton(
               "Select Procurement Agency",
               () {
+                // Pop the dialog first
+                Navigator.of(context).pop();
+                
+                // Then navigate to the new screen
                 Navigator.push(
                   context,
                   MaterialPageRoute(
                     builder:
                         (context) => SelectProcurementAgencyScreen(
                           kwikticket: widget.kwikticket,
+                          agencyType: 1, // 1 = Procurement Agency
                         ),
                   ),
                 );

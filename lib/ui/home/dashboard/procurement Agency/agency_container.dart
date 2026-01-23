@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:kwik_port/colors/color.dart';
 import 'package:kwik_port/utils/button/kwik_button.dart';
 import 'package:kwik_port/utils/text/textstyle.dart';
+import 'package:kwik_port/api/model/agency_model.dart';
+import 'package:kwik_port/api/utils/money_util.dart';
 
 Widget procurementAgencyContainer(
   agencyLogo,
@@ -12,9 +14,45 @@ Widget procurementAgencyContainer(
   deliveryDays,
   deliveryHours,
   reivews,
+  AgencyModel? agency,
   viewDetailsFunc,
   selectFunc,
 ) {
+  // Use AgencyModel properties if available, otherwise fallback to provided values
+  // Prioritize per-ton fees if total fees are 0 or null
+  final displayedServiceFee = (agency?.serviceFeePerTonInUSD != null && agency!.serviceFeePerTonInUSD! > 0)
+      ? MoneyUtils.formatMoney(agency.serviceFeePerTonInUSD!, symbol: "\$", decimalDigits: 2)
+      : (agency?.serviceFeeInUSD != null && agency!.serviceFeeInUSD! > 0)
+          ? MoneyUtils.formatMoney(agency.serviceFeeInUSD!, symbol: "\$", decimalDigits: 2)
+          : serviceFee;
+
+  final displayedServiceFeeConvert = (agency?.serviceFeePerTon != null && agency!.serviceFeePerTon! > 0)
+      ? MoneyUtils.formatMoney(agency.serviceFeePerTon!, symbol: "₦", decimalDigits: 2)
+      : (agency?.serviceFee != null && agency!.serviceFee! > 0)
+          ? MoneyUtils.formatMoney(agency.serviceFee!, symbol: "₦", decimalDigits: 2)
+          : serviceFeeConvert;
+
+  final displayedDeliveryDays = (agency?.numberOfDaysToDeliver != null)
+      ? "${agency!.numberOfDaysToDeliver} days"
+      : deliveryDays;
+
+  final displayedDeliveryHours = (agency?.numberOfDaysToDeliver != null)
+      ? "${agency!.numberOfDaysToDeliver! * 24} hours"
+      : deliveryHours;
+
+  final totalCostInUSD = (agency?.totalCostInUSD != null && agency!.totalCostInUSD! > 0)
+      ? MoneyUtils.formatMoney(agency.totalCostInUSD!, symbol: "\$", decimalDigits: 0)
+      : "00";
+  
+  // Use rating from AgencyModel if available
+  final displayedRating = (agency?.rating != null)
+      ? agency!.rating!
+      : agencyRatings;
+  
+  // Use name from AgencyModel if available
+  final displayedName = (agency?.name != null && agency!.name!.isNotEmpty)
+      ? agency!.name!
+      : agencyName;
   return Container(
     height: 250,
     width: 390,
@@ -33,7 +71,7 @@ Widget procurementAgencyContainer(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  agencyName,
+                  displayedName,
                   style: kwikTextStlye(14.0, FontWeight.w600, colorCodes.black),
                 ),
                 Row(
@@ -42,7 +80,7 @@ Widget procurementAgencyContainer(
                       children: List.generate(
                         5,
                         (index) => Image.asset(
-                          index < agencyRatings.floor()
+                          index < displayedRating.floor()
                               ? 'assets/images/icons/dashboard/star_filled.png'
                               : 'assets/images/icons/dashboard/star_unfilled.png',
                           height: 14,
@@ -52,7 +90,7 @@ Widget procurementAgencyContainer(
                     ),
                     SizedBox(width: 8),
                     Text(
-                      "($agencyRatings)",
+                      "($displayedRating)",
                       style: kwikTextStlye(
                         12.0,
                         FontWeight.w300,
@@ -68,11 +106,11 @@ Widget procurementAgencyContainer(
         SizedBox(height: 15),
         Column(
           children: [
-            infoRow("Service Fee", serviceFee, serviceFeeConvert),
+            infoRow("Service Fee", displayedServiceFee, displayedServiceFeeConvert),
             SizedBox(height: 5),
-            infoRow("Delivery Time", "4 days", "96hours"),
+            infoRow("Delivery Time", displayedDeliveryDays, displayedDeliveryHours),
             SizedBox(height: 5),
-            infoRow("Reviews", "120 reviews", ""),
+            infoRow("Reviews", "${displayedRating} reviews", ""),
           ],
         ),
         SizedBox(height: 15),

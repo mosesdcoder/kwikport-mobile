@@ -22,8 +22,8 @@ Widget nameAndNotifHeading(
               //         builder: (context) => Profiledetailscreen()));
             },
             child: Container(
-              height: 55,
-              width: 55,
+              height: 50,
+              width: 50,
               padding: EdgeInsets.all(2),
               decoration: BoxDecoration(
                 color: HexColor("#FFE8CC"),
@@ -96,7 +96,7 @@ Widget nameAndNotifHeading(
               ),
             ),
           ),
-          SizedBox(width: 10.0),
+          SizedBox(width: 8.0),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -104,8 +104,8 @@ Widget nameAndNotifHeading(
                 fullname,
                 style: TextStyle(
                   fontFamily: 'Poppins',
-                  fontSize: 16.0,
-                  fontWeight: FontWeight.w600,
+                  fontSize: 15.0,
+                  fontWeight: FontWeight.w500,
                   color: colorCodes.black,
                 ),
               ),
@@ -114,7 +114,7 @@ Widget nameAndNotifHeading(
                 style: TextStyle(
                   fontFamily: 'Poppins',
                   fontSize: 14.0,
-                  fontWeight: FontWeight.w500,
+                  fontWeight: FontWeight.w400,
                   color: colorCodes.aluminium,
                 ),
               ),
@@ -128,15 +128,15 @@ Widget nameAndNotifHeading(
             onTap: () {},
             child: Image.asset(
               "assets/images/icons/informationIcon.png",
-              height: 44,
-              width: 44,
+              height: 40,
+              width: 40,
             ),
           ),
           InkWell(
             onTap: notificationFunc,
             child: Container(
-              height: 48,
-              width: 48,
+              height: 40,
+              width: 40,
               // alignment: Alignment.center,
               decoration: BoxDecoration(
                 color: colorCodes.white,
@@ -157,9 +157,9 @@ Widget nameAndNotifHeading(
                   ),
                   newNotification
                       ? Positioned(
-                        top: 12,
+                        top: 10,
                         // top: 0,
-                        right: 15,
+                        right: 10,
                         child: CircleAvatar(
                           radius: 3.0,
                           backgroundColor: colorCodes.portlandOrange,

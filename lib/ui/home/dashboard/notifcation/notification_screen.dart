@@ -1,8 +1,8 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:kwik_port/api/controller/home/notification_api.dart';
 import 'package:kwik_port/colors/color.dart';
+import 'package:kwik_port/services/signalr_service.dart';
 import 'package:kwik_port/ui/home/dashboard/notifcation/notification_container.dart';
 import 'package:kwik_port/utils/button/bottom_navigatior_bar.dart';
 import 'package:kwik_port/utils/text/textstyle.dart';
@@ -19,76 +19,90 @@ class NotificationScreen extends StatefulWidget {
 class _NotificationScreenState extends State<NotificationScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
-  String numberofexport = "4";
-  String transactionNotif = "2";
-  String systemNotif = "2";
-  int itemCount = 7;
-  List textone = [
-    "Your selected procurement agency is now responsible for sourcing your goods",
-    "MV ATLANTIC STAR has departed Lagos port with your container ",
-    "A new journey has started.",
-    "₦85,000 has been deducted from your KwikLC wallet for packaging & documentation services.",
-    "₦85,000 has been deducted from your KwikLC wallet for packaging & documentation services.",
-    "₦85,000 has been deducted from your KwikLC wallet for packaging & documentation services.",
-    "Your selected procurement agency is now responsible for sourcing your goods",
-  ];
-  List notifstatus = [
-    "completed",
-    "completed",
-    "not",
-    "not",
-    "not",
-    "not",
-    "completed",
-  ];
-  List texttwo = ["", "APLU-7834562.", "", "", "", "", "APLU-7834562."];
-  List textthree = [
-    "",
-    "Estimated arrival:",
-    "",
-    "",
-    "",
-    "",
-    "Estimated arrival:",
-  ];
-  List textfour = ["", "Dec 28, 2025.", "", "", "", "", "Dec 28, 2025."];
-  final ScrollController _scrollController = ScrollController();
-  final _controller = StreamController<SwipeRefreshState>.broadcast();
-  Stream<SwipeRefreshState> get _stream => _controller.stream;
+  StreamSubscription<Map<String, dynamic>>? _sub;
+
+  final List<Map<String, dynamic>> _all = [];
+  final List<Map<String, dynamic>> _exports = [];
+  final List<Map<String, dynamic>> _transactions = [];
+  final List<Map<String, dynamic>> _system = [];
+
+  bool newNotification = false;
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 4, vsync: this);
-    _scrollController.addListener(_onScroll);
+    _initSignalR();
   }
 
-  void _onScroll() {
-    final api = Provider.of<NotificationApi>(context, listen: false);
-    if (_scrollController.position.pixels >=
-            _scrollController.position.maxScrollExtent - 200 &&
-        api.hasMore &&
-        !api.isLoading) {
-      api.fetchNotifications();
-    }
-  }
+  Future<void> _initSignalR() async {
+    await SignalRService.connect();
+    _sub = SignalRService.stream.listen((n) {
+      final type = (n['type'] ?? '').toString().toLowerCase();
+      final item = {
+        'title': n['title'] ?? 'Notification',
+        'message': n['message'] ?? '',
+        'sentAt': n['sentAt'] ?? '',
+        'status': 'not',
+        'type': type,
+      };
 
-  Future<void> _refresh() async {
-    final api = Provider.of<NotificationApi>(context, listen: false);
+      setState(() {
+        _all.insert(0, item);
+        if (type == 'exportcomplete' ||
+            type == 'stageupdate' ||
+            type == 'stageactivated') {
+          _exports.insert(0, item);
+        } else if (type == 'wallettransaction' ||
+            type == 'payment' ||
+            type == 'paymentreceived') {
+          _transactions.insert(0, item);
+        } else {
+          _system.insert(0, item);
+        }
+        newNotification = true;
+      });
 
-    await api.fetchNotifications();
-    _controller.sink.add(SwipeRefreshState.hidden);
-    // _controller.sink.add(SwipeRefreshState.hidden);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('${item['title']}: ${item['message']}'),
+            duration: const Duration(seconds: 3),
+            backgroundColor: colorCodes.azureBlue,
+          ),
+        );
+      }
+    });
   }
 
   @override
   void dispose() {
-    _scrollController.dispose();
-    _controller.close();
+    _sub?.cancel();
+    SignalRService.disconnect();
+    _tabController.dispose();
     super.dispose();
   }
 
-  bool newNotification = false;
+  String get _exportCount =>
+      _exports.where((n) => n['status'] == 'not').length.toString();
+  String get _transactionCount =>
+      _transactions.where((n) => n['status'] == 'not').length.toString();
+  String get _systemCount =>
+      _system.where((n) => n['status'] == 'not').length.toString();
+
+  String _timeAgo(String sentAt) {
+    try {
+      final dt = DateTime.parse(sentAt).toLocal();
+      final diff = DateTime.now().difference(dt);
+      if (diff.inDays > 0) return '${diff.inDays}d ago';
+      if (diff.inHours > 0) return '${diff.inHours}h ago';
+      if (diff.inMinutes > 0) return '${diff.inMinutes}min ago';
+      return 'Just now';
+    } catch (_) {
+      return '';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final notificationApi = Provider.of<NotificationApi>(context);
@@ -102,7 +116,12 @@ class _NotificationScreenState extends State<NotificationScreen>
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(160.0),
         child: Padding(
-          padding: EdgeInsets.only(left: 20, right: 20, top: 50, bottom: 10),
+          padding: const EdgeInsets.only(
+            left: 20,
+            right: 20,
+            top: 50,
+            bottom: 10,
+          ),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
@@ -111,9 +130,7 @@ class _NotificationScreenState extends State<NotificationScreen>
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   InkWell(
-                    onTap: () {
-                      Navigator.pop(context);
-                    },
+                    onTap: () => Navigator.pop(context),
                     child: Image.asset(
                       'assets/images/icons/button back.png',
                       height: 48,
@@ -122,19 +139,17 @@ class _NotificationScreenState extends State<NotificationScreen>
                   ),
                   FittedBox(
                     child: Text(
-                      "Notifications",
-                      style: TextStyle(
+                      'Notifications',
+                      style: const TextStyle(
                         fontFamily: 'Poppins',
                         fontSize: 24.0,
                         fontWeight: FontWeight.w600,
-                        color: colorCodes.black,
-                      ),
+                      ).copyWith(color: colorCodes.black),
                     ),
                   ),
                   Container(
                     height: 48,
                     width: 48,
-                    // alignment: Alignment.center,
                     decoration: BoxDecoration(
                       color: colorCodes.white,
                       border: Border.all(
@@ -152,55 +167,30 @@ class _NotificationScreenState extends State<NotificationScreen>
                           height: 24,
                           width: 24,
                         ),
-                        newNotification
-                            ? Positioned(
-                              top: 12,
-                              // top: 0,
-                              right: 15,
-                              child: CircleAvatar(
-                                radius: 3.0,
-                                backgroundColor: colorCodes.portlandOrange,
-                              ),
-                            )
-                            : Container(),
+                        if (newNotification)
+                          Positioned(
+                            top: 12,
+                            right: 15,
+                            child: CircleAvatar(
+                              radius: 3.0,
+                              backgroundColor: colorCodes.portlandOrange,
+                            ),
+                          ),
                       ],
                     ),
                   ),
                 ],
               ),
-              SizedBox(height: 17),
-              notificationTabBar(
+              const SizedBox(height: 17),
+              _notificationTabBar(
                 _tabController,
-                // numberofexport,
-                // transactionNotif,
-                // systemNotif,
-                notificationApi.countForTab(1).toString(),
-                notificationApi.countForTab(2).toString(),
-                notificationApi.countForTab(3).toString(),
+                _exportCount,
+                _transactionCount,
+                _systemCount,
                 (index) {
-                  switch (index) {
-                    case 1:
-                      setState(() {
-                        numberofexport = "";
-                      });
-                      break;
-                    case 2:
-                      setState(() {
-                        transactionNotif = "";
-                      });
-                      break;
-                    case 3:
-                      setState(() {
-                        systemNotif = "";
-                      });
-                      break;
-                    default:
-                  }
-                  // if (index == 2) {
-                  //   setState(() {
-                  //     numberofexport = "";
-                  //   });
-                  // }
+                  setState(() {
+                    newNotification = false;
+                  });
                 },
               ),
             ],
@@ -208,236 +198,98 @@ class _NotificationScreenState extends State<NotificationScreen>
         ),
       ),
       backgroundColor: colorCodes.whiteSmoke,
-      body: ListView(
-        padding: EdgeInsets.only(left: 18, right: 18, top: 10, bottom: 70),
-        children: [
-          SizedBox(
-            height: MediaQuery.of(context).size.height,
-            child: SwipeRefresh.adaptive(
-              stateStream: _stream,
-              onRefresh: _refresh,
-              children: [
-                SizedBox(
-                  height: MediaQuery.of(context).size.height - 170,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      SizedBox(
-                        height: 90 * itemCount.toDouble(),
-                        child: TabBarView(
-                          controller: _tabController,
-                          children: List.generate(4, (tabIndex) {
-                            final items = notificationApi.getByTab(tabIndex);
-
-                            if (items.isEmpty && !notificationApi.isLoading) {
-                              return const Center(
-                                child: Text("No notifications"),
-                              );
-                            }
-
-                            return ListView.separated(
-                              controller: _scrollController,
-                              padding: const EdgeInsets.all(16),
-                              itemCount:
-                                  items.length +
-                                  (notificationApi.hasMore ? 1 : 0),
-                              separatorBuilder:
-                                  (_, __) => const SizedBox(height: 15),
-                              itemBuilder: (context, index) {
-                                if (index >= items.length) {
-                                  return const Center(
-                                    child: CircularProgressIndicator(),
-                                  );
-                                }
-
-                                final n = items[index];
-
-                                return notificationContainer(
-                                  n['status'] == 'Completed'
-                                      ? "completed"
-                                      : "not",
-                                  n['subject'] ?? '',
-                                  _timeAgo(n['sentAt']),
-                                  n['message'] ?? '',
-                                  "",
-                                  "",
-                                  "",
-                                );
-                              },
-                            );
-                          }),
-                          // children: [
-                          //   Container(
-                          //     height: 90 * itemCount.toDouble(),
-                          //     width: 390,
-                          //     padding: const EdgeInsets.symmetric(
-                          //       horizontal: 10,
-                          //       vertical: 20,
-                          //     ),
-                          //     decoration: BoxDecoration(
-                          //       borderRadius: BorderRadius.circular(16),
-                          //       color: colorCodes.white,
-                          //     ),
-                          //     child: ListView.separated(
-                          //       padding: EdgeInsets.only(bottom: 40),
-                          //       physics: NeverScrollableScrollPhysics(),
-                          //       separatorBuilder:
-                          //           (context, index) => SizedBox(height: 15),
-                          //       itemCount: itemCount,
-                          //       itemBuilder: (ctx, index) {
-                          //         return notificationContainer(
-                          //           notifstatus[index],
-                          //           "Export Complete 🎉",
-                          //           "1min",
-                          //           textone[index],
-                          //           texttwo[index],
-                          //           textthree[index],
-                          //           textfour[index],
-                          //         );
-                          //       },
-                          //     ),
-                          //   ),
-                          //   Container(
-                          //     height: 90 * itemCount.toDouble(),
-                          //     width: 390,
-                          //     padding: const EdgeInsets.symmetric(
-                          //       horizontal: 10,
-                          //       vertical: 20,
-                          //     ),
-                          //     decoration: BoxDecoration(
-                          //       borderRadius: BorderRadius.circular(16),
-                          //       color: colorCodes.white,
-                          //     ),
-                          //     child: ListView.separated(
-                          //       padding: EdgeInsets.only(bottom: 40),
-                          //       physics: NeverScrollableScrollPhysics(),
-                          //       separatorBuilder:
-                          //           (context, index) => SizedBox(height: 15),
-                          //       itemCount: itemCount,
-                          //       itemBuilder: (ctx, index) {
-                          //         return notificationContainer(
-                          //           notifstatus[index],
-                          //           "Export Complete 🎉",
-                          //           "1min",
-                          //           textone[index],
-                          //           texttwo[index],
-                          //           textthree[index],
-                          //           textfour[index],
-                          //         );
-                          //       },
-                          //     ),
-                          //   ),
-                          //   Container(
-                          //     height: 90 * itemCount.toDouble(),
-                          //     width: 390,
-                          //     padding: const EdgeInsets.symmetric(
-                          //       horizontal: 10,
-                          //       vertical: 20,
-                          //     ),
-                          //     decoration: BoxDecoration(
-                          //       borderRadius: BorderRadius.circular(16),
-                          //       color: colorCodes.white,
-                          //     ),
-                          //     child: ListView.separated(
-                          //       padding: EdgeInsets.only(bottom: 40),
-                          //       physics: NeverScrollableScrollPhysics(),
-                          //       separatorBuilder:
-                          //           (context, index) => SizedBox(height: 15),
-                          //       itemCount: itemCount,
-                          //       itemBuilder: (ctx, index) {
-                          //         return notificationContainer(
-                          //           notifstatus[index],
-                          //           "Export Complete 🎉",
-                          //           "1min",
-                          //           textone[index],
-                          //           texttwo[index],
-                          //           textthree[index],
-                          //           textfour[index],
-                          //         );
-                          //       },
-                          //     ),
-                          //   ),
-                          //   Container(
-                          //     height: 90 * itemCount.toDouble(),
-                          //     width: 390,
-                          //     padding: const EdgeInsets.symmetric(
-                          //       horizontal: 0,
-                          //       vertical: 20,
-                          //     ),
-                          //     decoration: BoxDecoration(
-                          //       borderRadius: BorderRadius.circular(16),
-                          //       color: colorCodes.white,
-                          //     ),
-                          //     child: ListView.separated(
-                          //       padding: EdgeInsets.only(bottom: 40),
-                          //       physics: NeverScrollableScrollPhysics(),
-                          //       separatorBuilder:
-                          //           (context, index) => SizedBox(height: 15),
-                          //       itemCount: itemCount,
-                          //       itemBuilder: (ctx, index) {
-                          //         return notificationContainer(
-                          //           notifstatus[index],
-                          //           "Export Complete 🎉",
-                          //           "1min",
-                          //           textone[index],
-                          //           texttwo[index],
-                          //           textthree[index],
-                          //           textfour[index],
-                          //         );
-                          //       },
-                          //     ),
-                          //   ),
-                          // ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
+      body: Padding(
+        padding: const EdgeInsets.only(
+          left: 18,
+          right: 18,
+          top: 10,
+          bottom: 70,
+        ),
+        child: TabBarView(
+          controller: _tabController,
+          children: [
+            _buildList(_all),
+            _buildList(_exports),
+            _buildList(_transactions),
+            _buildList(_system),
+          ],
+        ),
       ),
       bottomNavigationBar: Bottomnavigationbar(1),
     );
   }
 
-  String _timeAgo(String? iso) {
-    if (iso == null) return '';
-    final date = DateTime.parse(iso);
-    final diff = DateTime.now().difference(date);
+  Widget _buildList(List<Map<String, dynamic>> items) {
+    if (items.isEmpty) {
+      return Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              Icons.notifications_none,
+              size: 64,
+              color: colorCodes.graniteGrey,
+            ),
+            const SizedBox(height: 12),
+            Text(
+              'No notifications yet',
+              style: kwikTextStlye(
+                16.0,
+                FontWeight.w500,
+                colorCodes.graniteGrey,
+              ),
+            ),
+          ],
+        ),
+      );
+    }
 
-    if (diff.inMinutes < 1) return 'Just now';
-    if (diff.inMinutes < 60) return '${diff.inMinutes}m';
-    if (diff.inHours < 24) return '${diff.inHours}h';
-    return '${diff.inDays}d';
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 20),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(16),
+        color: colorCodes.white,
+      ),
+      child: ListView.separated(
+        padding: const EdgeInsets.only(bottom: 40),
+        separatorBuilder: (_, __) => const SizedBox(height: 15),
+        itemCount: items.length,
+        itemBuilder: (_, i) {
+          final n = items[i];
+          return notificationContainer(
+            n['status'] ?? 'not',
+            n['title'] ?? 'Notification',
+            _timeAgo(n['sentAt'] ?? ''),
+            n['message'] ?? '',
+            '',
+            '',
+            '',
+          );
+        },
+      ),
+    );
   }
 
-  Widget notificationTabBar(
-    _tabController,
-    exportNotif,
-    transactionNotif,
-    systemNotif,
-    onTap,
+  Widget _notificationTabBar(
+    TabController controller,
+    String exportNotif,
+    String transactionNotif,
+    String systemNotif,
+    Function(int) onTap,
   ) {
     return Container(
       height: 58,
       width: 395,
-      padding: EdgeInsets.symmetric(horizontal: 0, vertical: 10),
-
+      padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 10),
       decoration: BoxDecoration(
         color: colorCodes.white,
         borderRadius: BorderRadius.circular(100),
       ),
-
       child: TabBar(
         onTap: onTap,
-        padding: EdgeInsets.symmetric(horizontal: 0),
-        // indicatorColor: colorCodes.teaGreen,
+        padding: const EdgeInsets.symmetric(horizontal: 0),
         labelPadding: const EdgeInsets.symmetric(horizontal: 1),
         indicatorSize: TabBarIndicatorSize.tab,
-
         labelColor: colorCodes.white,
         labelStyle: const TextStyle(
           fontFamily: 'Poppins',
@@ -445,13 +297,11 @@ class _NotificationScreenState extends State<NotificationScreen>
           fontWeight: FontWeight.w400,
         ),
         unselectedLabelColor: colorCodes.black,
-        unselectedLabelStyle: TextStyle(
+        unselectedLabelStyle: const TextStyle(
           fontFamily: 'Poppins',
           fontSize: 12.0,
           fontWeight: FontWeight.w400,
-          // color: colorCodes
         ),
-
         indicatorPadding: const EdgeInsets.symmetric(
           vertical: 2,
           horizontal: 5,
@@ -470,147 +320,49 @@ class _NotificationScreenState extends State<NotificationScreen>
           ),
           color: colorCodes.white,
         ),
-        controller: _tabController,
+        controller: controller,
         tabs: [
-          Tab(
-            text: 'All',
-            // child: SizedBox(
-            //   width: 54,
-            //   child: Stack(
-            //     clipBehavior: Clip.none, // important! prevents clipping
-            //     children: [
-            //       Align(alignment: Alignment.center, child: Text("All")),
-            //       Positioned(
-            //         top: 5,
-            //         right: 6,
-            //         child: Container(
-            //           height: 14,
-            //           width: 15,
-            //           alignment: Alignment.center,
-            //           decoration: BoxDecoration(
-            //             color: colorCodes.portlandOrange,
-            //             borderRadius: BorderRadius.circular(600),
-            //           ),
-            //           child: Text(
-            //             numberofNotif,
-            //             style: kwikTextStlye(
-            //               8.0,
-            //               FontWeight.w700,
-            //               colorCodes.white,
-            //             ),
-            //           ),
-            //         ),
-            //       ),
-            //     ],
-            //   ),
-            // ),
-          ),
-          Tab(
-            child: SizedBox(
-              width: 91,
-              child: Stack(
-                clipBehavior: Clip.none, // important! prevents clipping
-                children: [
-                  Align(alignment: Alignment.center, child: Text("Exports")),
-                  if (exportNotif.isNotEmpty)
-                    Positioned(
-                      top: 5,
-                      right: 6,
-                      child: Container(
-                        height: 14,
-                        width: 15,
-                        alignment: Alignment.center,
-                        decoration: BoxDecoration(
-                          color: colorCodes.portlandOrange,
-                          borderRadius: BorderRadius.circular(600),
-                        ),
-                        child: Text(
-                          exportNotif,
-                          style: kwikTextStlye(
-                            8.0,
-                            FontWeight.w700,
-                            colorCodes.white,
-                          ),
-                        ),
-                      ),
-                    ),
-                ],
-              ),
-            ),
-          ),
-          Tab(
-            child: SizedBox(
-              width: 91,
-              child: Stack(
-                clipBehavior: Clip.none, // important! prevents clipping
-                children: [
-                  Align(
-                    alignment: Alignment.center,
-                    child: Text("Transactions"),
-                  ),
-                  if (transactionNotif.isNotEmpty)
-                    Positioned(
-                      top: 5,
-                      right: 6,
-                      child: Container(
-                        height: 14,
-                        width: 15,
-                        alignment: Alignment.center,
-                        decoration: BoxDecoration(
-                          color: colorCodes.portlandOrange,
-                          borderRadius: BorderRadius.circular(600),
-                        ),
-                        child: Text(
-                          transactionNotif,
-                          style: kwikTextStlye(
-                            8.0,
-                            FontWeight.w700,
-                            colorCodes.white,
-                          ),
-                        ),
-                      ),
-                    ),
-                ],
-              ),
-            ),
-          ),
-          Tab(
-            child: SizedBox(
-              width: 91,
-              child: Stack(
-                clipBehavior: Clip.none, // important! prevents clipping
-                children: [
-                  Align(alignment: Alignment.center, child: Text("System")),
-                  if (systemNotif.isNotEmpty)
-                    Positioned(
-                      top: 5,
-                      right: 6,
-                      child: Container(
-                        height: 14,
-                        width: 15,
-                        alignment: Alignment.center,
-                        decoration: BoxDecoration(
-                          color: colorCodes.portlandOrange,
-                          borderRadius: BorderRadius.circular(600),
-                        ),
-                        child: Text(
-                          systemNotif,
-                          style: kwikTextStlye(
-                            8.0,
-                            FontWeight.w700,
-                            colorCodes.white,
-                          ),
-                        ),
-                      ),
-                    ),
-                ],
-              ),
-            ),
-          ),
-          // Tab(text: "Exports"),
-          // Tab(text: "Transactions"),
-          // Tab(text: "System"),
+          const Tab(text: 'All'),
+          _buildTabWithBadge('Exports', exportNotif),
+          _buildTabWithBadge('Transactions', transactionNotif),
+          _buildTabWithBadge('System', systemNotif),
         ],
+      ),
+    );
+  }
+
+  Widget _buildTabWithBadge(String label, String count) {
+    return Tab(
+      child: SizedBox(
+        width: 91,
+        child: Stack(
+          clipBehavior: Clip.none,
+          children: [
+            Align(alignment: Alignment.center, child: Text(label)),
+            if (count.isNotEmpty && count != '0')
+              Positioned(
+                top: 5,
+                right: 6,
+                child: Container(
+                  height: 14,
+                  width: 15,
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    color: colorCodes.portlandOrange,
+                    borderRadius: BorderRadius.circular(600),
+                  ),
+                  child: Text(
+                    count,
+                    style: kwikTextStlye(
+                      8.0,
+                      FontWeight.w700,
+                      colorCodes.white,
+                    ),
+                  ),
+                ),
+              ),
+          ],
+        ),
       ),
     );
   }

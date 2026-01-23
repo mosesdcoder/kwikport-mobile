@@ -49,12 +49,11 @@ Widget transactionHistoryTabBar(_tabController) {
         color: colorCodes.white,
       ),
       controller: _tabController,
-      tabs: [
+      tabs: const [
         Tab(text: "All"),
-        Tab(text: "Deposit"),
-        Tab(text: "Withdrawals"),
-        Tab(text: "Earnings"),
-        Tab(text: "Fees"),
+        Tab(text: "Topups"),
+        Tab(text: "Ticket Funding"),
+        Tab(text: "Wallet Funding"),
       ],
     ),
   );

@@ -304,7 +304,7 @@ class _FundExportContractState extends State<FundExportContract> {
                                         ],
                                       ),
                                       Text(
-                                        "${MoneyUtils.formatMoney(widget.kwikticket.grossEarning)}",
+                                        "${MoneyUtils.formatMoney(widget.kwikticket.projectedIncomeInDollars, symbol: "\$", decimalDigits: 2)}",
                                         textAlign: TextAlign.start,
                                         style: kwikTextStlye(
                                           12.0,
@@ -587,7 +587,8 @@ class _FundExportContractState extends State<FundExportContract> {
                               await fundTicketApi
                                   .fundTicket(
                                     kwikTicketId: widget.kwikticket.id,
-                                    exporterId: widget.kwikticket.exporter?.id ?? "",
+                                    exporterId:
+                                        widget.kwikticket.exporter?.id ?? "",
                                     fundingMethod: 1,
                                   )
                                   .then((_) {
@@ -622,7 +623,8 @@ class _FundExportContractState extends State<FundExportContract> {
                               await fundTicketApi
                                   .fundTicket(
                                     kwikTicketId: widget.kwikticket.id,
-                                    exporterId: widget.kwikticket.exporter?.id ?? "",
+                                    exporterId:
+                                        widget.kwikticket.exporter?.id ?? "",
                                     fundingMethod: 2,
                                   )
                                   .then((_) {

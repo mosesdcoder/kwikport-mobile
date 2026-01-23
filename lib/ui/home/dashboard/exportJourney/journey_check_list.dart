@@ -2,6 +2,79 @@ import 'package:flutter/material.dart';
 import 'package:kwik_port/colors/color.dart';
 import 'package:kwik_port/utils/text/textstyle.dart';
 
+Widget journeyCheckList(
+  String title,
+  bool isCompleted,
+  bool isCurrent,
+) {
+  return Container(
+    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+    decoration: BoxDecoration(
+      color: isCurrent ? colorCodes.paleCornflowerBlue.withOpacity(0.1) : colorCodes.whiteSmoke,
+      borderRadius: BorderRadius.circular(10),
+      border: isCurrent ? Border.all(
+        color: colorCodes.paleCornflowerBlue,
+        width: 1.5,
+      ) : null,
+    ),
+    child: Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        isCompleted
+            ? Icon(
+                Icons.check_circle,
+                color: colorCodes.pigmentGreen,
+                size: 24,
+              )
+            : isCurrent
+                ? Container(
+                    height: 24,
+                    width: 24,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: colorCodes.azureBlue,
+                        width: 2,
+                      ),
+                    ),
+                    child: Center(
+                      child: Container(
+                        height: 12,
+                        width: 12,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: colorCodes.azureBlue,
+                        ),
+                      ),
+                    ),
+                  )
+                : Container(
+                    height: 24,
+                    width: 24,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: colorCodes.graniteGrey.withOpacity(0.5),
+                        width: 2,
+                      ),
+                    ),
+                  ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Text(
+            title,
+            style: kwikTextStlye(
+              14.0,
+              isCurrent ? FontWeight.w600 : FontWeight.w400,
+              isCurrent ? colorCodes.black : colorCodes.graniteGrey,
+            ),
+          ),
+        ),
+      ],
+    ),
+  );
+}
+
 // Widget checkContainer(
 //   title,
 //   // isCheckedSection,

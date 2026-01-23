@@ -179,11 +179,12 @@ class _DashboardState extends State<Dashboard> {
     final inProgress = prefs.getBool('procurementInProgress') ?? false;
     final completed = prefs.getBool('procurementCompleted') ?? false;
 
-    // if (selected) {
-    //   setState(() => showProcurement = false);
-    //   await prefs.setBool('showProcurement', false);
-    //   return;
-    // }
+    // Hide prompt immediately if user already selected an agency
+    if (selected || inProgress) {
+      setState(() => showProcurement = false);
+      await prefs.setBool('showProcurement', false);
+      return;
+    }
     if (completed) {
       setState(() => showProcurement = false);
       return;
@@ -276,14 +277,37 @@ class _DashboardState extends State<Dashboard> {
       loadedTicket = KwikTicketModel.fromJson(jsonDecode(ticketJson));
     }
 
-    // RULE: show button ONLY if both values exist
+    // Check if the export is actually in the dashboard data and not completed
+    final dashboardApi = Provider.of<DashboardApi>(context, listen: false);
+    bool exportStillActive = false;
+
+    if (contractId != null && dashboardApi.data?.exports != null) {
+      exportStillActive = dashboardApi.data!.exports.any(
+        (export) =>
+            export.contractId == contractId &&
+            export.exportContractStage !=
+                'Payout', // Hide card when status is "Payout"
+      );
+    }
+
+    // If export has reached "Payout" status, clear the journey data
+    if (!exportStillActive && inProgress) {
+      await prefs.remove('activeExportContractId');
+      await prefs.remove('journeyInProgress');
+      await prefs.remove('activeKwikTicket');
+    }
+
+    // RULE: show button ONLY if journey is in progress AND export is still active
     final shouldShowJourney =
-        inProgress == true && contractId != null && loadedTicket != null;
+        inProgress == true &&
+        contractId != null &&
+        loadedTicket != null &&
+        exportStillActive;
 
     setState(() {
       showContinueJourney = shouldShowJourney;
-      exportContractId = contractId;
-      kwikticket = loadedTicket;
+      exportContractId = shouldShowJourney ? contractId : null;
+      kwikticket = shouldShowJourney ? loadedTicket : null;
     });
   }
 
@@ -317,10 +341,11 @@ class _DashboardState extends State<Dashboard> {
         dashboardApi.data?.totalExportContractBalance ?? 0.0;
     print('Total Export Contract Balance: $totalExportContractBalance');
     print('KwikTicket passed to MyExportsScreen: ${widget}');
-    // print('dashboard data: ${dashboardApi.data?.exports.first.toJson()}');
-    if (dashboardApi.data?.exports != null &&
-        dashboardApi.data!.exports.isNotEmpty) {
-      print('dashboard data: ${dashboardApi.data!.exports.first.toJson()}');
+
+    if (dashboardApi.data?.exports.isNotEmpty ?? false) {
+      print('dashboard data: ${dashboardApi.data?.exports.first.toJson()}');
+    } else {
+      print('dashboard data: No exports available');
     }
 
     final activeTickets = dashboardApi.activeKwikTicketsCount;
@@ -499,20 +524,41 @@ class _DashboardState extends State<Dashboard> {
                                         child: elevatedbutton(
                                           "Continue",
                                           () async {
-                                            // await startNewJourney(exportContractId!);
-                                            Navigator.push(
-                                              context,
-                                              MaterialPageRoute(
-                                                builder:
-                                                    (context) =>
-                                                        ExportJourneyScreen(
-                                                          kwikticket:
-                                                              kwikticket,
-                                                          exporterContractId:
-                                                              exportContractId!,
-                                                        ),
-                                              ),
-                                            );
+                                            final dashboardApi =
+                                                Provider.of<DashboardApi>(
+                                                  context,
+                                                  listen: false,
+                                                );
+                                            final export = dashboardApi
+                                                .data
+                                                ?.exports
+                                                .firstWhere(
+                                                  (e) =>
+                                                      e.contractId ==
+                                                      exportContractId,
+                                                  orElse:
+                                                      () =>
+                                                          throw Exception(
+                                                            "Export not found",
+                                                          ),
+                                                );
+
+                                            if (export != null) {
+                                              Navigator.push(
+                                                context,
+                                                MaterialPageRoute(
+                                                  builder:
+                                                      (
+                                                        context,
+                                                      ) => ExportJourneyScreen(
+                                                        kwikticket: kwikticket,
+                                                        exporterContractId:
+                                                            exportContractId!,
+                                                        exportData: export,
+                                                      ),
+                                                ),
+                                              );
+                                            }
                                           },
                                           backgroundcolor:
                                               colorCodes.portlandOrange,
@@ -738,8 +784,9 @@ class _DashboardState extends State<Dashboard> {
           SizedBox(
             height: 23,
             // width: 58,
-            child: elevatedbutton("Proceed", () {
-              Navigator.push(
+            child: elevatedbutton("Proceed", () async {
+              // Navigate to agency selection, then refresh and hide prompt
+              await Navigator.push(
                 context,
                 MaterialPageRoute(
                   builder:
@@ -748,6 +795,9 @@ class _DashboardState extends State<Dashboard> {
                       ),
                 ),
               );
+              // Re-evaluate persisted state and hide immediately
+              await _loadProcurementState();
+              setState(() => showProcurement = false);
             }, backgroundcolor: colorCodes.portlandOrange),
           ),
         ],
