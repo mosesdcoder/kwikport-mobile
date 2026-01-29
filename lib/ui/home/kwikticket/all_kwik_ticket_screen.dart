@@ -32,12 +32,11 @@ class AllKwikTicketScreen extends StatefulWidget {
 enum KwikTicketStatusEnum {
   active(1),
   awaitingPayment(2),
-
-  completed(3),
-  expired(4),
-  paid(5),
-  cancelled(6);
-
+  inProgress(3),
+  completed(4),
+  expired(5),
+  paid(6),
+  cancelled(7);
   final int value;
   const KwikTicketStatusEnum(this.value);
 }
@@ -250,7 +249,8 @@ class _AllKwikTicketScreenState extends State<AllKwikTicketScreen>
               return t.kwikTicketStatus ==
                   KwikTicketStatusEnum.awaitingPayment.value;
             case "active":
-              return t.kwikTicketStatus == KwikTicketStatusEnum.active.value;
+              return t.kwikTicketStatus == KwikTicketStatusEnum.active.value ||
+                  t.kwikTicketStatus == KwikTicketStatusEnum.inProgress.value;
             case "fulfilled":
               return t.kwikTicketStatus == KwikTicketStatusEnum.paid.value;
             default:

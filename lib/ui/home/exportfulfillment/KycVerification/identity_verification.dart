@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:image_picker/image_picker.dart';
 
 import 'package:flutter/material.dart';
 import 'package:kwik_port/colors/color.dart';
@@ -21,6 +22,9 @@ class IdentityVerification extends StatefulWidget {
 
 class _IdentityVerificationState extends State<IdentityVerification> {
   File? _selectedImage;
+  final ImagePicker _picker = ImagePicker();
+
+  bool get _isFormValid => _selectedImage != null;
 
   @override
   Widget build(BuildContext context) {
@@ -163,7 +167,17 @@ class _IdentityVerificationState extends State<IdentityVerification> {
                   ),
                 ),
                 SizedBox(height: 15),
-                uploadImageContainer("Upload Selfie Photo", () {}),
+                uploadImageContainer("Upload Selfie Photo", () async {
+                  final pickedFile = await _picker.pickImage(
+                    source: ImageSource.camera,
+                    imageQuality: 80,
+                  );
+                  if (pickedFile != null) {
+                    setState(() {
+                      _selectedImage = File(pickedFile.path);
+                    });
+                  }
+                }, imageFile: _selectedImage),
               ],
             ),
           ),
@@ -188,7 +202,8 @@ class _IdentityVerificationState extends State<IdentityVerification> {
                 width: 150,
                 child: kwikbutton(
                   "Next",
-                  widget.nextFunc,
+                  _isFormValid ? widget.nextFunc : null,
+                  enabled: _isFormValid,
                   fontSize: 12.0,
                   buttonChild: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -198,7 +213,7 @@ class _IdentityVerificationState extends State<IdentityVerification> {
                         style: kwikTextStlye(
                           14.0,
                           FontWeight.w500,
-                          colorCodes.whiteSmoke,
+                          _isFormValid ? colorCodes.whiteSmoke : colorCodes.aluminium,
                         ),
                       ),
                       SizedBox(width: 8),

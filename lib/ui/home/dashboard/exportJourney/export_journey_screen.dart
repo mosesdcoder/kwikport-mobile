@@ -66,11 +66,11 @@ class _ExportJourneyScreenState extends State<ExportJourneyScreen> {
   // int selectedMainStage = 1; // you can change depending on stage
 
   final List<String> _stageTitles = [
-    "Procurement 🏭",
-    "Packaging, Quality Control & Documentation 📋",
-    "Logistics 🚚",
-    "Freight Forwarding (Port Clearance & Vessel Loading) ⚓",
-    "Final Export 🚢",
+    "Procurement",
+    "Packaging, Quality Control & Documentation",
+    "Logistics",
+    "Freight Forwarding ",
+    "Final Export",
   ];
 
   late List<StageStatus> stageStates;

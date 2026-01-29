@@ -112,7 +112,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                                       userDataVar!.image!.isNotEmpty
                                   ? NetworkImage(userDataVar!.image!)
                                   : const AssetImage(
-                                    "assets/images/Profile.png",
+                                    "assets/images/profile-1.png",
                                   ))
                               as ImageProvider,
                   // _selectedImage != null

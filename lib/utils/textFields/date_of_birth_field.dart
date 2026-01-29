@@ -30,7 +30,7 @@ Widget dateofbirthTxtField(hintText, controller, errorText, showdate) {
           enableSuggestions: true,
           keyboardType: TextInputType.none,
           decoration: InputDecoration(
-            hintText: '00/00/0000',
+            hintText: '01/01/1990',
             hintStyle: TextStyle(
               fontFamily: 'Poppins',
               color: colorCodes.graniteGrey,

@@ -93,7 +93,7 @@ class _ExportPaymentSucessfulDialogState
             ),
             SizedBox(height: 10),
             Text(
-              "Your Export Gross Earnings have been credited to your KwikLC dollar wallet. ",
+              "Your earnings have been credited to your KwikLc dollar wallet. ",
               textAlign: TextAlign.center,
               style: kwikTextStlye(12.0, FontWeight.w500, colorCodes.aluminium),
             ),

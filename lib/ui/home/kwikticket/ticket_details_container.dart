@@ -87,7 +87,7 @@ Widget ticketDetailContainer(
         dataDetail("Export Item", "Contract Type", exportItem, contractType),
         SizedBox(height: 21.0),
         dataDetail(
-          "Selected Capacity",
+          "Quantity",
           "Destination",
           selectedCapacity,
           destination,
@@ -150,11 +150,11 @@ Widget ticketDetailContainer(
                   ),
                   Row(
                     children: [
-                      Image.asset(
-                        "assets/images/icons/Trending up.png",
-                        height: 16,
-                        width: 16,
-                      ),
+                      // Image.asset(
+                      //   "assets/images/icons/Trending up.png",
+                      //   height: 16,
+                      //   width: 16,
+                      // ),
                       SizedBox(width: 5),
                       Text(
                           //"\₦${NumberFormat('#,##0.00').format(projectedIncome)}",
@@ -228,7 +228,7 @@ Widget ticketDetailContainer(
                 border: Border.all(
                   width: 1.2,
                   color:
-                      kwiticketStatus == 1
+                      (kwiticketStatus == 1 || kwiticketStatus == 3)
                           ? colorCodes.bluetiful
                           : kwiticketStatus == 2
                           ? HexColor("#FFAA33")
@@ -238,7 +238,7 @@ Widget ticketDetailContainer(
                 ),
                 borderRadius: BorderRadius.circular(22),
                 color:
-                    kwiticketStatus == 1
+                    (kwiticketStatus == 1 || kwiticketStatus == 3)
                         ? colorCodes.bluetiful
                         : kwiticketStatus == 2
                         ? HexColor("#FFAA33")
@@ -255,7 +255,7 @@ Widget ticketDetailContainer(
                   //   width: 16,
                   // ),
                   Text(
-                    kwiticketStatus == 1
+                    (kwiticketStatus == 1 || kwiticketStatus == 3)
                         ? "Active"
                         : kwiticketStatus == 2
                         ? "Non-Active"
@@ -373,7 +373,7 @@ Widget exporttDetailContainer(
         dataDetail("Export Item", "Contract Type", exportItem, contractType),
         SizedBox(height: 21.0),
         dataDetail(
-          "Selected Capacity",
+          "Quantity",
           "Destination",
           selectedCapacity,
           destination,

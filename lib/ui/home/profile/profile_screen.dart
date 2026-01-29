@@ -12,6 +12,7 @@ import 'package:kwik_port/ui/home/profile/accordion.dart';
 import 'package:kwik_port/ui/home/profile/edit_profile_screen.dart';
 import 'package:kwik_port/ui/onboarding/auth/change_password_screen.dart';
 import 'package:kwik_port/ui/onboarding/auth/login_screen.dart';
+import 'package:kwik_port/ui/onboarding/auth/terms_and_conditions_screen.dart';
 import 'package:kwik_port/utils/button/back_nav_header.dart';
 import 'package:kwik_port/utils/button/kwik_button.dart';
 import 'package:kwik_port/utils/text/contract_detail_heading_and_subtitle.dart';
@@ -27,6 +28,8 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
+    bool _pushNotificationsEnabled = true;
+    bool _darkModeEnabled = false;
   @override
   Widget build(BuildContext context) {
     final dashboardApi = Provider.of<DashboardApi>(context);
@@ -150,100 +153,213 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 SizedBox(height: 20.0),
                 Accordion(
                   title: "Personal Information",
-                  child: Column(
-                    children: [
-                      contractDetailHeadingAndSubtitle(
-                        "First Name",
-                        "Last Name",
-                        "${userDataVar?.firstName}",
-                        "${userDataVar?.lastName}",
-                      ),
-                      SizedBox(height: 20.0),
-                      contractDetailHeadingAndSubtitle(
-                        "Phone Number",
-                        "Email Address",
-                        "${userDataVar?.phoneNumber}",
-                        // "+234-810-9957-139",
-                        "${userDataVar?.email}",
-                        // "Johngbenga@gmail.com",
-                      ),
-                      SizedBox(height: 20.0),
-                      contractDetailHeadingAndSubtitle(
-                        "Export ID",
-                        "Export Name",
-                        userDataVar?.exporter?.exporterUniqueId ??
-                            "DW-KR-29012",
-                        // userDataVar.exporter.
-                        "####",
-                      ),
-                      SizedBox(height: 20.0),
-                      kwikbutton(
-                        '',
-                        () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => EditProfileScreen(),
-                              // settings: RouteSettings(name: 'ProfileSreen'),
-                            ),
-                          ).then((value) async {
-                            // 🧠 Refresh user data after editing profile
-                            final prefs = await SharedPreferences.getInstance();
-                            final userSessionStr = prefs.getString(
-                              'userSession',
-                            );
-                            if (userSessionStr != null) {
-                              setState(() {
-                                userDataVar = UserSession.fromJson(
-                                  jsonDecode(userSessionStr),
-                                );
-                              });
-                            }
-                          });
-                        },
-                        textColor: colorCodes.textBlack,
-                        backgroundcolor: colorCodes.white,
-                        borderColor: colorCodes.darkGrey,
-                        buttonChild: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Image.asset(
-                              "assets/images/icons/edit-2.png",
-                              height: 18,
-                              width: 18,
-                            ),
-                            SizedBox(width: 8),
-                            Text(
-                              "Edit Profile",
-                              style: kwikTextStlye(
-                                16.0,
-                                FontWeight.w500,
-                                colorCodes.black,
-                              ),
-                            ),
-                          ],
+                  child: SingleChildScrollView(
+                    physics: const BouncingScrollPhysics(),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        contractDetailHeadingAndSubtitle(
+                          "First Name",
+                          "Last Name",
+                          "${userDataVar?.firstName}",
+                          "${userDataVar?.lastName}",
                         ),
-                      ),
-                    ],
+                        SizedBox(height: 20.0),
+                        contractDetailHeadingAndSubtitle(
+                          "Phone Number",
+                          "Email Address",
+                          "${userDataVar?.phoneNumber}",
+                          // "+234-810-9957-139",
+                          "${userDataVar?.email}",
+                          // "Johngbenga@gmail.com",
+                        ),
+                        SizedBox(height: 20.0),
+                        contractDetailHeadingAndSubtitle(
+                          "Export ID",
+                          "Export Name",
+                          userDataVar?.exporter?.exporterUniqueId ??
+                              "DW-KR-29012",
+                           userDataVar?.exporter?.businessName ??
+                              "######",
+                          //"####",
+                        ),
+                        SizedBox(height: 20.0),
+                        kwikbutton(
+                          '',
+                          () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => EditProfileScreen(),
+                                // settings: RouteSettings(name: 'ProfileSreen'),
+                              ),
+                            ).then((value) async {
+                              // 🧠 Refresh user data after editing profile
+                              final prefs = await SharedPreferences.getInstance();
+                              final userSessionStr = prefs.getString(
+                                'userSession',
+                              );
+                              if (userSessionStr != null) {
+                                setState(() {
+                                  userDataVar = UserSession.fromJson(
+                                    jsonDecode(userSessionStr),
+                                  );
+                                });
+                              }
+                            });
+                          },
+                          textColor: colorCodes.textBlack,
+                          backgroundcolor: colorCodes.white,
+                          borderColor: colorCodes.darkGrey,
+                          buttonChild: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Image.asset(
+                                "assets/images/icons/edit-2.png",
+                                height: 18,
+                                width: 10,
+                              ),
+                              SizedBox(width: 8),
+                              Text(
+                                "Edit Profile",
+                                style: kwikTextStlye(
+                                  15.0,
+                                  FontWeight.w500,
+                                  colorCodes.black,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
                 SizedBox(height: 15.0),
-                Accordion(title: "Help & Support", child: Column(children: [
-                    
+                Accordion(title: "Help & Support", child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Icon(Icons.phone, color: colorCodes.azureBlue),
+                        SizedBox(width: 8),
+                        Text(
+                          "+234 814 720 8234",
+                          style: TextStyle(
+                            fontFamily: 'Poppins',
+                            fontSize: 15.0,
+                            fontWeight: FontWeight.w500,
+                            color: colorCodes.black,
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 20),
+                    Row(
+                      children: [
+                        Icon(Icons.email, color: colorCodes.azureBlue),
+                        SizedBox(width: 8),
+                        Text(
+                          "support@kwikports.com",
+                          style: TextStyle(
+                            fontFamily: 'Poppins',
+                            fontSize: 15.0,
+                            fontWeight: FontWeight.w500,
+                            color: colorCodes.black,
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 20),
+                    Row(
+                      children: [
+                        Container(
+                          decoration: BoxDecoration(
+                            color: colorCodes.azureBlue.withOpacity(0.1),
+                            shape: BoxShape.circle,
+                          ),
+                          padding: EdgeInsets.all(8),
+                          child: Icon(Icons.chat_bubble_outline, color: colorCodes.azureBlue),
+                        ),
+                        SizedBox(width: 8),
+                        Text(
+                          "Live Chat",
+                          style: TextStyle(
+                            fontFamily: 'Poppins',
+                            fontSize: 15.0,
+                            fontWeight: FontWeight.w500,
+                            color: colorCodes.black,
+                          ),
+                        ),
+                      ],
+                    ),
                   ],
                 )),
                 SizedBox(height: 15.0),
                 Accordion(
                   title: "Preferences and Settings",
-                  child: Column(children: [
-                    
-                  ],
-                ),
+                  child: SingleChildScrollView(
+                    physics: const BouncingScrollPhysics(),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        SwitchListTile(
+                          title: Text("Push Notifications", style: TextStyle(fontSize: 14)),
+                          value: _pushNotificationsEnabled,
+                          onChanged: (val) {
+                            setState(() => _pushNotificationsEnabled = val);
+                          },
+                          inactiveThumbColor: colorCodes.aluminium,
+                          inactiveTrackColor: colorCodes.aluminium.withOpacity(0.3),
+                        ),
+                        SwitchListTile(
+                          title: Text("Dark Mode", style: TextStyle(fontSize: 14)),
+                          value: _darkModeEnabled,
+                          onChanged: (val) {
+                            setState(() => _darkModeEnabled = val);
+                          },
+                          inactiveThumbColor: colorCodes.aluminium,
+                          inactiveTrackColor: colorCodes.aluminium.withOpacity(0.3),
+                        ),
+                        ListTile(
+                          leading: Icon(Icons.language, size: 22),
+                          title: Text("Language", style: TextStyle(fontSize: 14)),
+                          trailing: Text("English", style: TextStyle(fontSize: 13)),
+                          onTap: () {
+                            // Show language selection dialog
+                          },
+                        ),
+                        ListTile(
+                          leading: Icon(Icons.privacy_tip_outlined, size: 22),
+                          title: Text("Privacy Settings", style: TextStyle(fontSize: 14)),
+                          onTap: () {
+                            // Navigate to privacy settings
+                          },
+                        ),
+                        ListTile(
+                          leading: Icon(Icons.info_outline, size: 22),
+                          title: Text("App Version", style: TextStyle(fontSize: 14)),
+                          trailing: Text("v1.0.0", style: TextStyle(fontSize: 13)),
+                        ),
+                        // ListTile(
+                        //   leading: Icon(Icons.delete_outline, color: Colors.red, size: 22),
+                        //   title: Text("Delete Account", style: TextStyle(color: Colors.red, fontSize: 14)),
+                        //   onTap: () {
+                        //     // Show delete confirmation
+                        //   },
+                        // ),
+                      ],
+                    ),
+                  ),
                 ),
                 SizedBox(height: 15.0),
                 Accordion(
                   title: "Security",
                   child: Column(
+                    mainAxisSize: MainAxisSize.min,
                     children: [
                       SizedBox(
                         height: 50,
@@ -286,18 +402,86 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
                 ),
                 SizedBox(height: 15.0),
-                Accordion(title: "Bank Accounts", child: Column(children: [
-                    
+                Accordion(title: "Bank Accounts", child: Column(
+                  children: [
+                    SizedBox(height: 16),
+                    Center(
+                      child: Container(
+                        padding: EdgeInsets.symmetric(vertical: 24, horizontal: 16),
+                        decoration: BoxDecoration(
+                          color: colorCodes.azureBlue.withOpacity(0.07),
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.account_balance_wallet_rounded, size: 40, color: colorCodes.azureBlue),
+                            SizedBox(height: 12),
+                            Text(
+                              "Bank Account",
+                              style: TextStyle(
+                                fontFamily: 'Poppins',
+                                fontSize: 16.0,
+                                fontWeight: FontWeight.w600,
+                                color: colorCodes.azureBlue,
+                              ),
+                            ),
+                            SizedBox(height: 8),
+                            Text(
+                              "Coming soon",
+                              style: TextStyle(
+                                fontFamily: 'Poppins',
+                                fontSize: 15.0,
+                                fontWeight: FontWeight.w500,
+                                color: colorCodes.aluminium,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: 16),
                   ],
                 )),
 
                 SizedBox(height: 15.0),
-                Accordion(title: "Terms & Use", child: Column(children: [
-                    
-                  ],
-                )),
+                SizedBox(
+                  height: 60,
+                  child: Card(
+                    margin: EdgeInsets.zero,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    elevation: 0,
+                    color: colorCodes.white,
+                    child: ListTile(
+                      leading: Icon(Icons.description_outlined, color: colorCodes.portlandOrange),
+                      title: Text(
+                        "Terms & Conditions",
+                        style: TextStyle(
+                          fontFamily: 'Poppins',
+                          fontWeight: FontWeight.w500,
+                          fontSize: 16.0,
+                          color: colorCodes.black,
+                        ),
+                      ),
+                      trailing: Icon(Icons.arrow_forward_ios, size: 18, color: colorCodes.portlandOrange),
+                      onTap: () async {
+                        await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => TermsAndConditionsScreen(),
+                          ),
+                        );
+                        // When user comes back, this screen is still here
+                      },
+                    ),
+                  ),
+                ),
                 SizedBox(height: 15.0),
-                Accordion(title: "About", child: Column(children: [
+                Accordion(title: "About", child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
                     
                   ],
                 )),
@@ -307,47 +491,65 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   height: 40,
                   width: 358,
                   child: kwikbutton(
+
                     "Logout",
                     () async {
-                      final prefs = await SharedPreferences.getInstance();
-
-                      // Backup keys you want to keep
-                      final inProgress = prefs.getBool('journeyInProgress');
-                      final exportContractId = prefs.getString(
-                        'activeExportContractId',
+                      final shouldLogout = await showDialog<bool>(
+                        context: context,
+                        builder: (context) => AlertDialog(
+                          title: Text('Confirm Logout'),
+                          content: Text('Are you sure you want to sign out?'),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.of(context).pop(false),
+                              child: Text('Cancel'),
+                            ),
+                            TextButton(
+                              onPressed: () => Navigator.of(context).pop(true),
+                              child: Text('Logout'),
+                            ),
+                          ],
+                        ),
                       );
 
-                      // Clear all data
-                      await prefs.clear();
+                      if (shouldLogout == true) {
+                        final prefs = await SharedPreferences.getInstance();
 
-                      // Restore only what you want to persist
-                      if (inProgress != null)
-                        await prefs.setBool('journeyInProgress', inProgress);
-                      if (exportContractId != null)
-                        await prefs.setString(
+                        // Backup keys you want to keep
+                        final inProgress = prefs.getBool('journeyInProgress');
+                        final exportContractId = prefs.getString(
                           'activeExportContractId',
-                          exportContractId,
                         );
 
-                      // final prefs = await SharedPreferences.getInstance();
-                      final selected = prefs.getBool('procurementSelected');
-                      final startTime = prefs.getInt('procurementStartTime');
-                      final showProcurement = prefs.getBool('showProcurement');
+                        // Clear all data
+                        await prefs.clear();
 
-                      // await prefs.clear();
+                        // Restore only what you want to persist
+                        if (inProgress != null)
+                          await prefs.setBool('journeyInProgress', inProgress);
+                        if (exportContractId != null)
+                          await prefs.setString(
+                            'activeExportContractId',
+                            exportContractId,
+                          );
 
-                      if (selected != null)
-                        await prefs.setBool('procurementSelected', selected);
-                      if (startTime != null)
-                        await prefs.setInt('procurementStartTime', startTime);
-                      if (showProcurement != null)
-                        await prefs.setBool('showProcurement', showProcurement);
+                        final selected = prefs.getBool('procurementSelected');
+                        final startTime = prefs.getInt('procurementStartTime');
+                        final showProcurement = prefs.getBool('showProcurement');
 
-                      Navigator.pushAndRemoveUntil(
-                        context,
-                        MaterialPageRoute(builder: (context) => LoginScreen()),
-                        (Route<dynamic> route) => false,
-                      );
+                        if (selected != null)
+                          await prefs.setBool('procurementSelected', selected);
+                        if (startTime != null)
+                          await prefs.setInt('procurementStartTime', startTime);
+                        if (showProcurement != null)
+                          await prefs.setBool('showProcurement', showProcurement);
+
+                        Navigator.pushAndRemoveUntil(
+                          context,
+                          MaterialPageRoute(builder: (context) => LoginScreen()),
+                          (Route<dynamic> route) => false,
+                        );
+                      }
                     },
 
                     textColor: colorCodes.white,

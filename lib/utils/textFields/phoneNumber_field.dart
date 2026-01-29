@@ -158,7 +158,7 @@ Widget kycphonenumberFieldColumn(
         autocorrect: true,
         keyboardType: TextInputType.numberWithOptions(),
         decoration: InputDecoration(
-          hintText: hintText ?? '+234456',
+          hintText: hintText ?? '+2348156732091',
           hintStyle: TextStyle(
             fontFamily: 'Poppins',
             color: colorCodes.graniteGrey,

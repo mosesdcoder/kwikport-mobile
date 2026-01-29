@@ -34,28 +34,24 @@ Widget nameAndNotifHeading(
                 child: CircleAvatar(
                   radius: 25, // slightly smaller to show border effect
                   backgroundColor: Colors.transparent,
-                  backgroundImage:
-                      (userDataVar?.image != null &&
-                              userDataVar!.image!.isNotEmpty)
-                          ? NetworkImage(userDataVar!.image!)
-                          : null,
-                  child:
-                      (userDataVar?.image == null ||
-                              userDataVar!.image!.isEmpty)
-                          ? FittedBox(
-                            child: Text(
-                              _generateInitials(
-                                "${userDataVar?.firstName!.toUpperCase()} ${userDataVar?.lastName!.toUpperCase()}",
-                              ),
-                              style: TextStyle(
-                                fontFamily: "Poppins",
-                                color: HexColor("#FF8A00"),
-                                fontWeight: FontWeight.w600,
-                                fontSize: 20,
-                              ),
+                  backgroundImage: (userDataVar?.image != null && (userDataVar?.image?.isNotEmpty ?? false))
+                      ? NetworkImage(userDataVar!.image!)
+                      : null,
+                  child: (userDataVar?.image == null || (userDataVar?.image?.isEmpty ?? true))
+                      ? FittedBox(
+                          child: Text(
+                            _generateInitials(
+                              "${userDataVar?.firstName?.toUpperCase() ?? ''} ${userDataVar?.lastName?.toUpperCase() ?? ''}",
                             ),
-                          )
-                          : null,
+                            style: TextStyle(
+                              fontFamily: "Poppins",
+                              color: HexColor("#FF8A00"),
+                              fontWeight: FontWeight.w600,
+                              fontSize: 20,
+                            ),
+                          ),
+                        )
+                      : null,
                 ),
                 // userDataVar?.image != null && userDataVar!.image!.isNotEmpty
                 //     ? Image.network(
@@ -207,28 +203,24 @@ Widget nameAndNotifHeading2(
                 child: CircleAvatar(
                   radius: 25, // slightly smaller to show border effect
                   backgroundColor: Colors.transparent,
-                  backgroundImage:
-                      (userDataVar?.image != null &&
-                              userDataVar!.image!.isNotEmpty)
-                          ? NetworkImage(userDataVar!.image!)
-                          : null,
-                  child:
-                      (userDataVar?.image == null ||
-                              userDataVar!.image!.isEmpty)
-                          ? FittedBox(
-                            child: Text(
-                              _generateInitials(
-                                "${userDataVar?.firstName?.toUpperCase()} ${userDataVar?.lastName?.toUpperCase()}",
-                              ),
-                              style: TextStyle(
-                                fontFamily: "Poppins",
-                                color: HexColor("#FF8A00"),
-                                fontWeight: FontWeight.w600,
-                                fontSize: 20,
-                              ),
+                  backgroundImage: (userDataVar?.image != null && (userDataVar?.image?.isNotEmpty ?? false))
+                      ? NetworkImage(userDataVar!.image!)
+                      : null,
+                  child: (userDataVar?.image == null || (userDataVar?.image?.isEmpty ?? true))
+                      ? FittedBox(
+                          child: Text(
+                            _generateInitials(
+                              "${userDataVar?.firstName?.toUpperCase() ?? ''} ${userDataVar?.lastName?.toUpperCase() ?? ''}",
                             ),
-                          )
-                          : null,
+                            style: TextStyle(
+                              fontFamily: "Poppins",
+                              color: HexColor("#FF8A00"),
+                              fontWeight: FontWeight.w600,
+                              fontSize: 20,
+                            ),
+                          ),
+                        )
+                      : null,
                 ),
                 // userDataVar?.image != null && userDataVar!.image!.isNotEmpty
                 //     ? Image.network(
@@ -335,14 +327,15 @@ Widget nameAndNotifHeading2(
 }
 
 String _generateInitials(String fullName) {
-  List<String> nameParts = fullName.split(' ');
+  if (fullName == null) return '';
+  String trimmed = fullName.trim();
+  if (trimmed.isEmpty) return '';
+  List<String> nameParts = trimmed.split(' ').where((part) => part.isNotEmpty).toList();
   if (nameParts.length >= 2) {
-    return '${nameParts[0][0]}${nameParts[1][0]}'.toUpperCase();
-    ;
-  } else if (nameParts.length == 1) {
-    return '${nameParts[0][0]}'.toUpperCase();
-    ;
+    return ('${nameParts[0][0]}${nameParts[1][0]}').toUpperCase();
+  } else if (nameParts.length == 1 && nameParts[0].isNotEmpty) {
+    return nameParts[0][0].toUpperCase();
   } else {
-    return ''; // Handle the case where the name is empty
+    return '';
   }
 }

@@ -165,7 +165,7 @@ class _AgencySelectionConfirmedDialogState
                         ),
                         SizedBox(height: 24),
                         Text(
-                          "This will be automatically deducted from your KwikLC wallet.",
+                          "Agency fees will be automatically deducted from your wallet.",
                           textAlign: TextAlign.center,
                           style: kwikTextStlye(
                             12.0,
@@ -179,7 +179,7 @@ class _AgencySelectionConfirmedDialogState
                   ),
                   SizedBox(height: 50),
                   kwikbutton(
-                    "Continue your export tracking",
+                    "Track Export",
                     () async {
                       // Log debug info BEFORE any dialog or navigation
                       debugPrint("🚗 'Continue your export tracking' clicked");
@@ -236,7 +236,7 @@ class _AgencySelectionConfirmedDialogState
                         ),
                         SizedBox(width: 8),
                         Text(
-                          "Continue your export tracking",
+                          "Track Export",
                           style: kwikTextStlye(
                             12.0,
                             FontWeight.w500,

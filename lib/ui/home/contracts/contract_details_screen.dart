@@ -287,7 +287,7 @@ class _ContractDetailsScreenState extends State<ContractDetailsScreen>
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Text(
-                                "Total contract value",
+                                "Amount",
                                 style: kwikTextStlye(
                                   12.0,
                                   FontWeight.w300,
@@ -295,7 +295,7 @@ class _ContractDetailsScreenState extends State<ContractDetailsScreen>
                                 ),
                               ),
                               Text(
-                                "Profit Ratio",
+                                "Profit",
                                 style: kwikTextStlye(
                                   12.0,
                                   FontWeight.w300,

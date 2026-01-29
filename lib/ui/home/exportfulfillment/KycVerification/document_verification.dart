@@ -50,6 +50,14 @@ class _DocumentVerificationState extends State<DocumentVerification> {
     'National ID Card',
     'Other',
   ];
+
+  bool get _isFormValid {
+    return widget.certificationType != null &&
+      widget.certificationType!.isNotEmpty &&
+      widget.iDNumberController.text.isNotEmpty &&
+      widget.idDocumentFile != null &&
+      widget.proofOfAddressFile != null;
+  }
   final ImagePicker _picker = ImagePicker();
 
   Future<void> pickImage(bool isIdDocument) async {
@@ -235,7 +243,7 @@ class _DocumentVerificationState extends State<DocumentVerification> {
                     "ID Number",
                     "",
                     widget.iDNumberController,
-                    hintText: "Peter Walker",
+                    hintText: "01234567",
                   ),
                   SizedBox(height: 15),
                   uploadImageContainer(
@@ -305,7 +313,8 @@ class _DocumentVerificationState extends State<DocumentVerification> {
                   width: 150,
                   child: kwikbutton(
                     "Next",
-                    widget.nextFunc,
+                    _isFormValid ? widget.nextFunc : null,
+                    enabled: _isFormValid,
                     fontSize: 12.0,
                     buttonChild: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -315,7 +324,7 @@ class _DocumentVerificationState extends State<DocumentVerification> {
                           style: kwikTextStlye(
                             14.0,
                             FontWeight.w500,
-                            colorCodes.whiteSmoke,
+                            _isFormValid ? colorCodes.whiteSmoke : colorCodes.aluminium,
                           ),
                         ),
                         SizedBox(width: 8),

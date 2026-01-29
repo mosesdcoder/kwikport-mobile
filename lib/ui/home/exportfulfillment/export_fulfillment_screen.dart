@@ -75,7 +75,7 @@ class _ExportFulfillmentScreenState extends State<ExportFulfillmentScreen> {
                 "Choose the best option for your export needs",
                 style: kwikTextStlye(
                   14.0,
-                  FontWeight.w300,
+                  FontWeight.w600,
                   colorCodes.darkGrey,
                 ),
                 textAlign: TextAlign.center,
@@ -93,7 +93,7 @@ class _ExportFulfillmentScreenState extends State<ExportFulfillmentScreen> {
               SizedBox(height: 10),
               fulfilproductContainer(
                 "Use your own product",
-                "Already have export-ready goods? Let's verify they meet international standards.",
+                "Already have export-ready goods? Let's verify that they meet international standards.",
                 "Complete verification to qualify for product submission",
                 "Deliver your commodity to KwikPort’s testing facility for approval",
                 "Once approved, your KwikTicket becomes an active export contract.",
@@ -170,7 +170,6 @@ class _ExportFulfillmentScreenState extends State<ExportFulfillmentScreen> {
     DashboardApi dashboardApi,
   ) {
     return Container(
-      height: 277,
       width: 390,
       padding: EdgeInsets.symmetric(horizontal: 12, vertical: 20),
       decoration: BoxDecoration(
@@ -190,7 +189,7 @@ class _ExportFulfillmentScreenState extends State<ExportFulfillmentScreen> {
               SizedBox(width: 10),
               Text(
                 title,
-                style: kwikTextStlye(14.0, FontWeight.w600, colorCodes.black),
+                style: kwikTextStlye(15.0, FontWeight.bold, colorCodes.textBlack),
               ),
             ],
           ),
@@ -203,9 +202,9 @@ class _ExportFulfillmentScreenState extends State<ExportFulfillmentScreen> {
                 child: Text(
                   subtitle,
                   style: kwikTextStlye(
-                    12.0,
-                    FontWeight.w300,
-                    colorCodes.darkGrey,
+                    13.0,
+                    FontWeight.w500,
+                    colorCodes.textBlack,
                   ),
                 ),
               ),
@@ -226,9 +225,9 @@ class _ExportFulfillmentScreenState extends State<ExportFulfillmentScreen> {
                 child: Text(
                   dataOne,
                   style: kwikTextStlye(
-                    10.0,
-                    FontWeight.w500,
-                    colorCodes.darkGrey,
+                    11.0,
+                    FontWeight.w600,
+                    colorCodes.textBlack,
                   ),
                 ),
               ),
@@ -249,9 +248,9 @@ class _ExportFulfillmentScreenState extends State<ExportFulfillmentScreen> {
                 child: Text(
                   dataTwo,
                   style: kwikTextStlye(
-                    10.0,
-                    FontWeight.w500,
-                    colorCodes.darkGrey,
+                    11.0,
+                    FontWeight.w600,
+                    colorCodes.textBlack,
                   ),
                 ),
               ),
@@ -272,9 +271,9 @@ class _ExportFulfillmentScreenState extends State<ExportFulfillmentScreen> {
                 child: Text(
                   dataThree,
                   style: kwikTextStlye(
-                    10.0,
-                    FontWeight.w500,
-                    colorCodes.darkGrey,
+                    11.0,
+                    FontWeight.w600,
+                    colorCodes.textBlack,
                   ),
                 ),
               ),
@@ -363,7 +362,7 @@ class _ExportFulfillmentScreenState extends State<ExportFulfillmentScreen> {
     enabled,
   ) {
     return Container(
-      height: 440,
+      // Removed fixed height for flexibility
       width: 390,
       padding: EdgeInsets.symmetric(horizontal: 16, vertical: 20),
       decoration: BoxDecoration(
@@ -383,7 +382,7 @@ class _ExportFulfillmentScreenState extends State<ExportFulfillmentScreen> {
               SizedBox(width: 10),
               Text(
                 title,
-                style: kwikTextStlye(14.0, FontWeight.w600, colorCodes.black),
+                style: kwikTextStlye(15.0, FontWeight.bold, colorCodes.textBlack),
               ),
             ],
           ),
@@ -396,9 +395,9 @@ class _ExportFulfillmentScreenState extends State<ExportFulfillmentScreen> {
                 child: Text(
                   subtitle,
                   style: kwikTextStlye(
-                    12.0,
-                    FontWeight.w300,
-                    colorCodes.darkGrey,
+                    13.0,
+                    FontWeight.w500,
+                    colorCodes.textBlack,
                   ),
                 ),
               ),
@@ -419,9 +418,9 @@ class _ExportFulfillmentScreenState extends State<ExportFulfillmentScreen> {
                 child: Text(
                   dataOne,
                   style: kwikTextStlye(
-                    10.0,
-                    FontWeight.w500,
-                    colorCodes.darkGrey,
+                    11.0,
+                    FontWeight.w600,
+                    colorCodes.textBlack,
                   ),
                 ),
               ),
@@ -442,9 +441,9 @@ class _ExportFulfillmentScreenState extends State<ExportFulfillmentScreen> {
                 child: Text(
                   dataTwo,
                   style: kwikTextStlye(
-                    10.0,
-                    FontWeight.w500,
-                    colorCodes.darkGrey,
+                    11.0,
+                    FontWeight.w600,
+                    colorCodes.textBlack,
                   ),
                 ),
               ),
@@ -465,9 +464,9 @@ class _ExportFulfillmentScreenState extends State<ExportFulfillmentScreen> {
                 child: Text(
                   dataThree,
                   style: kwikTextStlye(
-                    10.0,
-                    FontWeight.w500,
-                    colorCodes.darkGrey,
+                    11.0,
+                    FontWeight.w600,
+                    colorCodes.textBlack,
                   ),
                 ),
               ),

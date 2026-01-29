@@ -424,13 +424,10 @@ class _DashboardState extends State<Dashboard> {
                                         activityProgressContainer(
                                           "assets/images/icons/kwik_tickets.png",
                                           "My Exports",
-                                          //"5", // "Active Kwiktickets",
-                                           activeExports.toString().padLeft(
+                                          activeExports.toString().padLeft(
                                             2,
                                             '0',
                                           ),
-
-                                          // "01",
                                           context,
                                           () {
                                             currentIndex = 1;
