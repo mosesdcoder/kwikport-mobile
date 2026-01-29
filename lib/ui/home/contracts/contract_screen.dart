@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:kwik_port/api/controller/contractsApi/publishedcontractsApi.dart';
 import 'package:kwik_port/api/model/contrat_enums.dart';
+import 'package:kwik_port/api/utils/money_util.dart';
 import 'package:kwik_port/colors/color.dart';
 import 'package:kwik_port/ui/home/contracts/contract_details_screen.dart';
 import 'package:kwik_port/ui/home/contracts/filter_contract_dialog.dart';
@@ -284,6 +285,8 @@ class _ContractScreenState extends State<ContractScreen>
                             ],
                           ),
                         ),
+
+                        SizedBox(height: 20,)
                         // FilterResultScreen(),
                       ],
                     ),
@@ -293,6 +296,7 @@ class _ContractScreenState extends State<ContractScreen>
             ),
           ],
         ),
+        
         bottomNavigationBar: Bottomnavigationbar(2),
       ),
     );
@@ -346,12 +350,15 @@ class _ContractScreenState extends State<ContractScreen>
                   .toList();
 
       if (selectedCategory != null) {
-        filteredContracts =
-            filteredContracts
-                .where((c) => c.contractCategory == selectedCategory!.value)
-                .toList();
+        print('🔍 Filtering by category: ${selectedCategory!.name} (value: ${selectedCategory!.value})');
+        filteredContracts = filteredContracts.where((c) {
+          print('Contract: ${c.commodityName}, Category: ${c.contractCategory}, Type: ${c.contractCategory.runtimeType}');
+          // Skip contracts with null category
+          if (c.contractCategory == null) return false;
+          return c.contractCategory == selectedCategory!.value;
+        }).toList();
+        print('✅ Filtered contracts count: ${filteredContracts.length}');
       }
-
       return ListView.separated(
         physics: const NeverScrollableScrollPhysics(),
         shrinkWrap: true,
@@ -359,20 +366,27 @@ class _ContractScreenState extends State<ContractScreen>
         itemCount: filteredContracts.length,
         itemBuilder: (_, index) {
           final contract = filteredContracts[index];
+          var tonsRemaining =
+              contract.totalQuantity! - contract.fulfilledQuantity!;
+          var percentageLeft =
+              (tonsRemaining / contract.totalQuantity! ?? 0) * 100;
+          double progressValue = tonsRemaining / contract.totalQuantity!;
+
           return avaiableontractContainer(
             contract.commodityImage ?? "assets/images/cocoa.png",
             contract.commodityName,
             "assets/images/icons/tick-circle.png",
             contract.contractStatus, //== 0 ? "Active" : "Closed",
-            contract.totalQuantity,// "100 tons",
+            "${contract.totalQuantity ?? 0}", // "100 tons",
             "assets/images/icons/Country.png",
             contract.destinationCountry,
-            "${contract.fulfilledQuantity}", // "20 tons",
-             "${contract.totalQuantity}", //100 tons",
-            "20%",
-            "${contract.totalAmount}",
+            progressValue,
+            "${tonsRemaining}", // "20 tons",
+            "${contract.totalQuantity ?? 0}", //100 tons",
+            "${percentageLeft.toStringAsFixed(1)}% left",
+            "${MoneyUtils.formatMoney(contract.totalAmountInUSD, decimalDigits: 2, symbol: "\$")}",
             "assets/images/icons/Trending up.png",
-            "${contract.projectedIncome?.toStringAsFixed(2) ?? '0.00'}%",
+            "${contract.profitRatio?.toStringAsFixed(2) ?? '0.00'}%",
             () {
               Navigator.push(
                 context,
@@ -387,6 +401,7 @@ class _ContractScreenState extends State<ContractScreen>
                 ),
               );
             },
+            "${contract.totalAmountInUSD?.toStringAsFixed(2) ?? '0.00'}",
           );
         },
       );

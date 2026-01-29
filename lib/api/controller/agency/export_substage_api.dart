@@ -12,11 +12,11 @@ class ExportSubStageApi extends ChangeNotifier {
   List<ExportSubStageModel> subStages = [];
 
   /// GET: get-substages?ExporterContractId=xxx&MainStage=1
-  getSubStages({
+  Future<List<ExportSubStageModel>?> getSubStages({
     required String exporterContractId,
     required int mainStage,
   }) async {
-    if (loading) return;
+    if (loading) return null;
     loading = true;
     notifyListeners();
 
@@ -47,14 +47,17 @@ class ExportSubStageApi extends ChangeNotifier {
         } else {
           subStages = [];
           message = data['message'] ?? 'No substages';
+          return null;
         }
       } else {
         subStages = [];
         message = 'Failed to load substages (${response.statusCode})';
+        return null;
       }
     } catch (e) {
       subStages = [];
       message = 'Error: $e';
+      return null;
     } finally {
       loading = false;
       notifyListeners();

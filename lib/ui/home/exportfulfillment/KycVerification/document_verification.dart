@@ -1,4 +1,7 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:kwik_port/colors/color.dart';
 import 'package:kwik_port/utils/button/dropdown_button.dart';
 import 'package:kwik_port/utils/button/kwik_button.dart';
@@ -7,11 +10,27 @@ import 'package:kwik_port/utils/text/textstyle.dart';
 import 'package:kwik_port/utils/textFields/nameField_column.dart';
 
 class DocumentVerification extends StatefulWidget {
-  final nextFunc, previousFunc;
-  const DocumentVerification({
+  final VoidCallback nextFunc;
+  final VoidCallback previousFunc;
+  final String? certificationType;
+  final Function(String?) onCertificationTypeChanged;
+  File? idDocumentFile;
+  File? proofOfAddressFile;
+  final Function(File?) onIdDocumentChanged;
+  final Function(File?) onProofOfAddressChanged;
+  final TextEditingController iDNumberController;
+  // final nextFunc, previousFunc;
+  DocumentVerification({
     super.key,
     required this.nextFunc,
     required this.previousFunc,
+    required this.certificationType,
+    required this.onCertificationTypeChanged,
+    required this.idDocumentFile,
+    required this.proofOfAddressFile,
+    required this.onIdDocumentChanged,
+    required this.onProofOfAddressChanged,
+    required this.iDNumberController,
   });
 
   @override
@@ -19,17 +38,70 @@ class DocumentVerification extends StatefulWidget {
 }
 
 class _DocumentVerificationState extends State<DocumentVerification> {
-  String? certificatetionType;
+  // String? certificatetionType;
   bool isiconExpanded = false;
   bool isdropdownExpanded = false;
-  TextEditingController iDNumbercontroller = TextEditingController();
+  // TextEditingController iDNumbercontroller = TextEditingController();
   List<String> certificatetionTypeList = [
-    'Nigerian',
-    'Kenyan',
-    'Ghanian',
-    'American',
+    'NIN',
+    'International Passport',
+    'Voters Card',
+    'National Driver License',
+    'National ID Card',
     'Other',
   ];
+
+  bool get _isFormValid {
+    return widget.certificationType != null &&
+      widget.certificationType!.isNotEmpty &&
+      widget.iDNumberController.text.isNotEmpty &&
+      widget.idDocumentFile != null &&
+      widget.proofOfAddressFile != null;
+  }
+  final ImagePicker _picker = ImagePicker();
+
+  Future<void> pickImage(bool isIdDocument) async {
+    final XFile? image = await _picker.pickImage(
+      source: await _showPickerDialog(),
+      imageQuality: 80,
+    );
+
+    if (image != null) {
+      setState(() {
+        if (isIdDocument) {
+          widget.idDocumentFile = File(image.path);
+        } else {
+          widget.proofOfAddressFile = File(image.path);
+        }
+      });
+    }
+  }
+
+  Future<ImageSource> _showPickerDialog() async {
+    ImageSource? source = await showModalBottomSheet<ImageSource>(
+      context: context,
+      builder:
+          (context) => Container(
+            height: 140,
+            child: Column(
+              children: [
+                ListTile(
+                  leading: Icon(Icons.photo_library),
+                  title: Text("Gallery"),
+                  onTap: () => Navigator.pop(context, ImageSource.gallery),
+                ),
+                ListTile(
+                  leading: Icon(Icons.camera_alt),
+                  title: Text("Camera"),
+                  onTap: () => Navigator.pop(context, ImageSource.camera),
+                ),
+              ],
+            ),
+          ),
+    );
+    return source ?? ImageSource.gallery;
+  }
+
   @override
   Widget build(BuildContext context) {
     return SizedBox(
@@ -137,7 +209,7 @@ class _DocumentVerificationState extends State<DocumentVerification> {
                   Align(
                     alignment: Alignment.centerLeft,
                     child: Text(
-                      "Quality Certification",
+                      "Idetification Type",
                       style: TextStyle(
                         fontFamily: 'Poppins',
                         fontSize: 12,
@@ -148,13 +220,16 @@ class _DocumentVerificationState extends State<DocumentVerification> {
                   ),
                   SizedBox(height: 8),
                   kycNationalityDropdown(
-                    certificatetionType,
+                    widget.certificationType,
                     "Select certification type",
                     certificatetionTypeList.map(dropMenuItem).toList(),
+                    // (newValue) {
+                    //   setState(() {
+                    //     certificatetionType = newValue;
+                    //   });
+                    // },
                     (newValue) {
-                      setState(() {
-                        certificatetionType = newValue;
-                      });
+                      widget.onCertificationTypeChanged(newValue);
                     },
                     (isOpen) {
                       setState(() {
@@ -167,13 +242,53 @@ class _DocumentVerificationState extends State<DocumentVerification> {
                   kycnameFieldColumn(
                     "ID Number",
                     "",
-                    iDNumbercontroller,
-                    hintText: "Peter Walker",
+                    widget.iDNumberController,
+                    hintText: "01234567",
                   ),
                   SizedBox(height: 15),
-                  uploadImageContainer("Upload ID Document", () {}),
+                  uploadImageContainer(
+                    "Upload ID Document",
+                    // () async {
+                    //   File? selectedFile =
+                    //       await pickFile(); // Your file picker logic
+                    //   widget.onIdDocumentChanged(selectedFile);
+                    // }, imageFile: widget.idDocumentFile
+                    () => pickImage(true),
+                    imageFile: widget.idDocumentFile,
+                  ),
                   SizedBox(height: 15),
-                  uploadImageContainer("Proof of Address", () {}),
+                  uploadImageContainer(
+                    "Proof of Address",
+                    () => pickImage(false),
+                    imageFile: widget.proofOfAddressFile,
+                    // () async {
+                    //   File? selectedFile = await pickFile();
+                    //   widget.onProofOfAddressChanged(selectedFile);
+                    // }, imageFile: widget.proofOfAddressFile
+                  ),
+                  //               uploadImageContainer("Upload ID Document", () async {
+                  //                     final pickedFile = await _picker.pickImage(
+                  //                       //source: ImageSource.gallery,
+                  //                       source: ImageSource.camera,
+                  // preferredCameraDevice: CameraDevice.front,
+                  //                     );
+                  //                     if (pickedFile != null) {
+                  //                       setState(() {
+                  //                         _selectedImage = File(pickedFile.path);
+                  //                       });
+                  //                     }
+                  //                   }, _selectedImage),
+                  //               SizedBox(height: 15),
+                  //               uploadImageContainer("Proof of Address", () async {
+                  //                     final pickedFile = await _picker.pickImage(
+                  //                       source: ImageSource.gallery,
+                  //                     );
+                  //                     if (pickedFile != null) {
+                  //                       setState(() {
+                  //                         _selectedImage2 = File(pickedFile.path);
+                  //                       });
+                  //                     }
+                  //   },_selectedImage2),
                 ],
               ),
             ),
@@ -198,7 +313,8 @@ class _DocumentVerificationState extends State<DocumentVerification> {
                   width: 150,
                   child: kwikbutton(
                     "Next",
-                    widget.nextFunc,
+                    _isFormValid ? widget.nextFunc : null,
+                    enabled: _isFormValid,
                     fontSize: 12.0,
                     buttonChild: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -208,7 +324,7 @@ class _DocumentVerificationState extends State<DocumentVerification> {
                           style: kwikTextStlye(
                             14.0,
                             FontWeight.w500,
-                            colorCodes.whiteSmoke,
+                            _isFormValid ? colorCodes.whiteSmoke : colorCodes.aluminium,
                           ),
                         ),
                         SizedBox(width: 8),

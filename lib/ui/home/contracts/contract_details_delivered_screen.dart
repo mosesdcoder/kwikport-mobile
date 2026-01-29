@@ -3,6 +3,7 @@ import 'package:hexcolor/hexcolor.dart';
 import 'package:kwik_port/api/controller/kwikTickets/create_kwikticket_api.dart';
 import 'package:kwik_port/api/model/dashboard_model.dart';
 import 'package:kwik_port/api/model/userModel.dart';
+import 'package:kwik_port/api/utils/money_util.dart';
 import 'package:kwik_port/colors/color.dart';
 import 'package:kwik_port/main.dart';
 import 'package:kwik_port/ui/home/contracts/generate_contract_ticket_dialog.dart';
@@ -48,49 +49,53 @@ class _ContractDetailsDeliveredScreenState
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Row(
-                children: [
-                  InkWell(
-                    onTap: () {
-                      currentIndex = 2;
-                      Navigator.pop(context);
-                    },
-                    child: Image.asset(
-                      'assets/images/icons/button back.png',
-                      height: 48,
-                      width: 48,
+              Expanded(
+                child: Row(
+                  children: [
+                    InkWell(
+                      onTap: () {
+                        currentIndex = 2;
+                        Navigator.pop(context);
+                      },
+                      child: Image.asset(
+                        'assets/images/icons/button back.png',
+                        height: 48,
+                        width: 48,
+                      ),
                     ),
-                  ),
-                  SizedBox(width: 12),
-                  Column(
-                    children: [
-                      FittedBox(
-                        child: Text(
-                          "Contract details",
-                          style: TextStyle(
-                            fontFamily: 'Poppins',
-                            fontSize: 18.0,
-                            fontWeight: FontWeight.w600,
-                            color: colorCodes.black,
+                    SizedBox(width: 12),
+                    Flexible(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "Contract details",
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              fontFamily: 'Poppins',
+                              fontSize: 18.0,
+                              fontWeight: FontWeight.w600,
+                              color: colorCodes.black,
+                            ),
                           ),
-                        ),
-                      ),
-                      SizedBox(height: 2),
-                      FittedBox(
-                        child: Text(
-                          widget.contract.contractId,
-                          style: TextStyle(
-                            fontFamily: 'Poppins',
-                            fontSize: 14.0,
-                            fontWeight: FontWeight.w500,
-                            color: colorCodes.aluminium,
+                          SizedBox(height: 2),
+                          Text(
+                            widget.contract.contractId,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              fontFamily: 'Poppins',
+                              fontSize: 14.0,
+                              fontWeight: FontWeight.w500,
+                              color: colorCodes.aluminium,
+                            ),
                           ),
-                        ),
+                        ],
                       ),
-                    ],
-                  ),
-                ],
+                    ),
+                  ],
+                ),
               ),
+              SizedBox(width: 8),
               Row(
                 children: [
                   Image.asset(
@@ -253,7 +258,7 @@ class _ContractDetailsDeliveredScreenState
                       "Nigeria ",
                       style: kwikTextStlye(
                         10.0,
-                        FontWeight.w300,
+                        FontWeight.w600,
                         colorCodes.graniteGrey,
                       ),
                     ),
@@ -268,7 +273,7 @@ class _ContractDetailsDeliveredScreenState
                       widget.contract.destinationCountry,
                       style: kwikTextStlye(
                         10.0,
-                        FontWeight.w300,
+                        FontWeight.w600,
                         colorCodes.graniteGrey,
                       ),
                     ),
@@ -279,43 +284,37 @@ class _ContractDetailsDeliveredScreenState
                   "CONTRACT OVERVIEW",
                   style: kwikTextStlye(20.0, FontWeight.w600, colorCodes.black),
                 ),
-                overviewRichText("Commodity", widget.contract.commodityName),
-                SizedBox(height: 4),
-                overviewRichText(
+                _overviewRow("Commodity", widget.contract.commodityName),
+                _overviewRow(
                   "Contract Type",
                   widget.contract.contractType == 1
                       ? "International Buyer Agreement — verified & binding"
                       : "Local Buyer Agreement — verified & binding",
                 ),
-                SizedBox(height: 4),
-                overviewRichText(
-                  "Total Volume Requested",
+                _overviewRow(
+                  "Volume",
                   "${widget.contract.totalQuantity} tons",
                 ),
-                SizedBox(height: 4),
-                overviewRichText(
-                  "Price per Ton (₦)",
-                  "₦${widget.contract.buyerSpecification?.buyerPricePerUnit}",
+                    _overviewRow(
+                  "Buyer Price per Ton (USD)",
+                  "${MoneyUtils.formatMoney(widget.contract.pricePerUnitInUSD, decimalDigits: 2, symbol: "\$")}",
                 ),
-                SizedBox(height: 4),
-                overviewRichText(
-                  "Projected Earnings per Ton (USD)",
-                  "${widget.contract.pricePerUnitInUSD}",
+                _overviewRow(
+                  "Price (per ton)",
+                  "${MoneyUtils.formatMoney(widget.contract.pricePerUnitInNGN, symbol: '₦')}",
                 ),
-                SizedBox(height: 4),
-                overviewRichText(
-                  "Contract Duration",
-                  "${widget.contract.contractDuration} days from activation",
+                // _overviewRow(
+                //   "Projected Earnings Per Ton (USD)",
+                //   "${MoneyUtils.formatMoney(widget.contract.pricePerUnitInUSD, decimalDigits: 2, symbol: '\$')}",
+                // ),
+                _overviewRow(
+                  "Duration (days)",
+                  "${widget.contract.exportNumberOfDays} days from activation",
                 ),
-                SizedBox(height: 4),
-                overviewRichText(
-                  "Buyer",
-                  "${widget.contract.buyerSpecification?.buyerPricePerUnit}",
-                ),
-                SizedBox(height: 4),
-                overviewRichText(
+            
+                _overviewRow(
                   "Quick Snapshot",
-                  "${widget.contract.totalQuantity} tons | ₦${widget.contract.buyerSpecification?.buyerPricePerUnit}ton | ${widget.contract.pricePerUnitInUSD} projected earnings",
+                  "${widget.contract.totalQuantity} tons | ${MoneyUtils.formatMoney(widget.contract.pricePerUnitInNGN)}/ton | ${MoneyUtils.formatMoney(widget.contract.pricePerUnitInUSD, decimalDigits: 2, symbol: "\$")} projected earnings",
                 ),
                 SizedBox(height: 34),
                 Text(
@@ -410,7 +409,7 @@ class _ContractDetailsDeliveredScreenState
                 ),
                 SizedBox(height: 24),
                 Text(
-                  "HOW YOU CAN FULFILL THIS CONTRACT",
+                  "HOW YOU CAN ACTIVATE THIS CONTRACT",
                   style: kwikTextStlye(20.0, FontWeight.w600, colorCodes.black),
                 ),
                 SizedBox(height: 10),
@@ -633,7 +632,7 @@ class _ContractDetailsDeliveredScreenState
                       ),
                       SizedBox(height: 10),
                       checkRow(
-                        "Choose your fulfillment path: KwikProcure or Own Product.",
+                        "Choose your activation path: KwikProcure or Own Product.",
                       ),
                     ],
                   ),
@@ -756,15 +755,16 @@ class _ContractDetailsDeliveredScreenState
             ),
           ),
           SizedBox(height: 35),
-          kwikbutton("Generate KwikTicket", () {
-            if (checkterms == true) {
-              showDialog(
-                barrierDismissible: false,
-                context: context,
-
-                builder: (BuildContext context) {
-                  return GenerateContractTicketDialog(
-                    contract: widget.contract,
+          kwikbutton(
+            "Generate KwikTicket",
+            checkterms
+                ? () {
+                    showDialog(
+                      barrierDismissible: false,
+                      context: context,
+                      builder: (BuildContext context) {
+                        return GenerateContractTicketDialog(
+                          contract: widget.contract,
                     // generateFunc: () async {
                     //   final newTicket = await createTicketApi
                     //       .createKwikTicket(
@@ -810,12 +810,14 @@ class _ContractDetailsDeliveredScreenState
 
                     //   currentIndex = 3;
                     // },
-                  );
-                },
-              );
-            }
-          }),
-          SizedBox(height: 35),
+                        );
+                      },
+                    );
+                  }
+                : null,
+            enabled: checkterms,
+          ),
+          SizedBox(height: 55),
         ],
       ),
       bottomNavigationBar: Bottomnavigationbar(5),
@@ -871,7 +873,7 @@ class _ContractDetailsDeliveredScreenState
                   text: description == "" ? description : ": $description",
                   style: TextStyle(
                     fontWeight: FontWeight.w300,
-                    color: colorCodes.graniteGrey,
+                    color: colorCodes.black,
                   ),
                 ),
               ],
@@ -910,6 +912,48 @@ class _ContractDetailsDeliveredScreenState
               style: kwikTextStlye(12.0, FontWeight.w300, colorCodes.black),
             ),
           ),
+        ),
+      ],
+    );
+  }
+
+  Widget _overviewRow(String label, String value) {
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 14.0),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SizedBox(
+                width: 130,
+                child: Text(
+                  label,
+                  style: kwikTextStlye(
+                    14.0,
+                    FontWeight.w600,
+                    colorCodes.black,
+                  ),
+                ),
+              ),
+              SizedBox(width: 60),
+              Expanded(
+                child: Text(
+                  value,
+                  textAlign: TextAlign.left,
+                  style: kwikTextStlye(
+                    13.0,
+                    FontWeight.w400,
+                    colorCodes.black,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        Divider(
+          height: 1,
+          color: colorCodes.antiFlashWhite,
         ),
       ],
     );

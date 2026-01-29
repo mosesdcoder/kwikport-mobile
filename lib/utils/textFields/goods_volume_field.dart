@@ -9,6 +9,7 @@ Widget goodsVolumnFieldColumn(
   hintText,
   suffixIcon,
   onchanged,
+  bool enabled = true,
 }) {
   return Column(
     crossAxisAlignment: CrossAxisAlignment.start,
@@ -24,6 +25,7 @@ Widget goodsVolumnFieldColumn(
       ),
       SizedBox(height: 8),
       TextField(
+        enabled: enabled,
         style: TextStyle(
           fontFamily: 'Poppins',
           fontSize: 16,

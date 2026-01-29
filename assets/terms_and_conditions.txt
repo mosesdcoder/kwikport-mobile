@@ -1,0 +1,155 @@
+
+# TERMS AND CONDITIONS OF USE
+
+**Last Updated:** January, 2026
+
+These Terms and Conditions ("Terms") govern access to and use of the KwikPort mobile application, website, dashboards, and related digital services (collectively, the "Platform"). By accessing or using the Platform, you agree to be bound by these Terms. If you do not agree with these Terms, you must not use the Platform.
+
+## 1. Definitions
+- **KwikPort**: The platform operator and provider of export coordination infrastructure.
+- **User**: Any individual or entity accessing the Platform.
+- **Export Participant**: A User participating in export contracts through the Platform.
+- **Export Agencies**: Independent, third-party service providers responsible for procurement, warehousing, quality verification, logistics, documentation, and shipment execution.
+- **Buyer Contracts**: Verified international buyer export contracts made accessible on the Platform.
+- **Export Cycle**: The coordinated fulfilment of a buyer contract through approved agencies.
+
+## 2. Nature of the Platform
+KwikPort is an export infrastructure and coordination platform.
+
+KwikPort:
+- Provides structured access to verified international buyer contracts
+- Connects Users with independent, vetted export agencies
+- Coordinates, monitors, and verifies contract fulfilment
+- Enforces accountability, transparency, and compliance standards
+
+KwikPort does **not**:
+- Act as an exporter of record
+- Buy or sell commodities
+- Perform procurement, logistics, warehousing, or shipment execution
+- Guarantee financial outcomes, margins, or returns
+- Act as an agent, broker, or representative of Users or agencies
+
+All export execution is performed solely by independent export agencies.
+
+## 3. Eligibility and Account Registration
+To use the Platform, you must:
+- Be legally capable of entering binding agreements
+- Provide accurate and complete registration information
+- Comply with all applicable laws and regulations
+
+KwikPort reserves the right to:
+- Approve or reject any registration
+- Suspend or terminate accounts that provide false or misleading information
+- Request identity verification or additional documentation at any time
+
+## 4. Access to Buyer Contracts
+KwikPort provides Users with access to verified international buyer contracts.
+
+**Key conditions:**
+- Participation is subject to User capacity and eligibility
+- Users may fulfil contracts in part or in full, depending on structure
+- Contract access does not constitute ownership, assignment, or novation
+- Buyer contracts remain subject to agency execution and verification
+- KwikPort may withdraw, modify, or suspend access to any contract at its discretion.
+
+## 5. Role of Export Agencies
+Export agencies:
+- Are independent third parties
+- Operate under their own licenses and regulatory obligations
+- Are solely responsible for execution performance
+- Enter direct execution arrangements relevant to their scope
+
+KwikPort:
+- Verifies agencies before onboarding
+- Coordinates agency assignments
+- Monitors execution milestones
+- Flags non-performance or irregularities
+
+KwikPort is not liable for agency acts or omissions beyond its coordination and verification role.
+
+## 6. Coordination, Monitoring, and Verification
+KwikPort coordinates export cycles by:
+- Tracking execution milestones
+- Verifying documentation and progress updates
+- Monitoring compliance with defined standards
+- Escalating delays, irregularities, or breaches
+
+Verification does **not** constitute:
+- Operational control
+- Execution responsibility
+- Performance guarantees
+
+## 7. Fees and Charges
+KwikPort may charge coordination, platform, or administrative fees, which will be:
+- Clearly disclosed prior to participation
+- Deducted or invoiced according to agreed terms
+- Fees are payable regardless of export outcome unless otherwise stated.
+
+## 8. User Obligations
+Users agree to:
+- Provide accurate information
+- Comply with Platform rules and instructions
+- Refrain from fraudulent, misleading, or unlawful activity
+- Respect the roles and boundaries of agencies and KwikPort
+
+Users must **not**:
+- Interfere with execution processes
+- Bypass platform coordination
+- Misrepresent their capacity or role
+- Use the Platform for illegal purposes
+
+## 9. Risk Acknowledgement
+Users acknowledge that:
+- International trade involves operational, regulatory, and market risks
+- Export execution is performed by third parties
+- Delays, losses, or disruptions may occur
+- KwikPort does not guarantee contract outcomes
+- Participation is at the User’s own risk.
+
+## 10. No Financial or Investment Advice
+Nothing on the Platform constitutes:
+- Investment advice
+- Financial advice
+- Profit guarantees
+- Solicitation of funds
+- KwikPort does not assess User financial suitability.
+
+## 11. Suspension and Termination
+KwikPort may suspend or terminate access:
+- For breach of these Terms
+- For regulatory or compliance reasons
+- To prevent risk, fraud, or misuse
+- At the request of authorities
+
+Termination does not relieve Users of accrued obligations.
+
+## 12. Intellectual Property
+All Platform content, systems, trademarks, and software are owned by KwikPort or its licensors.
+Users receive a limited, non-exclusive, non-transferable right to use the Platform for its intended purpose only.
+
+## 13. Data Protection and Privacy
+KwikPort processes personal data in accordance with its Privacy Policy and applicable data protection laws.
+By using the Platform, you consent to such processing.
+
+## 14. Limitation of Liability
+To the fullest extent permitted by law:
+- KwikPort shall not be liable for indirect, incidental, or consequential losses
+- KwikPort’s liability is limited to fees paid for platform access
+- KwikPort is not liable for agency execution failures
+
+## 15. Indemnity
+Users agree to indemnify KwikPort against claims arising from:
+- Breach of these Terms
+- Misuse of the Platform
+- Unlawful activity
+- Misrepresentation or fraud
+
+## 16. Governing Law and Jurisdiction
+These Terms shall be governed by the laws of the jurisdiction specified by KwikPort.
+Disputes shall be resolved exclusively in the courts of that jurisdiction.
+
+## 17. Amendments
+KwikPort may update these Terms at any time. Continued use constitutes acceptance of updated Terms.
+
+## 18. Contact
+For questions or notices regarding these Terms, contact us via: info@kwikports.com

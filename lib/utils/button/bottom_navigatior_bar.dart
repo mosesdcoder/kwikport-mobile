@@ -21,64 +21,62 @@ class _BottomnavigationbarState extends State<Bottomnavigationbar> {
   @override
   Widget build(BuildContext context) {
     return SafeArea(
-      child: Align(
-        alignment: Alignment.bottomCenter,
-        child: Container(
-          height: 85,
-          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-          decoration: BoxDecoration(
-            color: colorCodes.white,
-            border: Border.all(color: colorCodes.antiFlashWhite),
-            boxShadow: [
-              BoxShadow(
-                color: colorCodes.azureBlue.withOpacity(0.2),
-                spreadRadius: 5.0,
-                blurRadius: 8.0,
-              ),
-            ],
-          ),
-          alignment: Alignment.center,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              btmNavCol(
-                const Dashboard(),
-                1,
-                'home_enabled.png',
-                'home.png',
-                'Home',
-              ),
-              btmNavCol(
-                const ContractScreen(),
-                2,
-                'contracts_enabled.png',
-                'contracts.png',
-                'Contracts',
-              ),
-              btmNavCol(
-                const AllKwikTicketScreen(),
-                3,
-                'ticket_enabled.png',
-                'ticket.png',
-                'Kwiktickets',
-              ),
-              btmNavCol(
-                const WalletScreen(),
-                4,
-                'wallet_enabled.png',
-                'wallet.png',
-                'Wallet',
-              ),
-              btmNavCol(
-                const ProfileScreen(),
-                5,
-                'profile.png',
-                'profile.png',
-                'Profile',
-              ),
-            ],
-          ),
+      child: Container(
+        width: double.infinity,
+        height: 85,
+        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 0),
+        decoration: BoxDecoration(
+          color: colorCodes.white,
+          border: Border.all(color: colorCodes.antiFlashWhite),
+          boxShadow: [
+            BoxShadow(
+              color: colorCodes.azureBlue.withOpacity(0.2),
+              spreadRadius: 5.0,
+              blurRadius: 8.0,
+            ),
+          ],
+        ),
+        alignment: Alignment.center,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            btmNavCol(
+              const Dashboard(),
+              1,
+              'home_enabled.png',
+              'home.png',
+              'Home',
+            ),
+            btmNavCol(
+              const ContractScreen(),
+              2,
+              'contracts_enabled.png',
+              'contracts.png',
+              'Contracts',
+            ),
+            btmNavCol(
+              const AllKwikTicketScreen(),
+              3,
+              'ticket_enabled.png',
+              'ticket.png',
+              'Kwiktickets',
+            ),
+            btmNavCol(
+              const WalletScreen(),
+              4,
+              'wallet_enabled.png',
+              'wallet.png',
+              'Wallet',
+            ),
+            btmNavCol(
+              const ProfileScreen(),
+              5,
+              'profile.png',
+              'profile.png',
+              'Profile',
+            ),
+          ],
         ),
       ),
     );

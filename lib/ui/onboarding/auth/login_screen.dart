@@ -234,17 +234,58 @@ class _LoginScreenState extends State<LoginScreen> {
               // );
               currentIndex = 1;
             } else {
-              showToastContainer(
-                "Login Failed",
-                loginProvider.message,
-                colorCodes.mistyRose,
-                colorCodes.portlandOrange,
+              _showErrorSnackBar(
                 context,
+                "Login Failed",
+                loginProvider.message ?? "Unable to login. Please check your credentials and try again.",
               );
             }
           });
       currentIndex = 1;
     }
+  }
+
+  void _showErrorSnackBar(BuildContext context, String title, String message) {
+    showDialog(
+      context: context,
+      barrierDismissible: true,
+      builder: (BuildContext dialogContext) {
+        return Center(
+          child: Material(
+            color: Colors.transparent,
+            child: Container(
+              margin: EdgeInsets.symmetric(horizontal: 24),
+              padding: EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: colorCodes.portlandOrange,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.error_outline, color: Colors.white),
+                  SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(title, style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
+                        SizedBox(height: 2),
+                        Text(message, maxLines: 3, overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+    Future.delayed(Duration(seconds: 4), () {
+      if (Navigator.of(context).canPop()) Navigator.of(context).pop();
+    });
   }
 
   Widget signInContainer(img, text) {

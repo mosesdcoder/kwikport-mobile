@@ -4,9 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:kwik_port/api/controller/kwikTickets/get_kwik_ticket_api.dart';
 import 'package:kwik_port/api/model/dashboard_model.dart';
+import 'package:kwik_port/api/utils/money_util.dart';
 import 'package:kwik_port/colors/color.dart';
 import 'package:kwik_port/main.dart';
 import 'package:kwik_port/ui/home/exportfulfillment/KycVerification/fund_export_contract.dart';
+import 'package:kwik_port/ui/home/exportfulfillment/export_fulfillment_screen.dart';
 import 'package:kwik_port/ui/home/kwikticket/ticket_details_container.dart';
 import 'package:kwik_port/utils/button/back_nav_header.dart';
 import 'package:kwik_port/utils/button/bottom_navigatior_bar.dart';
@@ -30,12 +32,11 @@ class AllKwikTicketScreen extends StatefulWidget {
 enum KwikTicketStatusEnum {
   active(1),
   awaitingPayment(2),
-
-  completed(3),
-  expired(4),
-  paid(5),
-  cancelled(6);
-
+  inProgress(3),
+  completed(4),
+  expired(5),
+  paid(6),
+  cancelled(7);
   final int value;
   const KwikTicketStatusEnum(this.value);
 }
@@ -138,32 +139,19 @@ class _AllKwikTicketScreenState extends State<AllKwikTicketScreen>
 
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
-
                 children: [
+                  // Use a ListView to provide bounded height and scrolling
                   kwikticketTabBar(_tabController),
                   SizedBox(height: 21),
-                  // TAB CONTENT
+                  // The TabBarView should expand to fill available space
                   SizedBox(
-                    height: 420 * filteredTickets.length.toDouble(),
-                    // height: MediaQuery.of(context).size.height - 20,
+                    height: MediaQuery.of(context).size.height - 220, // adjust as needed for your layout
                     child: TabBarView(
                       controller: _tabController,
-
-                      // physics: const NeverScrollableScrollPhysics(),
                       children: [
-                        _buildTicketList(
-                          ticketProvider,
-                          statusFilter: "awaiting",
-                        ),
-                        _buildTicketList(
-                          ticketProvider,
-                          statusFilter: "active",
-                        ),
-
-                        _buildTicketList(
-                          ticketProvider,
-                          statusFilter: "fulfilled",
-                        ),
+                        _buildTicketList(ticketProvider, statusFilter: "awaiting"),
+                        _buildTicketList(ticketProvider, statusFilter: "active"),
+                        _buildTicketList(ticketProvider, statusFilter: "fulfilled"),
                       ],
                     ),
                   ),
@@ -261,7 +249,8 @@ class _AllKwikTicketScreenState extends State<AllKwikTicketScreen>
               return t.kwikTicketStatus ==
                   KwikTicketStatusEnum.awaitingPayment.value;
             case "active":
-              return t.kwikTicketStatus == KwikTicketStatusEnum.active.value;
+              return t.kwikTicketStatus == KwikTicketStatusEnum.active.value ||
+                  t.kwikTicketStatus == KwikTicketStatusEnum.inProgress.value;
             case "fulfilled":
               return t.kwikTicketStatus == KwikTicketStatusEnum.paid.value;
             default:
@@ -282,24 +271,59 @@ class _AllKwikTicketScreenState extends State<AllKwikTicketScreen>
     // }
     // ✅ If no tickets match this category
     if (filteredTickets.isEmpty) {
+      String emptyMessage;
+      switch (statusFilter) {
+        case "awaiting":
+          emptyMessage = "No awaiting tickets";
+          break;
+        case "active":
+          emptyMessage = "No active tickets";
+          break;
+        case "fulfilled":
+          emptyMessage = "No fulfilled tickets";
+          break;
+        default:
+          emptyMessage = "No tickets found";
+      }
+      
       return Center(
         child: Padding(
-          padding: const EdgeInsets.only(top: 50),
+          padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 60),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Image.asset(
-                'assets/images/icons/empty_box.png', // optional placeholder icon
-                height: 100,
-                color: Colors.grey.shade400,
+              Container(
+                height: 120,
+                width: 120,
+                decoration: BoxDecoration(
+                  color: colorCodes.whiteSmoke,
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  Icons.receipt_long_outlined,
+                  size: 60,
+                  color: colorCodes.graniteGrey.withOpacity(0.4),
+                ),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 24),
               Text(
-                'No tickets found in this category.',
+                emptyMessage,
                 style: TextStyle(
+                  fontFamily: 'Poppins',
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
+                  color: colorCodes.black,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'Your tickets will appear here once available',
+                style: TextStyle(
+                  fontFamily: 'Poppins',
                   fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                  color: Colors.grey.shade600,
+                  fontWeight: FontWeight.w400,
+                  color: colorCodes.graniteGrey,
                 ),
                 textAlign: TextAlign.center,
               ),
@@ -325,24 +349,22 @@ class _AllKwikTicketScreenState extends State<AllKwikTicketScreen>
           ticket.exporter?.businessName ?? "",
           ticket.contract?.commodityName ?? "Unknown Commodity",
           (contract?.contractType == 1 ? "International Buyer" : "Local Buyer"),
-          (contract?.totalQuantity?.toString() ?? "0"),
+          (ticket?.quantityToFulfill?.toString() ?? "0"),
           contract?.destinationCountry ?? "N/A",
-          (contract?.totalAmount?.toString() ??
-              ticket.kwikTicketAmount.toString()),
-          (buyerSpec?.buyerPricePerUnit?.toString() ?? "N/A"),
-          (ticket?.grossEarning?.toString() ?? "N/A"),
-
+          (ticket?.kwikTicketAmount?.toString() ?? ticket.kwikTicketAmount.toString()),
+          (contract?.pricePerUnitInUSD)?.toString() ?? "N/A",
+          (contract?.projectedIncome?.toString() ?? "N/A"),
+          contract?.pricePerUnitInUSD ?? 0.0,
           DateFormat('yyyy-MM-dd').format(ticket.createdAt ?? DateTime.now()),
           ticket.kwikTicketStatus,
           () {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder:
-                    (context) => FundExportContract(
-                      kwikticket: ticket,
-                      kwikTicketId: ticket.id!,
-                    ),
+                builder: (context) => ExportFulfillmentScreen(
+                  kwikticket: ticket,
+                  // kwikTicketId: ticket.id!,
+                ),
               ),
             );
           },

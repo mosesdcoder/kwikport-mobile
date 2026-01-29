@@ -134,7 +134,7 @@ class _RequestContractScreenState extends State<RequestContractScreen> {
                             Duration(days: 18 * 365),
                           ),
                           firstDate: DateTime(1950),
-                          lastDate: DateTime.now().subtract(
+                          lastDate: DateTime.now().add(
                             Duration(days: 18 * 365),
                           ),
                         );
@@ -189,61 +189,71 @@ class _RequestContractScreenState extends State<RequestContractScreen> {
                     api.isLoading
                         ? null
                         : () async {
-                            // Parse quantity - extracting the first number
-                            final quantityString = RegExp(r'\d+')
-                                    .firstMatch(productquantitycontroller.text)
-                                    ?.group(0) ??
-                                '0';
-                            final quantity = int.parse(quantityString);
+                          // Parse quantity - extracting the first number
+                          final quantityString =
+                              RegExp(r'\d+')
+                                  .firstMatch(productquantitycontroller.text)
+                                  ?.group(0) ??
+                              '0';
+                          final quantity = int.parse(quantityString);
 
-                            // Parse and format date
-                            DateTime availableDateTime;
-                            try {
-                              availableDateTime = DateFormat('dd/MM/yyyy')
-                                  .parse(availableDatecontroller.text);
-                            } catch (e) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                    content: Text(
-                                        'Invalid date format. Please use dd/MM/yyyy')),
-                              );
-                              return;
-                            }
-
-                            final payload = RequestContractPayload(
-                              productName: productNamecontroller.text,
-                              quantity: quantity,
-                              location: locationcontroller.text,
-                              availableDate: availableDateTime.toIso8601String(),
-                              contactChannel: contactChannelcontroller.text,
-                              additionalNotes: additionalNotescontroller.text,
+                          // Parse and format date
+                          DateTime availableDateTime;
+                          try {
+                            availableDateTime = DateFormat(
+                              'dd/MM/yyyy',
+                            ).parse(availableDatecontroller.text);
+                          } catch (e) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text(
+                                  'Invalid date format. Please use dd/MM/yyyy',
+                                ),
+                              ),
                             );
+                            return;
+                          }
 
-                            await api.requestContract(payload);
+                          final payload = RequestContractPayload(
+                            productName: productNamecontroller.text,
+                            quantity: quantity,
+                            location: locationcontroller.text,
+                            availableDate: availableDateTime.toIso8601String(),
+                            contactChannel: contactChannelcontroller.text,
+                            additionalNotes: additionalNotescontroller.text,
+                          );
 
-                            if (api.error == null && api.contractResponse != null) {
-                              if (api.contractResponse!.isSuccessful) {
-                                showDialog(
-                                  barrierDismissible: false,
-                                  context: context,
-                                  builder: (BuildContext context) {
-                                    return RequestSubmitDialog();
-                                  },
-                                );
-                              } else {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                      content: Text(
-                                          'Error: ${api.contractResponse!.message}')),
-                                );
-                              }
-                            } else if (api.error != null) {
+                          await api.requestContract(payload);
+
+                          if (api.error == null &&
+                              api.contractResponse != null) {
+                            if (api.contractResponse!.isSuccessful) {
+                              showDialog(
+                                barrierDismissible: false,
+                                context: context,
+                                builder: (BuildContext context) {
+                                  return RequestSubmitDialog();
+                                },
+                              );
+                            } else {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(
-                                    content: Text('An error occurred: ${api.error}')),
+                                  content: Text(
+                                    'Error: ${api.contractResponse!.message}',
+                                  ),
+                                ),
                               );
                             }
-                          },
+                          } else if (api.error != null) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                  'An error occurred: ${api.error}',
+                                ),
+                              ),
+                            );
+                          }
+                        },
                   );
                 },
               ),

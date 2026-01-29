@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:intl/intl.dart';
 import 'package:kwik_port/api/model/dashboard_model.dart';
+import 'package:kwik_port/api/utils/money_util.dart';
 import 'package:kwik_port/colors/color.dart';
 import 'package:kwik_port/main.dart';
 import 'package:kwik_port/ui/home/kwikticket/kwikticket_screen.dart';
@@ -15,8 +16,12 @@ import 'package:kwik_port/utils/button/bottom_navigatior_bar.dart';
 import 'package:kwik_port/utils/button/kwik_button.dart';
 import 'package:kwik_port/utils/text/contract_detail_heading_and_subtitle.dart';
 import 'package:kwik_port/utils/text/textstyle.dart';
+import 'package:kwik_port/utils/toast.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:screenshot/screenshot.dart';
+import 'package:pdf/pdf.dart';
+import 'package:pdf/widgets.dart' as pw;
+import 'package:printing/printing.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class KwikticketCreatedSuccessfully extends StatefulWidget {
   final KwikTicketModel kwikticket;
@@ -37,8 +42,6 @@ class KwikticketCreatedSuccessfully extends StatefulWidget {
 
 class _KwikticketCreatedSuccessfullyState
     extends State<KwikticketCreatedSuccessfully> {
-  Uint8List? bytes;
-  final screenshotController = ScreenshotController();
   @override
   void initState() {
     super.initState();
@@ -46,33 +49,109 @@ class _KwikticketCreatedSuccessfullyState
   }
 
   Future<void> _downloadReceipt(context) async {
-    await screenshotController.capture(delay: Duration(milliseconds: 10)).then((
-      image,
-    ) async {
-      if (image != null) {
-        final directory = await getApplicationDocumentsDirectory();
-        final imagePath =
-            await File('${directory.path}/kwikTicket.png').create();
-        await imagePath.writeAsBytes(image);
-        // GallerySaver.saveImage(imagePath.path).then((path) {
-        //   showToast(
-        //       "Receipt downloaded successfully", colorCodes.greenBtn, context);
-        // });
-        // final bytes = await imagePath.readAsBytes();
-        // final result = await ImageGallerySaver.saveImage(
-        //   Uint8List.fromList(bytes),
-        //   quality: 100,
-        //   // name: "your_image_name",
-        // );
-        // if (result != null && result['isSuccess']) {
-        //   showToast(
-        //       "Receipt downloaded successfully", colorCodes.greenBtn, context);
-        //   ;
-        // } else {
-        //   showToast("Failed to save image", colorCodes.redAccent, context);
-        // }
-      }
-    });
+    try {
+      // Generate PDF
+      final pdf = pw.Document();
+      
+      pdf.addPage(
+        pw.Page(
+          pageFormat: PdfPageFormat.a4,
+          build: (pw.Context context) {
+            return pw.Container(
+              padding: const pw.EdgeInsets.all(40),
+              child: pw.Column(
+                crossAxisAlignment: pw.CrossAxisAlignment.start,
+                children: [
+                  pw.Center(
+                    child: pw.Text(
+                      'KwikTicket',
+                      style: pw.TextStyle(
+                        fontSize: 32,
+                        fontWeight: pw.FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  pw.SizedBox(height: 30),
+                  pw.Divider(),
+                  pw.SizedBox(height: 20),
+                  _buildPdfRow('Kwikticket ID', widget.kwikticket.uniqueId ?? 'N/A'),
+                  pw.SizedBox(height: 15),
+                  _buildPdfRow('Exporter Name', widget.kwikticket.exporter?.businessName ?? 'N/A'),
+                  pw.SizedBox(height: 15),
+                  _buildPdfRow('Export Item', widget.kwikticket.contract?.commodityName ?? 'N/A'),
+                  pw.SizedBox(height: 15),
+                  _buildPdfRow('Contract Type', 
+                    widget.kwikticket.contract?.contractType == 1 ? 'International Buyer' : 'Local Buyer'),
+                  pw.SizedBox(height: 15),
+                  _buildPdfRow('Quantity', '${widget.kwikticket.quantityToFulfill ?? 0} tons'),
+                  pw.SizedBox(height: 15),
+                  _buildPdfRow('Commodity Cost', 
+                    MoneyUtils.formatMoney(widget.kwikticket.kwikTicketAmount ?? 0)),
+                  pw.SizedBox(height: 15),
+                  _buildPdfRow('Buyer Price Per Ton', 
+                    '\u20a6${NumberFormat('#,##0.00').format(widget.kwikticket.contract?.buyerSpecification?.buyerPricePerUnit ?? 0)}'),
+                  pw.SizedBox(height: 15),
+                  _buildPdfRow('Export Gross Earning', 
+                    '\u20a6${NumberFormat('#,##0.00').format(widget.kwikticket.projectedIncomeInDollars ?? 0)}'),
+                  pw.SizedBox(height: 15),
+                  _buildPdfRow('Destination', widget.kwikticket.contract?.destinationCountry ?? 'N/A'),
+                  pw.SizedBox(height: 15),
+                  _buildPdfRow('Created Date', 
+                    DateFormat('dd MMM yyyy').format(widget.kwikticket.createdAt ?? DateTime.now())),
+                  pw.SizedBox(height: 30),
+                  pw.Divider(),
+                  pw.SizedBox(height: 20),
+                  pw.Center(
+                    child: pw.Text(
+                      'Generated by KwikPort',
+                      style: const pw.TextStyle(fontSize: 10, color: PdfColors.grey),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        ),
+      );
+
+      // Share the PDF
+      await Printing.sharePdf(
+        bytes: await pdf.save(),
+        filename: 'kwikTicket_${DateTime.now().millisecondsSinceEpoch}.pdf',
+      );
+
+      showToastContainer(
+        "Success",
+        "KwikTicket PDF generated successfully",
+        colorCodes.mediumSeaGreen,
+        colorCodes.pigmentGreen,
+        context,
+      );
+    } catch (e) {
+      showToastContainer(
+        "Error",
+        "Failed to generate PDF: ${e.toString()}",
+        colorCodes.mistyRose,
+        colorCodes.portlandOrange,
+        context,
+      );
+    }
+  }
+
+  pw.Widget _buildPdfRow(String label, String value) {
+    return pw.Row(
+      mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+      children: [
+        pw.Text(
+          label,
+          style: const pw.TextStyle(fontSize: 12, color: PdfColors.grey700),
+        ),
+        pw.Text(
+          value,
+          style: pw.TextStyle(fontSize: 12, fontWeight: pw.FontWeight.bold),
+        ),
+      ],
+    );
   }
 
   Future saveImage(Uint8List bytes) async {
@@ -147,9 +226,9 @@ class _KwikticketCreatedSuccessfullyState
                       child: Text(
                         "This is your personalised contract offer.",
                         style: kwikTextStlye(
-                          12.0,
-                          FontWeight.w300,
-                          colorCodes.jetBlack,
+                          13.0,
+                          FontWeight.w500,
+                          colorCodes.black,
                         ),
                       ),
                     ),
@@ -196,42 +275,44 @@ class _KwikticketCreatedSuccessfullyState
                       // "Agricultural Commodity",
                     ),
                     SizedBox(height: 20),
-                    contractDetailHeadingAndSubtitletwo(
-                      "Selected Capacity",
-                      "Commodity Cost",
-                      "${widget.kwikticket.quantityToFulfill} tons",
-                      "${widget.kwikticket.kwikTicketAmount}",
-                      // "20.5 tons",
-                      // "₦246,000,000",
-                      fontFamily: "",
-                    ),
-                    SizedBox(height: 20),
+                    // contractDetailHeadingAndSubtitletwo(
+                    //   "Quantity",
+                    //   "Commodity Cost",
+                    //   "${widget.kwikticket.quantityToFulfill} tons",
+                    //   "${MoneyUtils.formatMoney(widget.kwikticket.kwikTicketAmount?.toString() ?? '0')}",
+                    //   // "20.5 tons",
+                    //   // "₦246,000,000",
+                    //   fontFamily: "",
+                    // ),
+                    // SizedBox(height: 20),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          "Buyer Price Per Ton",
+                          "Quantity",
                           style: kwikTextStlye(
-                            12.0,
-                            FontWeight.w300,
-                            colorCodes.graniteGrey,
+                            13.0,
+                            FontWeight.w500,
+                            colorCodes.black,
                           ),
                         ),
                         Text(
-                          "Export Gross Earning",
+                          "Commodity Cost",
                           style: kwikTextStlye(
-                            12.0,
-                            FontWeight.w300,
-                            colorCodes.graniteGrey,
+                            13.0,
+                            FontWeight.w500,
+                            colorCodes.black,
                           ),
                         ),
                       ],
                     ),
-                    Row(
+                         Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          "${widget.kwikticket.contract?.buyerSpecification?.buyerPricePerUnit}",
+                            "${widget.kwikticket.quantityToFulfill}",
+                            //"${MoneyUtils.formatMoney(widget.kwikticket.contract?.pricePerUnitInUSD, decimalDigits: 2, symbol: "\$") }",
+                          // "${widget.kwikticket.contract?.buyerSpecification?.buyerPricePerUnit}",
                           style: kwikTextStlye(
                             14.0,
                             FontWeight.w600,
@@ -240,13 +321,68 @@ class _KwikticketCreatedSuccessfullyState
                         ),
                         Row(
                           children: [
-                            Image.asset(
-                              "assets/images/icons/Trending up.png",
-                              height: 16,
-                              width: 16,
-                            ),
+                            // Image.asset(
+                            //   "assets/images/icons/Trending up.png",
+                            //   height: 16,
+                            //   width: 16,
+                            // ),
                             Text(
-                              "${widget.kwikticket.grossEarning}%",
+                                "${MoneyUtils.formatMoney(widget.kwikticket?.kwikTicketAmount.toString() ?? '0', decimalDigits: 2)}",
+                              // "${widget.kwikticket.grossEarning}%",
+                              style: kwikTextStlye(
+                                14.0,
+                                FontWeight.w600,
+                                colorCodes.pigmentGreen,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 20),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          "Buyer Price Per Ton",
+                          style: kwikTextStlye(
+                            13.0,
+                            FontWeight.w500,
+                            colorCodes.black,
+                          ),
+                        ),
+                        Text(
+                          "Gross Earning",
+                          style: kwikTextStlye(
+                            13.0,
+                            FontWeight.w500,
+                            colorCodes.black,
+                          ),
+                        ),
+                      ],
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                            "${MoneyUtils.formatMoney(widget.kwikticket.contract?.pricePerUnitInUSD, decimalDigits: 2, symbol: "\$") }",
+                          // "${widget.kwikticket.contract?.buyerSpecification?.buyerPricePerUnit}",
+                          style: kwikTextStlye(
+                            14.0,
+                            FontWeight.w600,
+                            colorCodes.black,
+                          ),
+                        ),
+                        Row(
+                          children: [
+                            // Image.asset(
+                            //   "assets/images/icons/Trending up.png",
+                            //   height: 16,
+                            //   width: 16,
+                            // ),
+                            Text(
+                                "${MoneyUtils.formatMoney(widget.kwikticket.projectedIncomeInDollars?.toString() ?? '0', symbol: '\$', decimalDigits: 2)}",
+                              // "${widget.kwikticket.grossEarning}%",
                               style: kwikTextStlye(
                                 14.0,
                                 FontWeight.w600,
@@ -266,17 +402,17 @@ class _KwikticketCreatedSuccessfullyState
                         Text(
                           "Destination",
                           style: kwikTextStlye(
-                            12.0,
-                            FontWeight.w300,
-                            colorCodes.graniteGrey,
+                            13.0,
+                            FontWeight.w500,
+                            colorCodes.black,
                           ),
                         ),
                         Text(
-                          "Status",
+                          "Ticket Status",
                           style: kwikTextStlye(
-                            12.0,
-                            FontWeight.w300,
-                            colorCodes.graniteGrey,
+                            13.0,
+                            FontWeight.w500,
+                            colorCodes.black,
                           ),
                         ),
                       ],
@@ -328,11 +464,13 @@ class _KwikticketCreatedSuccessfullyState
                     SizedBox(height: 20),
                     contractDetailHeadingAndSubtitle(
                       "Contract Duration ",
-                      "Time",
-                      "${widget.kwikticket.deadline?.day} Days",
+                      "Deadline",
+                      "${widget.kwikticket?.contract?.contractDuration} Months",
 
                       // "12 AUG 2025",
-                      DateFormat('h:mm a').format(widget.kwikticket.deadline!),
+                      // "${widget.kwikticket.deadline.ho}"
+                      // DateFormat('dd:h:mm').format(widget.kwikticket.deadline!),
+                      DateFormat('dd MMM yyyy HH:mm').format(widget.kwikticket.deadline!),
                     ),
                   ],
                 ),
@@ -379,7 +517,7 @@ class _KwikticketCreatedSuccessfullyState
                   ],
                 ),
               ),
-              SizedBox(height: 50),
+              SizedBox(height: 80),
             ],
           ),
         ],

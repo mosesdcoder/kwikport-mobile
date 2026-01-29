@@ -12,6 +12,7 @@ Widget avaiableontractContainer(
   totalVolume,
   countryFlag,
   country,
+  allocatedvolume,
   tonsRemaining,
   tonsAllocated,
   percentageLeft,
@@ -19,6 +20,7 @@ Widget avaiableontractContainer(
   projectedReturnImg,
   projectedReturn,
   viewContractFunc,
+  totalAmountInUSD
 ) {
   return Container(
     height: 296,
@@ -39,7 +41,17 @@ Widget avaiableontractContainer(
           children: [
             Row(
               children: [
-                Image.network(goodsImg, height: 72, width: 72),
+                Container(
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(16),
+                    child: Image.network(
+                      goodsImg,
+                      height: 72,
+                      width: 72,
+                      fit: BoxFit.fill,
+                    ),
+                  ),
+                ),
                 SizedBox(width: 16),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -124,7 +136,7 @@ Widget avaiableontractContainer(
         LinearProgressIndicator(
           backgroundColor: HexColor("#D6E7FF"),
           minHeight: 8,
-          value: 0.21,
+          value: allocatedvolume,
           borderRadius: BorderRadius.circular(12),
           color: colorCodes.azureBlue,
         ),
@@ -150,7 +162,7 @@ Widget avaiableontractContainer(
               ),
             ),
             Text(
-              "$percentageLeft left",
+              "$percentageLeft",
               style: kwikTextStlye(
                 12.0,
                 FontWeight.w500,
@@ -190,7 +202,7 @@ Widget avaiableontractContainer(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              "Total contract value",
+              "Amount",
               style: kwikTextStlye(
                 10.0,
                 FontWeight.w300,
@@ -198,7 +210,7 @@ Widget avaiableontractContainer(
               ),
             ),
             Text(
-              "Projected Return",
+              "Profit",
               style: kwikTextStlye(
                 10.0,
                 FontWeight.w300,
@@ -257,7 +269,23 @@ Widget avaiableontractContainerUpdated(
       children: [
         InkWell(
           onTap: viewContractFunc,
-          child: Image.network(goodsImg, height: 86, width: 342),
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(16),
+            topRight: Radius.circular(16),
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(16),
+              topRight: Radius.circular(16),
+            ),
+
+            child: Image.network(
+              goodsImg,
+              height: 86,
+              width: 342,
+              fit: BoxFit.cover,
+            ),
+          ),
         ),
         Padding(
           padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
@@ -348,7 +376,7 @@ Widget avaiableontractContainerUpdated(
                         ),
                       ),
                       Text(
-                        "Total contract value",
+                        "Amount",
                         style: kwikTextStlye(
                           10.0,
                           FontWeight.w300,

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:kwik_port/api/model/dashboard_model.dart';
+import 'package:kwik_port/api/utils/money_util.dart';
 import 'package:kwik_port/colors/color.dart';
 import 'package:kwik_port/main.dart';
 import 'package:kwik_port/ui/home/exportfulfillment/export_fulfillment_screen.dart';
@@ -31,10 +32,10 @@ class _KwikticketScreenState extends State<KwikticketScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      extendBody: true,
       backgroundColor: colorCodes.whiteSmoke,
       body: ListView(
-        padding: EdgeInsets.only(left: 20, right: 20, top: 40, bottom: 55),
+        physics: ClampingScrollPhysics(),
+        padding: EdgeInsets.only(left: 20, right: 20, top: 40, bottom: 50),
         children: [
           Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -42,7 +43,13 @@ class _KwikticketScreenState extends State<KwikticketScreen> {
             children: [
               Align(
                 alignment: Alignment.centerLeft,
-                child: backnavButton(context),
+                child: GestureDetector(
+                  onTap: () {
+                    Navigator.of(context).popUntil((route) => route.isFirst);
+                    currentIndex = 0;
+                  },
+                  child: backnavButton(context),
+                ),
               ),
               SizedBox(height: 15),
               Image.asset(
@@ -85,9 +92,9 @@ class _KwikticketScreenState extends State<KwikticketScreen> {
                       child: Text(
                         "This is your personalised contract offer.",
                         style: kwikTextStlye(
-                          12.0,
-                          FontWeight.w300,
-                          colorCodes.jetBlack,
+                          13.0,
+                          FontWeight.w500,
+                          colorCodes.black,
                         ),
                       ),
                     ),
@@ -132,33 +139,33 @@ class _KwikticketScreenState extends State<KwikticketScreen> {
                       // "Agricultural Commodity",
                     ),
                     SizedBox(height: 15),
-                    contractDetailHeadingAndSubtitletwo(
-                      "Selected Capacity",
-                      "Commodity Cost",
-                      "${widget.kwikticket.quantityToFulfill} Tons",
-                      "${widget.kwikticket.kwikTicketAmount}",
-                      // "20.5 tons",
-                      // "₦246,000,000",
-                      fontFamily: "",
-                    ),
-                    SizedBox(height: 15),
+                    // contractDetailHeadingAndSubtitletwo(
+                    //   "Quantity",
+                    //   "Commodity Cost",
+                    //   "${widget.kwikticket.quantityToFulfill} Tons",
+                    //   "${MoneyUtils.formatMoney(widget.kwikticket.kwikTicketAmount ?? 0)}",
+                    //   // "20.5 tons",
+                    //   // "₦246,000,000",
+                    //   fontFamily: "",
+                    // ),
+                    //  SizedBox(height: 15),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          "Buyer Price Per Ton",
+                          "Quantity",
                           style: kwikTextStlye(
-                            12.0,
-                            FontWeight.w300,
-                            colorCodes.graniteGrey,
+                            13.0,
+                            FontWeight.w500,
+                            colorCodes.black,
                           ),
                         ),
                         Text(
-                          "Export Gross Earning",
+                          "Commodity Cost",
                           style: kwikTextStlye(
-                            12.0,
-                            FontWeight.w300,
-                            colorCodes.graniteGrey,
+                            13.0,
+                            FontWeight.w500,
+                            colorCodes.black,
                           ),
                         ),
                       ],
@@ -167,7 +174,7 @@ class _KwikticketScreenState extends State<KwikticketScreen> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          "₦${widget.kwikticket.contract?.buyerSpecification?.buyerPricePerUnit}",
+                          "${widget.kwikticket.quantityToFulfill} Tons",
                           style: kwikTextStlye(
                             14.0,
                             FontWeight.w600,
@@ -176,13 +183,65 @@ class _KwikticketScreenState extends State<KwikticketScreen> {
                         ),
                         Row(
                           children: [
-                            Image.asset(
-                              "assets/images/icons/Trending up.png",
-                              height: 16,
-                              width: 16,
-                            ),
+                            // Image.asset(
+                            //   "assets/images/icons/Trending up.png",
+                            //   height: 16,
+                            //   width: 16,
+                            // ),
                             Text(
-                              "${widget.kwikticket.grossEarning}%",
+                              "${MoneyUtils.formatMoney(widget.kwikticket.kwikTicketAmount ?? 0)}",
+                              style: kwikTextStlye(
+                                14.0,
+                                FontWeight.w600,
+                                colorCodes.pigmentGreen,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 15),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          "Buyer Price Per Ton",
+                          style: kwikTextStlye(
+                            13.0,
+                            FontWeight.w500,
+                            colorCodes.black,
+                          ),
+                        ),
+                        Text(
+                          "Gross Earning",
+                          style: kwikTextStlye(
+                            13.0,
+                            FontWeight.w500,
+                            colorCodes.black,
+                          ),
+                        ),
+                      ],
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          "${MoneyUtils.formatMoney(widget.kwikticket.contract?.pricePerUnitInUSD ?? 0, symbol: "\$", decimalDigits: 2)}",
+                          style: kwikTextStlye(
+                            14.0,
+                            FontWeight.w600,
+                            colorCodes.black,
+                          ),
+                        ),
+                        Row(
+                          children: [
+                            // Image.asset(
+                            //   "assets/images/icons/Trending up.png",
+                            //   height: 16,
+                            //   width: 16,
+                            // ),
+                            Text(
+                              "${MoneyUtils.formatMoney(widget.kwikticket.projectedIncomeInDollars ?? 0, symbol: "\$", decimalDigits: 2)}",
                               style: kwikTextStlye(
                                 14.0,
                                 FontWeight.w600,
@@ -202,17 +261,17 @@ class _KwikticketScreenState extends State<KwikticketScreen> {
                         Text(
                           "Destination",
                           style: kwikTextStlye(
-                            12.0,
-                            FontWeight.w300,
-                            colorCodes.graniteGrey,
+                            13.0,
+                            FontWeight.w500,
+                            colorCodes.black,
                           ),
                         ),
                         Text(
                           "Ticket Status",
                           style: kwikTextStlye(
-                            12.0,
-                            FontWeight.w300,
-                            colorCodes.graniteGrey,
+                            13.0,
+                            FontWeight.w500,
+                            colorCodes.black,
                           ),
                         ),
                       ],
@@ -263,14 +322,14 @@ class _KwikticketScreenState extends State<KwikticketScreen> {
                         ),
                       ],
                     ),
-                    SizedBox(height: 22),
+                    SizedBox(height: 33),
                     Container(
-                      height: 58,
-                      width: 335,
+                      height: 87,
+                      width: 345,
                       alignment: Alignment.center,
                       padding: EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 10,
+                        horizontal: 6,
+                        vertical: 8,
                       ),
                       decoration: BoxDecoration(
                         color: colorCodes.white,
@@ -293,11 +352,11 @@ class _KwikticketScreenState extends State<KwikticketScreen> {
                           SizedBox(
                             width: 232,
                             child: Text(
-                              "This ticket represents your secured allocation in this export contract.",
+                              "This ticket represents your secured allocation in this export contract, please note that this ticket is only valid for 24 hours.",
                               style: kwikTextStlye(
                                 12.0,
                                 FontWeight.w300,
-                                colorCodes.jetBlack,
+                                colorCodes.black,
                               ),
                             ),
                           ),
@@ -320,7 +379,7 @@ class _KwikticketScreenState extends State<KwikticketScreen> {
                 );
                 currentIndex = 3;
               }),
-              SizedBox(height: 40),
+              SizedBox(height: 10),
             ],
           ),
         ],

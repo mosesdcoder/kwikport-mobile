@@ -1,5 +1,7 @@
 // lib/api/model/agency_model.dart
 
+import 'package:kwik_port/api/model/agency_fee_model.dart';
+
 class AgencyModel {
   final String id;
   final String name;
@@ -10,6 +12,14 @@ class AgencyModel {
   final int? numberOfDaysToDeliver;
   final double? serviceFee;
   final bool? isDeleted;
+  final double? serviceFeeInUSD;
+  final String? agencyId;
+  final double? serviceFeePerTon;
+  final double? serviceFeePerTonInUSD;
+  final int? tonnage;
+  final double? totalCost;
+  final double? totalCostInUSD;
+  AgencyFeeModel? fee;
 
   AgencyModel({
     required this.id,
@@ -21,11 +31,19 @@ class AgencyModel {
     this.numberOfDaysToDeliver,
     this.serviceFee,
     this.isDeleted,
+    this.serviceFeeInUSD,
+    this.agencyId,
+    this.serviceFeePerTon,
+    this.serviceFeePerTonInUSD,
+    this.tonnage,
+    this.totalCost,
+    this.totalCostInUSD,
+    this.fee,
   });
 
   factory AgencyModel.fromJson(Map<String, dynamic> json) {
     return AgencyModel(
-      id: json['id'] ?? '',
+      id: json['id'] ?? json['agencyId'] ?? '',
       name: json['name'] ?? '',
       agencyType:
           json['agencyType'] is int
@@ -52,8 +70,53 @@ class AgencyModel {
               ? (json['serviceFee'] as num).toDouble()
               : (json['serviceFee'] != null
                   ? double.tryParse('${json['serviceFee']}')
-                  : null),
+                  : (json['totalCost'] is num)
+                      ? (json['totalCost'] as num).toDouble()
+                      : (json['totalCost'] != null
+                          ? double.tryParse('${json['totalCost']}')
+                          : null)),
       isDeleted: json['isDeleted'],
+      serviceFeeInUSD:
+          (json['serviceFeeInUSD'] is num)
+              ? (json['serviceFeeInUSD'] as num).toDouble()
+              : (json['serviceFeeInUSD'] != null
+                  ? double.tryParse('${json['serviceFeeInUSD']}')
+                  : (json['totalCostInUSD'] is num)
+                      ? (json['totalCostInUSD'] as num).toDouble()
+                      : (json['totalCostInUSD'] != null
+                          ? double.tryParse('${json['totalCostInUSD']}')
+                          : null)),
+      agencyId: json['agencyId'],
+      serviceFeePerTon:
+          (json['serviceFeePerTon'] is num)
+              ? (json['serviceFeePerTon'] as num).toDouble()
+              : (json['serviceFeePerTon'] != null
+                  ? double.tryParse('${json['serviceFeePerTon']}')
+                  : null),
+      serviceFeePerTonInUSD:
+          (json['serviceFeePerTonInUSD'] is num)
+              ? (json['serviceFeePerTonInUSD'] as num).toDouble()
+              : (json['serviceFeePerTonInUSD'] != null
+                  ? double.tryParse('${json['serviceFeePerTonInUSD']}')
+                  : null),
+      tonnage:
+          json['tonnage'] is int
+              ? json['tonnage']
+              : (json['tonnage'] != null
+                  ? int.tryParse('${json['tonnage']}')
+                  : null),
+      totalCost:
+          (json['totalCost'] is num)
+              ? (json['totalCost'] as num).toDouble()
+              : (json['totalCost'] != null
+                  ? double.tryParse('${json['totalCost']}')
+                  : null),
+      totalCostInUSD:
+          (json['totalCostInUSD'] is num)
+              ? (json['totalCostInUSD'] as num).toDouble()
+              : (json['totalCostInUSD'] != null
+                  ? double.tryParse('${json['totalCostInUSD']}')
+                  : null),
     );
   }
 
@@ -67,6 +130,22 @@ class AgencyModel {
     'numberOfDaysToDeliver': numberOfDaysToDeliver,
     'serviceFee': serviceFee,
     'isDeleted': isDeleted,
+    'serviceFeeInUSD': serviceFeeInUSD,
+    'agencyId': agencyId,
+    'serviceFeePerTon': serviceFeePerTon,
+    'serviceFeePerTonInUSD': serviceFeePerTonInUSD,
+    'tonnage': tonnage,
+    'totalCost': totalCost,
+    'totalCostInUSD': totalCostInUSD,
+    'fee':
+        fee != null
+            ? {
+              'serviceFeePerTonInUSD': fee!.serviceFeePerTonInUSD,
+              'totalCostInUSD': fee!.totalCostInUSD,
+              'totalCost': fee!.totalCost,
+              'tonnage': fee!.tonnage,
+            }
+            : null,
   };
 }
 

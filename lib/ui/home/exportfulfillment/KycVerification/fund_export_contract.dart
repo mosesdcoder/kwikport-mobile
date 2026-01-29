@@ -6,6 +6,7 @@ import 'package:kwik_port/api/controller/kwikTickets/fund_ticket_api.dart';
 import 'package:kwik_port/api/controller/kwikTickets/update_kwikticket_status_api.dart';
 import 'package:kwik_port/api/controller/kwikTickets/verify_payment.dart';
 import 'package:kwik_port/api/model/dashboard_model.dart';
+import 'package:kwik_port/api/utils/money_util.dart';
 import 'package:kwik_port/colors/color.dart';
 import 'package:kwik_port/ui/home/exportfulfillment/KycVerification/export_payment_confirmed.dart';
 import 'package:kwik_port/ui/home/exportfulfillment/KycVerification/export_payment_containers.dart';
@@ -153,7 +154,11 @@ class _FundExportContractState extends State<FundExportContract> {
       }
     } else {
       // ❌ Payment failed
-      if (mounted) {
+      if (mounted)
+       {
+         setState(() {
+      showWebView = false;
+    });
         showToastContainer(
           "Payment Failed",
           verifyApi.message,
@@ -258,7 +263,7 @@ class _FundExportContractState extends State<FundExportContract> {
                                 ),
                               ],
                             ),
-                            SizedBox(height: 30),
+                            SizedBox(height: 20),
                             SizedBox(
                               width: 353,
                               child: Divider(
@@ -269,10 +274,11 @@ class _FundExportContractState extends State<FundExportContract> {
                             SizedBox(height: 11),
                             detailRow(
                               "Procurement amount",
-                              "₦${widget.kwikticket.kwikTicketAmount}",
+                              "${MoneyUtils.formatMoney(widget.kwikticket.kwikTicketAmount)}",
+                              // "₦${widget.kwikticket.kwikTicketAmount}",
                             ),
                             SizedBox(height: 11),
-                            detailRow("Platform fee", "#49,000"),
+                            // detailRow("Platform fee", "#49,000"),
                             SizedBox(height: 11),
                             SizedBox(
                               width: 353,
@@ -281,17 +287,18 @@ class _FundExportContractState extends State<FundExportContract> {
                                 thickness: 1.1,
                               ),
                             ),
-                            SizedBox(height: 11),
-                            detailRow(
-                              "Total to pay",
-                              "#${widget.kwikticket.kwikTicketAmount}",
-                              fontSize: 14.0,
-                              fontWeight: FontWeight.w600,
-                              color: colorCodes.black,
-                              fontsizetwo: 14.0,
-                              fontWeighttwo: FontWeight.w600,
-                              colortwo: colorCodes.azureBlue,
-                            ),
+                            SizedBox(height: 8),
+                            // detailRow(
+                            //   "Total to pay",
+                            //   "${MoneyUtils.formatMoney(widget.kwikticket.kwikTicketAmount)}",
+                            //   // "#${widget.kwikticket.kwikTicketAmount}",
+                            //   fontSize: 14.0,
+                            //   fontWeight: FontWeight.w600,
+                            //   color: colorCodes.black,
+                            //   fontsizetwo: 14.0,
+                            //   fontWeighttwo: FontWeight.w600,
+                            //   colortwo: colorCodes.azureBlue,
+                            // ),
                             SizedBox(height: 30),
                             Container(
                               height: 90,
@@ -336,7 +343,8 @@ class _FundExportContractState extends State<FundExportContract> {
                                         ],
                                       ),
                                       Text(
-                                        "${widget.kwikticket.grossEarning}",
+
+                                        "${MoneyUtils.formatMoney(widget.kwikticket.projectedIncomeInDollars, symbol: "\$", decimalDigits: 2)}",
                                         textAlign: TextAlign.start,
                                         style: kwikTextStlye(
                                           12.0,
@@ -353,8 +361,8 @@ class _FundExportContractState extends State<FundExportContract> {
                                     "Estimated return on successful completion",
                                     style: kwikTextStlye(
                                       10.0,
-                                      FontWeight.w300,
-                                      colorCodes.pigmentGreen,
+                                      FontWeight.w500,
+                                      colorCodes.mediumSeaGreen,
                                     ),
                                   ),
                                 ],
@@ -363,7 +371,7 @@ class _FundExportContractState extends State<FundExportContract> {
                           ],
                         ),
                       ),
-                      SizedBox(height: 34),
+                      SizedBox(height: 8),
                       Align(
                         alignment: Alignment.centerLeft,
                         child: Text(
@@ -377,8 +385,8 @@ class _FundExportContractState extends State<FundExportContract> {
                       ),
                       SizedBox(height: 15),
                       paymentContainer(
-                        "KwikBalance",
-                        "Available: \$${dashboardApi.data!.walletBalance}",
+                        "Kwik Balance",
+                        "Available: ${MoneyUtils.formatMoney(dashboardApi.data!.walletBalance)}",
                         selectKwikBalance,
                         () {
                           setState(() {
@@ -596,138 +604,108 @@ class _FundExportContractState extends State<FundExportContract> {
                           ),
                         ],
                       ),
-                      SizedBox(height: 30),
-                      kwikbutton(
-                        "Pay ₦${widget.kwikticket.kwikTicketAmount}",
-                        () async {
-                          if (checkterms == false) {
-                            showToastContainer(
-                              "Terms not accepted",
-                              "Please agree to the terms and conditions to proceed.",
-                              colorCodes.mistyRose,
-                              colorCodes.portlandOrange,
-                              context,
-                            );
-                          } else {
-                            showDialog(
-                              context: context,
-                              builder: (BuildContext context) {
-                                return LoadingDialog();
-                              },
-                            );
-                            if (selectKwikBalance == true) {
-                              await fundTicketApi
-                                  .fundTicket(
-                                    kwikTicketId:
-                                        widget.kwikticket.id, //.toString(),
-                                    exporterId: widget.kwikticket.exporter!.id,
-                                    fundingMethod: 1, //.toString(),
-                                  )
-                                  .then((_) {
-                                    Navigator.pop(context);
+                      SizedBox(height: 50),
+                     kwikbutton(
+  "Pay ${MoneyUtils.formatMoney(widget.kwikticket.kwikTicketAmount)}",
+  () async {
+    if (checkterms == false) {
+      showToastContainer(
+        "Terms not accepted",
+        "Please agree to the terms and conditions to proceed.",
+        colorCodes.mistyRose,
+        colorCodes.portlandOrange,
+        context,
+      );
+    } else {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return LoadingDialog();
+        },
+      );
+      if (selectKwikBalance == true) {
+        await fundTicketApi
+            .fundTicket(
+              kwikTicketId: widget.kwikticket.id, 
+              exporterId: widget.kwikticket.exporter!.id,
+              fundingMethod: 1,
+            )
+            .then((_) {
+              Navigator.pop(context);
 
-                                    if (fundTicketApi.isSuccessful == true &&
-                                        fundTicketApi.authorizationUrl !=
-                                            null) {
-                                      debugPrint(
-                                        "Fund Ticket id: ${widget.kwikticket.id}",
-                                      );
+              if (fundTicketApi.isSuccessful == true &&
+                  fundTicketApi.authorizationUrl != null) {
+                debugPrint(
+                  "Fund Ticket id: ${widget.kwikticket.id}",
+                );
 
-                                      final reference =
-                                          fundTicketApi.paymentReference ??
-                                          // uri.queryParameters["reference"] ??
-                                          "";
-                                      if (reference.isNotEmpty) {
-                                        _verifyPayment(
-                                          widget.kwikTicketId,
-                                          fundTicketApi.paymentReference!,
-                                        );
-                                      } else {}
-                                    } else {
-                                      showToastContainer(
-                                        "Fund Ticket",
-                                        fundTicketApi.message,
-                                        colorCodes.mistyRose,
-                                        colorCodes.portlandOrange,
-                                        context,
-                                      );
-                                    }
-                                  });
-                            } else if (selectCardTransfer == true) {
-                              await fundTicketApi
-                                  .fundTicket(
-                                    kwikTicketId:
-                                        widget.kwikticket.id, //.toString(),
-                                    exporterId: widget.kwikticket.exporter!.id,
-                                    fundingMethod: 2, //.toString(),
-                                  )
-                                  .then((_) {
-                                    Navigator.pop(context);
+                final reference = fundTicketApi.paymentReference ?? "";
+                if (reference.isNotEmpty) {
+                  _verifyPayment(
+                    widget.kwikTicketId,
+                    fundTicketApi.paymentReference!,
+                  );
+                }
+              } else {
+                showToastContainer(
+                  "Fund Ticket",
+                  fundTicketApi.message,
+                  colorCodes.mistyRose,
+                  colorCodes.portlandOrange,
+                  context,
+                );
+              }
+            });
+      } else if (selectCardTransfer == true) {
+        await fundTicketApi
+            .fundTicket(
+              kwikTicketId: widget.kwikticket.id,
+              exporterId: widget.kwikticket.exporter!.id,
+              fundingMethod: 2,
+            )
+            .then((_) {
+              Navigator.pop(context);
 
-                                    _controller =
-                                        WebViewController()
-                                          ..setJavaScriptMode(
-                                            JavaScriptMode.unrestricted,
-                                          )
-                                          ..setNavigationDelegate(
-                                            NavigationDelegate(
-                                              // },
-                                              onPageStarted: (url) {
-                                                setState(
-                                                  () => _isLoading = true,
-                                                );
-
-                                                // final uri = Uri.parse(url);
-                                                final uri = Uri.parse(url);
-                                                final reference =
-                                                    uri.queryParameters["reference"] ??
-                                                    "";
-                                                if (reference.isNotEmpty) {
-                                                  _verifyPayment(
-                                                    widget.kwikTicketId,
-                                                    fundTicketApi
-                                                        .paymentReference!,
-                                                  );
-                                                } else {}
-                                              },
-                                              onPageFinished: (url) {
-                                                debugPrint(
-                                                  "✅ Finished loading: $url",
-                                                );
-
-                                                setState(
-                                                  () => _isLoading = false,
-                                                );
-                                              },
-                                            ),
-                                          )
-                                          ..loadRequest(
-                                            Uri.parse(
-                                              fundTicketApi.authorizationUrl!,
-                                            ),
-                                          );
-                                  });
-                              setState(() {
-                                showWebView = true;
-                              });
-                              // _controller.loadRequest(
-                              //   Uri.parse(fundTicketApi.authorizationUrl!),
-                              // );
-                            } else {
-                              showToastContainer(
-                                "Select Payment Method",
-                                "Please select a payment method to proceed.",
-                                colorCodes.mistyRose,
-                                colorCodes.portlandOrange,
-                                context,
-                              );
-                            }
-                          }
-                        },
-                        fontFamily: "",
-                      ),
-
-                      SizedBox(height: 25),
+              _controller = WebViewController()
+                ..setJavaScriptMode(JavaScriptMode.unrestricted)
+                ..setNavigationDelegate(
+                  NavigationDelegate(
+                    onPageStarted: (url) {
+                      setState(() => _isLoading = true);
+                      final uri = Uri.parse(url);
+                      final reference = uri.queryParameters["reference"] ?? "";
+                      if (reference.isNotEmpty) {
+                        _verifyPayment(
+                          widget.kwikTicketId,
+                          fundTicketApi.paymentReference!,
+                        );
+                      }
+                    },
+                    onPageFinished: (url) {
+                      debugPrint("✅ Finished loading: $url");
+                      setState(() => _isLoading = false);
+                    },
+                  ),
+                )
+                ..loadRequest(Uri.parse(fundTicketApi.authorizationUrl!));
+            });
+        setState(() {
+          showWebView = true;
+        });
+      } else {
+        showToastContainer(
+          "Select Payment Method",
+          "Please select a payment method to proceed.",
+          colorCodes.mistyRose,
+          colorCodes.portlandOrange,
+          context,
+        );
+      }
+    }
+  },
+  enabled: (selectKwikBalance || selectCardTransfer) && checkterms, // Use enabled property
+),
+                      SizedBox(height: 55),
                     ],
                   ),
                 ],

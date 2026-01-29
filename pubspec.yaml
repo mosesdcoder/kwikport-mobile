@@ -40,7 +40,7 @@ dependencies:
   provider: ^6.0.5
   shared_preferences:
   permission_handler: ^12.0.1
-  image_picker: ^1.1.0
+  image_picker: ^1.0.7
  
   http_parser: ^4.1.2
   path:
@@ -52,13 +52,18 @@ dependencies:
   overlay_loader_with_app_icon: ^0.0.4
   # gallery_saver: 
   screenshot: ^3.0.0
+  device_info_plus: ^10.1.0
   url_launcher: ^6.3.2
   webview_flutter: ^4.13.0
+  signalr_netcore: ^1.3.7
+  pdf: ^3.10.8
+  printing: ^5.13.4
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
   flutter_countdown_timer: ^4.1.0
+  flutter_markdown: ^0.7.7+1
 
 dev_dependencies:
   flutter_test:
@@ -91,6 +96,7 @@ flutter:
     - assets/images/bottomNav/
     - assets/images/icons/dashboard/
     - assets/images/icons/flags/
+    - assets/terms_and_conditions.txt
     # - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see

@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:kwik_port/api/model/agency_model.dart';
+import 'package:kwik_port/api/model/agency_fee_model.dart';
 import 'package:kwik_port/api/utils/utils.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -12,7 +13,11 @@ class GetAgencyApi extends ChangeNotifier {
   int pageIndex = 1;
   final int pageSize = 10;
 
-  fetchAgencies({bool loadMore = false}) async {
+  fetchAgencies({
+    required int tonnage,
+    required int agencyType,
+    bool loadMore = false,
+  }) async {
     if (loading) return; // prevent duplicate calls
     if (!hasMore && loadMore) return; // no more pages
 
@@ -28,34 +33,21 @@ class GetAgencyApi extends ChangeNotifier {
           pageIndex = 1;
           hasMore = true;
         }
-        final response = await HttpService.getRequest(
-          '/Agency/get-agencies?PageIndex=$pageIndex&PageSize=$pageSize',
+
+        final newAgencies = await calculateAgencyFee(
+          tonnage: tonnage,
+          agencyType: agencyType,
+          pageIndex: pageIndex,
+          pageSize: pageSize,
         );
-        final data = json.decode(response.body);
-        print('📦 Fetching agencies page $pageIndex');
-        print('Status: ${response.statusCode}, Body: $data');
-        if (response.statusCode == 200) {
-          final data = json.decode(response.body);
 
-          if (data["isSuccessful"] == true &&
-              data["data"] != null &&
-              data["data"]["results"] != null) {
-            final responseData = data["data"];
-            final List<dynamic> newAgencies = data["data"]["results"];
+        debugPrint('📦 Fetching agencies page $pageIndex');
 
-            if (newAgencies.isNotEmpty) {
-              agencies.addAll(newAgencies.map((e) => AgencyModel.fromJson(e)));
-              pageIndex++;
-            } else {
-              // ✅ No more pages
-              hasMore = false;
-            }
-          } else {
-            // agencies = [];
-            hasMore = false;
-          }
+        if (newAgencies.isNotEmpty) {
+          agencies.addAll(newAgencies);
+          pageIndex++;
         } else {
-          // agencies = [];
+          // ✅ No more pages
           hasMore = false;
         }
       } else {
@@ -70,38 +62,86 @@ class GetAgencyApi extends ChangeNotifier {
     notifyListeners();
   }
 
-  fetchAgenciesByStageType(int stageType) async {
+  Future<List<AgencyModel>> calculateAgencyFee({
+    required int tonnage,
+    required int agencyType,
+    int pageIndex = 1,
+    int pageSize = 10,
+  }) async {
+    try {
+      final response = await HttpService.getRequest(
+        '/Agency/calculate-agency-fee?tonnage=$tonnage&agencyType=$agencyType&pageIndex=$pageIndex&pageSize=$pageSize',
+      );
+
+      if (response.statusCode == 200) {
+        final decoded = json.decode(response.body) as Map<String, dynamic>;
+        debugPrint(
+          'calculateAgencyFee response: ${response.statusCode} ${response.body}',
+        );
+        
+        // ✅ Log first agency details for debugging
+        if (decoded['data'] != null && decoded['data']['results'] != null) {
+          final List<dynamic> results = decoded['data']['results'];
+          if (results.isNotEmpty) {
+            debugPrint('==========================================');
+            debugPrint('🔍 First Agency from API:');
+            debugPrint(jsonEncode(results[0]));
+            debugPrint('==========================================');
+          }
+        }
+        
+        if (decoded['isSuccessful'] == true &&
+            decoded['data'] != null &&
+            decoded['data']['results'] != null) {
+          final List<dynamic> results = decoded['data']['results'];
+          return results.map((e) => AgencyModel.fromJson(e)).toList();
+        }
+      } else {
+        debugPrint('calculateAgencyFee non-200: ${response.statusCode}');
+      }
+    } catch (e) {
+      debugPrint('Error calculateAgencyFee: $e');
+    }
+    return [];
+  }
+
+  fetchAgenciesByStageType(int stageType, {required int tonnage}) async {
     try {
       loading = true;
       notifyListeners();
 
-      final prefs = await SharedPreferences.getInstance();
-      final token = prefs.getString('accessToken') ?? '';
+      print("==========================================");
+      print("🔍 fetchAgenciesByStageType called:");
+      print("   - stageType: $stageType");
+      print("   - tonnage: $tonnage");
+      print("==========================================");
 
-      final response = await HttpService.getRequest(
-        '/Agency/agencies/$stageType',
+      // Always use calculateAgencyFee as the primary method
+      final agenciesWithFees = await calculateAgencyFee(
+        tonnage: tonnage,
+        agencyType: stageType,
+        pageIndex: 1,
+        pageSize: 100, // Get all agencies with fees
       );
 
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body);
-        if (data['isSuccessful'] == true) {
-          // agencies = List<Map<String, dynamic>>.from(data['data']);
-          // final data = decoded['data'];
-
-          if (data['data'] is List) {
-            final List<dynamic> agencyList = data['data'];
-            agencies = agencyList.map((e) => AgencyModel.fromJson(e)).toList();
-            hasMore =
-                false; // endpoint returns list for that stage — not paginated
-          }
-        } else {
-          agencies = [];
-        }
+      agencies = agenciesWithFees;
+      hasMore = false; // endpoint returns list for that stage — not paginated
+      
+      print("==========================================");
+      print("📡 API Response:");
+      print("   - Agencies count: ${agenciesWithFees.length}");
+      if (agenciesWithFees.isEmpty) {
+        print("   - ⚠️ No agencies returned for stageType $stageType with tonnage $tonnage");
       } else {
-        agencies = [];
+        print("   - ✅ Successfully fetched ${agenciesWithFees.length} agencies");
       }
+      print("==========================================");
+      
+      debugPrint(
+        'Fetched ${agenciesWithFees.length} agencies with calculated fees for stageType $stageType',
+      );
     } catch (e) {
-      print('Error fetching agencies by stageType: $e');
+      debugPrint('Error fetching agencies by stageType: $e');
       agencies = [];
     } finally {
       loading = false;

@@ -23,14 +23,14 @@ Widget dateofbirthTxtField(hintText, controller, errorText, showdate) {
             fontFamily: 'Poppins',
             fontSize: 12,
             fontWeight: FontWeight.w300,
-            color: colorCodes.graniteGrey,
+            color: colorCodes.black,
           ),
           controller: controller,
           autocorrect: true,
           enableSuggestions: true,
           keyboardType: TextInputType.none,
           decoration: InputDecoration(
-            hintText: '00/00/0000',
+            hintText: '01/01/1990',
             hintStyle: TextStyle(
               fontFamily: 'Poppins',
               color: colorCodes.graniteGrey,

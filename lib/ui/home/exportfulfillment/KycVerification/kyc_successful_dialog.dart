@@ -7,6 +7,7 @@ import 'package:kwik_port/main.dart';
 import 'package:kwik_port/ui/home/dashboard/dashboard.dart';
 import 'package:kwik_port/ui/home/exportfulfillment/KycVerification/fund_export_contract.dart';
 import 'package:kwik_port/utils/button/kwik_button.dart';
+import 'package:kwik_port/utils/button/loading_dialog.dart';
 import 'package:kwik_port/utils/text/textstyle.dart';
 import 'package:kwik_port/utils/toast.dart';
 import 'package:provider/provider.dart';
@@ -169,53 +170,48 @@ class _KycSuccessfulDialogState extends State<KycSuccessfulDialog> {
                     ),
                   ),
                   SizedBox(height: 12),
-                  kwikbutton("Proceed to Kwikprocure", () {
-                    setState(() => fundTicketApi.loading = true);
+                    kwikbutton(
+                      "Proceed to Kwikprocure",
+                      () async {
+                        showDialog(
+                          context: context,
+                          barrierDismissible: false,
+                          builder: (BuildContext context) => LoadingDialog(),
+                        );
+                        await Future.delayed(const Duration(milliseconds: 600));
+                        Navigator.pop(context); // Close loading dialog
 
-                    // fundTicketApi.fundTicket(
-                    //   kwikTicketId: widget.kwikticket.id.toString(),
-                    //   exporterId: widget.kwikticket.exporter!.id.toString(),
-                    //   // dashboardApi.data!.e, //.toString(),
-                    // );
-
-                    // setState(() => fundTicketApi.loading = false);
-
-                    // if (fundTicketApi.isSuccessful == true &&
-                    //     fundTicketApi.authorizationUrl != null) {
-                    //   Navigator.push(
-                    //     context,
-                    //     MaterialPageRoute(
-                    //       builder:
-                    //           (_) => FundExportContract(
-                    //             kwikticket: widget.kwikticket,
-                    //             url: fundTicketApi.authorizationUrl!,
-                    //             kwikTicketId: widget.kwikticket.id,
-                    //             referenceNumber:
-                    //                 fundTicketApi.paymentReference!,
-                    //             paymentMethod: fundTicketApi.provider!,
-                    //           ),
-                    //     ),
-                    //   );
-                    // } else {
-                    //   showToastContainer(
-                    //     "Fund Ticket",
-                    //     fundTicketApi.message,
-                    //     colorCodes.mistyRose,
-                    //     colorCodes.portlandOrange,
-                    //     context,
-                    //   );
-                    // }
-                    // Navigator.push(
-                    //   context,
-                    //   MaterialPageRoute(
-                    //     builder:
-                    //         (context) => FundExportContract(
-                    //           kwikticket: widget.kwikticket,
-                    //         ),
-                    //   ),
-                    // );
-                    currentIndex = 3;
-                  }),
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => FundExportContract(
+                              kwikticket: widget.kwikticket,
+                              kwikTicketId: widget.kwikticket.id,
+                            ),
+                          ),
+                        );
+                        currentIndex = 3;
+                      },
+                      buttonChild: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            "Proceed to Kwikprocure",
+                            style: kwikTextStlye(
+                              14.0,
+                              FontWeight.w600,
+                              colorCodes.whiteSmoke,
+                            ),
+                          ),
+                          SizedBox(width: 8),
+                          Image.asset(
+                            "assets/images/icons/arrow-right.png",
+                            height: 18,
+                            width: 18,
+                          ),
+                        ],
+                      ),
+                    ),
                   SizedBox(height: 12),
                   kwikbutton(
                     "Back to Home",

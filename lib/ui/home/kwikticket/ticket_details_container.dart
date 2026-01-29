@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hexcolor/hexcolor.dart';
+import 'package:intl/intl.dart';
+import 'package:kwik_port/api/utils/money_util.dart';
 import 'package:kwik_port/colors/color.dart';
 import 'package:kwik_port/utils/button/kwik_button.dart';
 import 'package:kwik_port/utils/text/textstyle.dart';
@@ -14,8 +16,9 @@ Widget ticketDetailContainer(
 
   commodityCostPrice,
 
-  pricePerTon,
+   pricePerUnitInUSD,
   projectedIncome,
+  projectedIncomeInDollars,
   timeadded,
   kwiticketStatus,
   payforticketFunc,
@@ -84,12 +87,15 @@ Widget ticketDetailContainer(
         dataDetail("Export Item", "Contract Type", exportItem, contractType),
         SizedBox(height: 21.0),
         dataDetail(
-          "Selected Capacity",
+          "Quantity",
           "Destination",
           selectedCapacity,
           destination,
         ),
         SizedBox(height: 20.0),
+      
+    
+      
         Container(
           height: 115,
           width: 352,
@@ -100,6 +106,7 @@ Widget ticketDetailContainer(
           ),
           child: Column(
             children: [
+              // Commodity Cost Row (fixed)
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -112,7 +119,7 @@ Widget ticketDetailContainer(
                     ),
                   ),
                   Text(
-                    commodityCostPrice,
+                    MoneyUtils.formatMoney(commodityCostPrice,  decimalDigits: 2),
                     style: kwikTextStlye(
                       14.0,
                       FontWeight.w600,
@@ -123,28 +130,7 @@ Widget ticketDetailContainer(
                 ],
               ),
               SizedBox(height: 6),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    "Buyer Price/Ton",
-                    style: kwikTextStlye(
-                      12.0,
-                      FontWeight.w300,
-                      colorCodes.graniteGrey,
-                    ),
-                  ),
-                  Text(
-                    pricePerTon,
-                    style: kwikTextStlye(
-                      14.0,
-                      FontWeight.w600,
-                      colorCodes.textBlack,
-                      fontFamily: "",
-                    ),
-                  ),
-                ],
-              ),
+         
               SizedBox(height: 6),
               SizedBox(
                 width: 310,
@@ -164,14 +150,16 @@ Widget ticketDetailContainer(
                   ),
                   Row(
                     children: [
-                      Image.asset(
-                        "assets/images/icons/Trending up.png",
-                        height: 16,
-                        width: 16,
-                      ),
+                      // Image.asset(
+                      //   "assets/images/icons/Trending up.png",
+                      //   height: 16,
+                      //   width: 16,
+                      // ),
                       SizedBox(width: 5),
                       Text(
-                        projectedIncome,
+                          //"\₦${NumberFormat('#,##0.00').format(projectedIncome)}",
+
+                        MoneyUtils.formatMoney(projectedIncomeInDollars, symbol: '\$', decimalDigits: 2),
                         style: kwikTextStlye(
                           14.0,
                           FontWeight.w500,
@@ -240,7 +228,7 @@ Widget ticketDetailContainer(
                 border: Border.all(
                   width: 1.2,
                   color:
-                      kwiticketStatus == 1
+                      (kwiticketStatus == 1 || kwiticketStatus == 3)
                           ? colorCodes.bluetiful
                           : kwiticketStatus == 2
                           ? HexColor("#FFAA33")
@@ -250,7 +238,7 @@ Widget ticketDetailContainer(
                 ),
                 borderRadius: BorderRadius.circular(22),
                 color:
-                    kwiticketStatus == 1
+                    (kwiticketStatus == 1 || kwiticketStatus == 3)
                         ? colorCodes.bluetiful
                         : kwiticketStatus == 2
                         ? HexColor("#FFAA33")
@@ -267,10 +255,10 @@ Widget ticketDetailContainer(
                   //   width: 16,
                   // ),
                   Text(
-                    kwiticketStatus == 1
+                    (kwiticketStatus == 1 || kwiticketStatus == 3)
                         ? "Active"
                         : kwiticketStatus == 2
-                        ? "Awaiting"
+                        ? "Non-Active"
                         : kwiticketStatus == 5
                         ? "Fulfilled"
                         : "Cancelled",
@@ -284,6 +272,10 @@ Widget ticketDetailContainer(
               ),
             ),
           ],
+        ),
+         SizedBox(
+          width: 342,
+          
         ),
       ],
     ),
@@ -381,7 +373,7 @@ Widget exporttDetailContainer(
         dataDetail("Export Item", "Contract Type", exportItem, contractType),
         SizedBox(height: 21.0),
         dataDetail(
-          "Selected Capacity",
+          "Quantity",
           "Destination",
           selectedCapacity,
           destination,
@@ -480,6 +472,7 @@ Widget exporttDetailContainer(
                   ),
                 ],
               ),
+                SizedBox(width: 15),
             ],
           ),
         ),
@@ -502,7 +495,8 @@ Widget exporttDetailContainer(
                 ),
                 SizedBox(width: 5),
                 Text(
-                  "Est. completion: $completionDate",
+                  "Est. completion: ${completionDate.year}-${completionDate.month.toString().padLeft(2, '0')}-${completionDate.day.toString().padLeft(2, '0')}",
+// $completionDate",
                   style: kwikTextStlye(
                     12.0,
                     FontWeight.w500,
@@ -520,7 +514,9 @@ Widget exporttDetailContainer(
         ),
       ],
     ),
+
   );
+
 }
 
 dataDetail(title1, title2, detail1, detail2) {
@@ -556,3 +552,5 @@ dataDetail(title1, title2, detail1, detail2) {
     ],
   );
 }
+
+

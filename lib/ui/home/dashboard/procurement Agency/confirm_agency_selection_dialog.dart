@@ -19,6 +19,8 @@ class ConfirmAgencySelectionDialog extends StatefulWidget {
   final KwikTicketModel? kwikticket;
 
   final agencyName, serviceFee, totalcostTons, totalCost, agencyId;
+  final String? agencyFeeDisplay;
+  final int agencyType;
   const ConfirmAgencySelectionDialog({
     super.key,
     required this.serviceFee,
@@ -27,6 +29,8 @@ class ConfirmAgencySelectionDialog extends StatefulWidget {
     required this.agencyName,
     required this.kwikticket,
     required this.agencyId,
+    this.agencyFeeDisplay,
+    this.agencyType = 1,
   });
 
   @override
@@ -36,6 +40,19 @@ class ConfirmAgencySelectionDialog extends StatefulWidget {
 
 class _ConfirmAgencySelectionDialogState
     extends State<ConfirmAgencySelectionDialog> {
+  
+  @override
+  void initState() {
+    super.initState();
+    debugPrint('📋 ConfirmAgencySelectionDialog Received Values:');
+    debugPrint('  - Agency Name: ${widget.agencyName}');
+    debugPrint('  - Service Fee: ${widget.serviceFee}');
+    debugPrint('  - Total Cost Tons: ${widget.totalcostTons}');
+    debugPrint('  - Total Cost: ${widget.totalCost}');
+    debugPrint('  - Agency Fee Display: ${widget.agencyFeeDisplay}');
+    debugPrint('  - Agency ID: ${widget.agencyId}');
+  }
+  
   @override
   Widget build(BuildContext context) {
     final selectagencyProvider = Provider.of<ExportStageApi>(context);
@@ -137,7 +154,7 @@ class _ConfirmAgencySelectionDialogState
                                     MainAxisAlignment.spaceBetween,
                                 children: [
                                   Text(
-                                    "Service fee:",
+                                    "Service fee per ton:",
                                     textAlign: TextAlign.center,
                                     style: kwikTextStlye(
                                       14.0,
@@ -162,24 +179,36 @@ class _ConfirmAgencySelectionDialogState
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceBetween,
                                 children: [
-                                  Text(
-                                    "Total Cost (${widget.kwikticket?.quantityToFulfill} tons)",
-                                    textAlign: TextAlign.center,
-                                    style: kwikTextStlye(
-                                      10.0,
-                                      FontWeight.w500,
-                                      colorCodes.black,
-                                    ),
+                                  Builder(
+                                    builder: (context) {
+                                      final displayText = "Total Cost (${widget.totalcostTons ?? 0} tons)";
+                                      debugPrint('💰 Displaying Total Cost Text: $displayText');
+                                      return Text(
+                                        displayText,
+                                        textAlign: TextAlign.center,
+                                        style: kwikTextStlye(
+                                          10.0,
+                                          FontWeight.w500,
+                                          colorCodes.black,
+                                        ),
+                                      );
+                                    },
                                   ),
-                                  Text(
-                                    "${widget.kwikticket?.kwikTicketAmount}",
-                                    textAlign: TextAlign.center,
-                                    style: TextStyle(
-                                      fontFamily: "",
-                                      fontSize: 10.0,
-                                      fontWeight: FontWeight.w500,
-                                      color: colorCodes.black,
-                                    ),
+                                  Builder(
+                                    builder: (context) {
+                                      final displayValue = widget.agencyFeeDisplay ?? "\$0.00";
+                                      debugPrint('💵 Displaying Agency Fee: $displayValue');
+                                      return Text(
+                                        displayValue,
+                                        textAlign: TextAlign.center,
+                                        style: TextStyle(
+                                          fontFamily: "",
+                                          fontSize: 10.0,
+                                          fontWeight: FontWeight.w500,
+                                          color: colorCodes.black,
+                                        ),
+                                      );
+                                    },
                                   ),
                                 ],
                               ),
@@ -243,6 +272,16 @@ class _ConfirmAgencySelectionDialogState
                           final exportId = selectedExport.id;
 
                           debugPrint("✅ Selected Export ID: $exportId");
+                          debugPrint("🎯 Using Agency Type (original): ${widget.agencyType}");
+                          
+                          final stageTypeForApi = widget.agencyType;
+                          
+                          debugPrint("📤 PAYLOAD BEING SENT TO selectAgency API:");
+                          debugPrint("  ├─ exporterContractId: $exportId");
+                          debugPrint("  ├─ agencyId: ${widget.agencyId}");
+                          debugPrint("  ├─ stageType (agencyType): $stageTypeForApi");
+                          debugPrint("  └─ Full payload: {exporterContractId: $exportId, agencyId: ${widget.agencyId}, stageType: $stageTypeForApi}");
+                          
                           selectagencyProvider
                               .selectAgency(
                                 exporterContractId: exportId,
@@ -253,7 +292,7 @@ class _ConfirmAgencySelectionDialogState
                                 //
                                 // widget.kwikticket?.exporter?.id ?? '',
                                 agencyId: widget.agencyId,
-                                stageType: 2,
+                                stageType: stageTypeForApi,
                               )
                               .then((_) async {
                                 if (!mounted) return;
@@ -289,6 +328,9 @@ class _ConfirmAgencySelectionDialogState
                                     'procurementInProgress',
                                     true,
                                   );
+                                  // Mark selection done and hide banner persistently
+                                  await prefs.setBool('procurementSelected', true);
+                                  await prefs.setBool('showProcurement', false);
                                   await prefs.setBool(
                                     'procurementCompleted',
                                     false,
@@ -338,27 +380,13 @@ class _ConfirmAgencySelectionDialogState
                                     context: parentContext,
                                     builder: (BuildContext context) {
                                       return AgencySelectionConfirmedDialog(
+                                        kwikticket: widget.kwikticket,
+                                        exportData: selectedExport,
                                         serviceFee: "${widget.serviceFee}",
                                         totalcostTons:
-                                            "${widget.kwikticket?.quantityToFulfill}",
+                                          "${widget.totalcostTons ?? 0}",
                                         totalCost:
-                                            "${widget.kwikticket?.kwikTicketAmount}",
-                                        continueFunc: () async {
-                                          Navigator.push(
-                                            parentContext,
-                                            MaterialPageRoute(
-                                              builder:
-                                                  (_) => ExportJourneyScreen(
-                                                    kwikticket:
-                                                        widget.kwikticket,
-                                                    exporterContractId:
-                                                        exportId,
-                                                    // ?.exporterContractId ??
-                                                    // '',
-                                                  ),
-                                            ),
-                                          );
-                                        },
+                                          widget.agencyFeeDisplay ?? "\$0.00",
                                         agencyName: widget.agencyName,
                                       );
                                     },

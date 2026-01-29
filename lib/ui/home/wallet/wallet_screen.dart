@@ -2,12 +2,17 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:hexcolor/hexcolor.dart';
+import 'package:intl/intl.dart';
 import 'package:kwik_port/api/controller/home/dashboard_api.dart';
+import 'package:kwik_port/api/model/userModel.dart';
+import 'package:kwik_port/api/model/dashboard_model.dart';
 import 'package:kwik_port/colors/color.dart';
 import 'package:kwik_port/main.dart';
+import 'package:kwik_port/ui/home/contracts/request_contract_screen.dart';
 import 'package:kwik_port/ui/home/dashboard/name_and_notif_headng.dart';
 import 'package:kwik_port/ui/home/dashboard/notifcation/notification_screen.dart';
 import 'package:kwik_port/ui/home/dashboard/wallet_balance_container.dart';
+import 'package:kwik_port/ui/home/exportfulfillment/KycVerification/kyc_verification_screen.dart';
 import 'package:kwik_port/ui/home/wallet/fund_wallet_bottomsheet.dart';
 import 'package:kwik_port/ui/home/wallet/fund_wallet_screen.dart';
 import 'package:kwik_port/ui/home/wallet/wallet_balance_container.dart';
@@ -105,7 +110,7 @@ class _WalletScreenState extends State<WalletScreen> {
                           padding: const EdgeInsets.symmetric(horizontal: 6.0),
                           child: walletBalanceContainer(
                             showKwikwalletBalance == true
-                                ? "\$${walletBalance.toString()}"
+                                ? "\₦${NumberFormat('#,##0.00').format(walletBalance)}"
                                 : "••••••••",
 
                             "Kwik Balance",
@@ -114,7 +119,8 @@ class _WalletScreenState extends State<WalletScreen> {
                             HexColor("#061042"),
                             "assets/images/icons/dashboard/Union.png",
                             "2mins ago",
-                            "******KWP-2024-001",
+                            "${userDataVar?.exporterUniqueId}",//.exporter?.exporterUniqueId}",
+                            // "******KWP-2024-001",
                             showKwikwalletBalance,
                             () {
                               setState(() {
@@ -124,14 +130,14 @@ class _WalletScreenState extends State<WalletScreen> {
                           ),
                         ),
                         walletBalanceContainer(
-                          exportWalletBalance.toString(),
+                          "\$${NumberFormat('#,##0.00').format(exportWalletBalance)}",
                           "Export Wallet",
                           colorCodes.blackPurple,
                           colorCodes.blackPurple,
                           colorCodes.eggPlantPurple,
                           "assets/images/icons/dashboard/Union (1).png",
                           "2mins ago",
-                          "******KWP-2024-001",
+                          "${userDataVar?.exporter?.exporterUniqueId}",
                           showKwikexportBalance,
                           () {},
                         ),
@@ -174,13 +180,39 @@ class _WalletScreenState extends State<WalletScreen> {
                         quickActionsContainer(
                           "assets/images/icons/withdrawal.png",
                           "Withdrawal",
-                          () {},
+                          () {
+                            KwikTicketModel kwikticket = KwikTicketModel(
+                              id: "id",
+                              uniqueId: "uniqueId",
+                              kwikTicketAmount: 2000,
+                            );
+                            // Navigator.push(
+                            //   context,
+                            //   MaterialPageRoute(
+                            //     builder:
+                            //         (context) => 
+                            //         KycVerificationScreen(
+                            //           kwikticket: kwikticket,
+                            //         ),
+                            //   ),
+                            // );
+                          },
                           width: 72.0,
                         ),
                         quickActionsContainer(
                           "assets/images/icons/request.png",
                           "Request",
-                          () {},
+                          () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder:
+                                              (context) =>
+                                                  RequestContractScreen(),
+                                        ),
+                                      );
+                                      currentIndex = 2;
+                                    },
                           width: 70.0,
                         ),
                         quickActionsContainer(

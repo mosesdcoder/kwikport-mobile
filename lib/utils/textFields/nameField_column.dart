@@ -96,6 +96,7 @@ Widget kycnameFieldColumn(
   hintText,
   suffixIcon,
   maxLines,
+  textColor,
   maxLength,
 }) {
   return Column(
@@ -116,7 +117,7 @@ Widget kycnameFieldColumn(
           fontFamily: 'Poppins',
           fontSize: 12,
           fontWeight: FontWeight.w300,
-          color: colorCodes.graniteGrey,
+          color: textColor ?? colorCodes.graniteGrey,
         ),
         controller: controller,
         autocorrect: true,

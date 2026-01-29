@@ -75,6 +75,7 @@ class UserProfile {
   final String phoneNumber;
   final String businessName;
   final DateTime? createdAt;
+  final String exporterUniqueId;
 
   UserProfile({
     required this.id,
@@ -85,6 +86,7 @@ class UserProfile {
     required this.phoneNumber,
     required this.businessName,
     this.createdAt,
+    this.exporterUniqueId = '',
   });
 
   factory UserProfile.fromJson(Map<String, dynamic> json) {
@@ -98,6 +100,7 @@ class UserProfile {
       phoneNumber: json['phoneNumber'] ?? '',
       businessName: json['businessName'] ?? '',
       createdAt: created != null ? DateTime.tryParse(created) : null,
+      exporterUniqueId: json['exporterUniqueId'] ?? '',
     );
   }
   Map<String, dynamic> toJson() {
@@ -110,6 +113,7 @@ class UserProfile {
       'phoneNumber': phoneNumber,
       'businessName': businessName,
       'createdAt': createdAt?.toIso8601String(),
+      'exporterUniqueId': exporterUniqueId,
     };
   }
 }
@@ -396,7 +400,9 @@ class ContractModel {
   final String destinationCountry;
   final double? totalQuantity;
   final double? totalAmount;
+  final double? totalAmountInUSD;
   final double? totalAmountSpent;
+  final double? profitRatio;
   final double? projectedIncome;
   final double? pricePerUnitInUSD;
   final double? pricePerUnitInNGN;
@@ -417,6 +423,7 @@ class ContractModel {
   final int? contractDuration;
   final BuyerSpecification? buyerSpecification;
   final double? fulfillmentPercentage;
+  final int? exportNumberOfDays;
 
   ContractModel({
     required this.id,
@@ -432,6 +439,7 @@ class ContractModel {
     this.totalQuantity,
     this.totalAmount,
     this.totalAmountSpent,
+    this.profitRatio,
     this.projectedIncome,
     this.pricePerUnitInUSD,
     this.pricePerUnitInNGN,
@@ -452,6 +460,8 @@ class ContractModel {
     this.contractDuration,
     this.buyerSpecification,
     this.fulfillmentPercentage,
+    this.totalAmountInUSD,
+    this.exportNumberOfDays,
   });
 
   factory ContractModel.fromJson(Map<String, dynamic> json) {
@@ -475,6 +485,7 @@ class ContractModel {
       totalQuantity: (json['totalQuantity'] as num?)?.toDouble(),
       totalAmount: (json['totalAmount'] as num?)?.toDouble(),
       totalAmountSpent: (json['totalAmountSpent'] as num?)?.toDouble(),
+      profitRatio: (json['profitRatio'] as num?)?.toDouble(),
       projectedIncome: (json['projectedIncome'] as num?)?.toDouble(),
       pricePerUnitInUSD: (json['pricePerUnitInUSD'] as num?)?.toDouble(),
       pricePerUnitInNGN: (json['pricePerUnitInNGN'] as num?)?.toDouble(),
@@ -496,9 +507,7 @@ class ContractModel {
           json['contractFulfilmentMethod']?.toString() ?? '',
       // ),
       contractType: int.tryParse(json['contractType']?.toString() ?? ''),
-      contractCategory: int.tryParse(
-        json['contractCategory']?.toString() ?? '',
-      ),
+      contractCategory: _parseCategoryStringToInt(json['contractCategory']),
       contractDuration: int.tryParse(
         json['contractDuration']?.toString() ?? '',
       ),
@@ -508,6 +517,10 @@ class ContractModel {
               : null,
       fulfillmentPercentage:
           (json['fulfillmentPercentage'] as num?)?.toDouble(),
+      totalAmountInUSD: (json['totalAmountInUSD'] as num?)?.toDouble(),
+      exportNumberOfDays: int.tryParse(
+        json['exportNumberOfDays']?.toString() ?? '',
+      ),
     );
   }
 
@@ -527,7 +540,8 @@ class ContractModel {
     'totalAmountSpent': totalAmountSpent,
     'projectedIncome': projectedIncome,
     'pricePerUnitInUSD': pricePerUnitInUSD,
-    'pricePerUnitInNGN':pricePerUnitInNGN,
+    'pricePerUnitInNGN': pricePerUnitInNGN,
+    'profitRatio': profitRatio,
     'fulfilledQuantity': fulfilledQuantity,
     'contractStatus': contractStatus,
     'exportStage': exportStage,
@@ -545,6 +559,8 @@ class ContractModel {
     'contractDuration': contractDuration,
     'buyerSpecification': buyerSpecification?.toJson(),
     'fulfillmentPercentage': fulfillmentPercentage,
+    'totalAmountInUSD': totalAmountInUSD,
+    'exportNumberOfDays': exportNumberOfDays,
   };
 }
 
@@ -580,14 +596,24 @@ class ExportSummaryModel {
   final String exporterId;
   final String commodityName;
   final double totalQuantity;
-  final double contractTotal;
+  final double contractTotalAmount;
   final double grossEarning;
   final double totalAmountSpent;
   final String contractFulfilmentMethod;
   final String exportContractStage;
   final DateTime createdAt;
   final DateTime? completedAt;
-  final KwikTicketModel? kwikTickets;
+  final KwikTicketModel? kwikTicket;
+  final String buyerName;
+  final DateTime? estimatedCompletionDate;
+  final double exportNumberOfDays;
+  final String destinationCountry;
+  final String contractUniqueId;
+  final double? selectedCapacity;
+  final String? contractType;
+  final CurrentStageInfo? currentStageInfo;
+  final String exporterContractId;
+  final bool isInProgress;
 
   ExportSummaryModel({
     required this.id,
@@ -595,14 +621,24 @@ class ExportSummaryModel {
     required this.exporterId,
     required this.commodityName,
     required this.totalQuantity,
-    required this.contractTotal,
+    required this.contractTotalAmount,
     required this.grossEarning,
     required this.totalAmountSpent,
     required this.contractFulfilmentMethod,
     required this.exportContractStage,
     required this.createdAt,
     this.completedAt,
-    required this.kwikTickets,
+    this.kwikTicket,
+    required this.buyerName,
+    this.estimatedCompletionDate,
+    required this.exportNumberOfDays,
+    required this.destinationCountry,
+    required this.contractUniqueId,
+    this.selectedCapacity,
+    this.contractType,
+    this.currentStageInfo,
+    required this.exporterContractId,
+    this.isInProgress = false,
   });
 
   factory ExportSummaryModel.fromJson(Map<String, dynamic> json) {
@@ -612,7 +648,7 @@ class ExportSummaryModel {
       exporterId: json['exporterId'] ?? '',
       commodityName: json['commodityName'] ?? '',
       totalQuantity: (json['totalQuantity'] ?? 0).toDouble(),
-      contractTotal: (json['contractTotal'] ?? 0).toDouble(),
+      contractTotalAmount: (json['contractTotalAmount'] ?? 0).toDouble(),
       grossEarning: (json['grossEarning'] ?? 0).toDouble(),
       totalAmountSpent: (json['totalAmountSpent'] ?? 0).toDouble(),
       contractFulfilmentMethod: json['contractFulfilmentMethod'] ?? '',
@@ -622,10 +658,26 @@ class ExportSummaryModel {
           json['completedAt'] != null
               ? DateTime.tryParse(json['completedAt'])
               : null,
-      kwikTickets:
-          json['kwikTickets'] != null
-              ? KwikTicketModel.fromJson(json['kwikTickets'])
+      kwikTicket:
+          json['kwikTicket'] != null
+              ? KwikTicketModel.fromJson(json['kwikTicket'])
               : null,
+      buyerName: json['buyerName'] ?? '',
+      estimatedCompletionDate:
+          json['estimatedCompletionDate'] != null
+              ? DateTime.tryParse(json['estimatedCompletionDate'])
+              : null,
+      exportNumberOfDays: (json['exportNumberOfDays'] ?? 0).toDouble(),
+      destinationCountry: json['destinationCountry'] ?? '',
+      contractUniqueId: json['contractUniqueId'] ?? '',
+      selectedCapacity: (json['selectedCapacity'] ?? 0).toDouble(),
+      contractType: json['contractType'],
+      currentStageInfo:
+          json['currentStageInfo'] != null
+              ? CurrentStageInfo.fromJson(json['currentStageInfo'])
+              : null,
+      exporterContractId: json['exporterContractId'] ?? '',
+      isInProgress: json['isInProgress'] ?? false,
     );
   }
 
@@ -635,13 +687,126 @@ class ExportSummaryModel {
     'exporterId': exporterId,
     'commodityName': commodityName,
     'totalQuantity': totalQuantity,
-    'contractTotal': contractTotal,
+    'contractTotalAmount': contractTotalAmount,
     'grossEarning': grossEarning,
     'totalAmountSpent': totalAmountSpent,
     'contractFulfilmentMethod': contractFulfilmentMethod,
     'exportContractStage': exportContractStage,
     'createdAt': createdAt.toIso8601String(),
     'completedAt': completedAt?.toIso8601String(),
-    'kwikTickets': kwikTickets?.toJson(),
+    'kwikTicket': kwikTicket?.toJson(),
+    'buyerName': buyerName,
+    'estimatedCompletionDate': estimatedCompletionDate?.toIso8601String(),
+    'exportNumberOfDays': exportNumberOfDays,
+    'destinationCountry': destinationCountry,
+    'contractUniqueId': contractUniqueId,
+    'selectedCapacity': selectedCapacity ?? 0.0,
+    'contractType': contractType,
+    'currentStageInfo': currentStageInfo?.toJson(),
+    'exporterContractId': exporterContractId,
+    'isInProgress': isInProgress,
   };
+}
+
+// Helper function to convert category string to integer
+int? _parseCategoryStringToInt(dynamic category) {
+  if (category == null) return null;
+
+  final categoryStr = category.toString().toLowerCase();
+
+  switch (categoryStr) {
+    case 'agriculture':
+      return 1;
+    case 'cosmetics':
+      return 2;
+    case 'textile':
+      return 3;
+    case 'construction':
+      return 4;
+    case 'other':
+      return 5;
+    default:
+      // Try parsing as int if it's already a number
+      return int.tryParse(category.toString());
+  }
+}
+
+class CurrentStageInfo {
+  final String mainStage;
+  final List<SubStageInfo> allSubStages;
+
+  CurrentStageInfo({required this.mainStage, required this.allSubStages});
+
+  factory CurrentStageInfo.fromJson(Map<String, dynamic> json) {
+    List<SubStageInfo> subStages = [];
+    if (json['allSubStages'] != null) {
+      final List<dynamic> subStagesList = json['allSubStages'] as List<dynamic>;
+      subStages = List<SubStageInfo>.from(
+        subStagesList.map(
+          (e) => SubStageInfo.fromJson(e as Map<String, dynamic>),
+        ),
+      );
+    }
+    return CurrentStageInfo(
+      mainStage: json['mainStage'] ?? '',
+      allSubStages: subStages,
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+    'mainStage': mainStage,
+    'allSubStages': allSubStages.map((e) => e.toJson()).toList(),
+  };
+}
+
+class SubStageInfo {
+  final String subStageId;
+  final String subStageName;
+  final int subStageOrder;
+  final int estimatedDays;
+  final bool isCompleted;
+  final bool isCurrent;
+  final String? startDate;
+  final String? completedDate;
+  final String? estimatedCompletionDate;
+
+  SubStageInfo({
+    required this.subStageId,
+    required this.subStageName,
+    required this.subStageOrder,
+    required this.estimatedDays,
+    required this.isCompleted,
+    required this.isCurrent,
+    this.startDate,
+    this.completedDate,
+    this.estimatedCompletionDate,
+  });
+
+  factory SubStageInfo.fromJson(Map<String, dynamic> json) {
+    return SubStageInfo(
+      subStageId: json['subStageId'] ?? '',
+      subStageName: json['subStageName'] ?? '',
+      subStageOrder: json['subStageOrder'] ?? 0,
+      estimatedDays: json['estimatedDays'] ?? 0,
+      isCompleted: json['isCompleted'] ?? false,
+      isCurrent: json['isCurrent'] ?? false,
+      startDate: json['startDate'],
+      completedDate: json['completedDate'],
+      estimatedCompletionDate: json['estimatedCompletionDate'],
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'subStageId': subStageId,
+      'subStageName': subStageName,
+      'subStageOrder': subStageOrder,
+      'estimatedDays': estimatedDays,
+      'isCompleted': isCompleted,
+      'isCurrent': isCurrent,
+      'startDate': startDate,
+      'completedDate': completedDate,
+      'estimatedCompletionDate': estimatedCompletionDate,
+    };
+  }
 }
