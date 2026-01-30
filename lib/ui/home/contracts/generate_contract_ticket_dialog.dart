@@ -264,7 +264,7 @@ class _GenerateContractTicketDialogState
                   SizedBox(height: 24),
 
                   marketRateContainer(
-                    "${MoneyUtils.formatMoney(widget.contract.pricePerUnitInNGN?.toStringAsFixed(2) ?? 'N/A') }",
+                    "${MoneyUtils.formatMoney(widget.contract.pricePerUnitInNGN?.toStringAsFixed(2) ?? 'N/A')}",
                     "Total Cost (${volumeController.text} tons)",
                     "${MoneyUtils.formatMoney(totalCost?.toStringAsFixed(2) ?? '0')}",
                     volumeController.text,
@@ -296,9 +296,11 @@ class _GenerateContractTicketDialogState
                                 volumeController.text,
                               );
                               savePendingTicket(newTicket.uniqueId!);
-
-                              Navigator.push(
-                                context,
+                              // ✅ Close dialog FIRST
+                              Navigator.of(context).pop();
+                              Navigator.of(context, rootNavigator: true).push(
+                                // Navigator.push(
+                                // context,
                                 MaterialPageRoute(
                                   builder:
                                       (_) => KwikticketCreatedSuccessfully(
@@ -307,6 +309,9 @@ class _GenerateContractTicketDialogState
                                 ),
                               );
                             } else {
+                              print(
+                                "error message: ${createTicketApi.message}",
+                              );
                               showToastContainer(
                                 "Error",
                                 createTicketApi.message,
@@ -371,7 +376,7 @@ Widget marketRateContainer(pricePerTon, totalCost, totalCostPrice, volume) {
               ),
             ),
             Text(
-              "${(pricePerTon)}",// pricePerTon}",
+              "${(pricePerTon)}", // pricePerTon}",
               style: kwikTextStlye(
                 14.0,
                 FontWeight.w600,

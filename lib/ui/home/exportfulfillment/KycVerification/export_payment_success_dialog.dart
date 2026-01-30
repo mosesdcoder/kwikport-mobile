@@ -6,6 +6,8 @@ import 'package:kwik_port/api/model/dashboard_model.dart';
 import 'package:kwik_port/api/utils/money_util.dart';
 import 'package:kwik_port/colors/color.dart';
 import 'package:kwik_port/ui/home/dashboard/dashboard.dart';
+import 'package:kwik_port/ui/home/dashboard/exportJourney/current_export_stage_screen.dart';
+import 'package:kwik_port/ui/home/dashboard/exportJourney/procurement_stage_screen.dart';
 import 'package:kwik_port/ui/home/dashboard/procurement%20Agency/select_procurement_agency_screen.dart';
 import 'package:kwik_port/utils/button/kwik_button.dart';
 import 'package:kwik_port/utils/text/textstyle.dart';
@@ -14,7 +16,12 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class ExportPaymentSucessfulDialog extends StatefulWidget {
   final KwikTicketModel kwikticket;
-  const ExportPaymentSucessfulDialog({super.key, required this.kwikticket});
+  final exportData;
+  const ExportPaymentSucessfulDialog({
+    super.key,
+    required this.kwikticket,
+    required this.exportData,
+  });
 
   @override
   State<ExportPaymentSucessfulDialog> createState() =>
@@ -223,15 +230,19 @@ class _ExportPaymentSucessfulDialogState
               () {
                 // Pop the dialog first
                 Navigator.of(context).pop();
-                
+
                 // Then navigate to the new screen
                 Navigator.push(
                   context,
                   MaterialPageRoute(
                     builder:
-                        (context) => SelectProcurementAgencyScreen(
+                        (context) =>
+                        // CurrentExportStageScreen(
+                        SelectProcurementAgencyScreen(
                           kwikticket: widget.kwikticket,
-                          agencyType: 1, // 1 = Procurement Agency
+                          // exportData: widget.exportData,
+
+                          // agencyType: 1, // 1 = Procurement Agency
                         ),
                   ),
                 );

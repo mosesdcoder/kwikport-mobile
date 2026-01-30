@@ -16,6 +16,7 @@ class ExportPaymentConfirmed extends StatefulWidget {
   final String referenceNumber;
   final String dateTime;
   // final String amountPaid;
+  // final exportData;
   final String paymentMethod;
 
   const ExportPaymentConfirmed({
@@ -23,7 +24,7 @@ class ExportPaymentConfirmed extends StatefulWidget {
     required this.kwikticket,
     required this.referenceNumber,
     required this.dateTime,
-    // required this.amountPaid,
+    // required this.exportData,
     required this.paymentMethod,
   });
 
@@ -32,10 +33,50 @@ class ExportPaymentConfirmed extends StatefulWidget {
 }
 
 class _ExportPaymentConfirmedState extends State<ExportPaymentConfirmed> {
+  _getExportData(BuildContext context) {
+    final dashboardApi = Provider.of<DashboardApi>(context, listen: false);
+
+    final exports = dashboardApi.data?.exports ?? [];
+
+    if (exports.isEmpty) {
+      throw Exception("No exports found on dashboard");
+    }
+
+    // Prefer CommoditySourcing stage (same logic used elsewhere)
+    final activeExports =
+        exports
+            .where((e) => e.exportContractStage == "CommoditySourcing")
+            .toList();
+
+    activeExports.sort((a, b) {
+      final aDate = a.createdAt ?? DateTime(1970);
+      final bDate = b.createdAt ?? DateTime(1970);
+      return bDate.compareTo(aDate);
+    });
+
+    return activeExports.isNotEmpty ? activeExports.first : exports.first;
+  }
+  // final dashboardApi = Provider.of<DashboardApi>(context, listen: false);
+  //                                         await dashboardApi.fetchDashboard();
+
+  //                                         final export = dashboardApi.data?.exports.firstWhere(
+  //                                           (e) => e.contractId == exportId,
+  //                                           orElse: () => throw Exception("Export not found"),
+  //                                         );
+  String? exportData;
   @override
   void initState() {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      Future.delayed(Duration(seconds: 2), () {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (!mounted) return;
+
+      try {
+        exportData = _getExportData(context);
+      } catch (e) {
+        debugPrint("❌ Export lookup failed: $e");
+        return;
+      }
+
+      await Future.delayed(Duration(seconds: 2), () {
         if (!mounted) return;
         // Timer(Duration(seconds: 2), () async {
         showDialog(
@@ -43,7 +84,10 @@ class _ExportPaymentConfirmedState extends State<ExportPaymentConfirmed> {
           context: context,
 
           builder: (BuildContext context) {
-            return ExportPaymentSucessfulDialog(kwikticket: widget.kwikticket);
+            return ExportPaymentSucessfulDialog(
+              kwikticket: widget.kwikticket,
+              exportData: exportData,
+            );
           },
         );
         // } else {

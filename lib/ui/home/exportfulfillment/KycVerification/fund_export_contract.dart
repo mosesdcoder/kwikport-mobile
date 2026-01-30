@@ -56,6 +56,7 @@ class _FundExportContractState extends State<FundExportContract> {
   late WebViewController _controller;
   bool _isLoading = true;
   bool showWebView = false;
+
   @override
   void initState() {
     super.initState();
@@ -109,6 +110,7 @@ class _FundExportContractState extends State<FundExportContract> {
                   dateTime: formattedDateTime.toString(),
                   // amountPaid:widget.,
                   paymentMethod: fundTicketApi.provider!,
+                  // exportData: export,
                 ),
           ),
         );
@@ -134,6 +136,10 @@ class _FundExportContractState extends State<FundExportContract> {
   @override
   Widget build(BuildContext context) {
     final dashboardApi = Provider.of<DashboardApi>(context, listen: false);
+    // final export = dashboardApi.data?.exports.firstWhere(
+    //   (e) => e.contractId == exportContractId,
+    //   orElse: () => throw Exception("Export not found"),
+    // );
     final fundTicketApi = Provider.of<FundKwikticketApi>(
       context,
       listen: false,
@@ -594,9 +600,10 @@ class _FundExportContractState extends State<FundExportContract> {
                                   .then((_) {
                                     Navigator.pop(context);
 
-                                    if (fundTicketApi.isSuccessful == true &&
-                                        fundTicketApi.authorizationUrl !=
-                                            null) {
+                                    if (fundTicketApi.isSuccessful == true
+                                    // &&   fundTicketApi.authorizationUrl !=
+                                    //         null
+                                    ) {
                                       debugPrint(
                                         "Fund Ticket id: ${widget.kwikticket.id}",
                                       );
@@ -683,6 +690,7 @@ class _FundExportContractState extends State<FundExportContract> {
                             }
                           }
                         },
+                        fontFamily: "",
                         enabled:
                             (selectKwikBalance || selectCardTransfer) &&
                             checkterms, // Use enabled property

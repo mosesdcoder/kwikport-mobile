@@ -50,7 +50,7 @@ class _KwikticketScreenState extends State<KwikticketScreen> {
                 height: 96,
                 width: 113,
               ),
-              SizedBox(height: 40),
+              SizedBox(height: 30),
               Text(
                 "Kwikticket ",
                 style: kwikTextStlye(24.0, FontWeight.w600, colorCodes.black),
@@ -96,7 +96,7 @@ class _KwikticketScreenState extends State<KwikticketScreen> {
               ),
               SizedBox(height: 10),
               Container(
-                height: 485,
+                height: 492,
                 width: 390,
                 padding: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
                 decoration: BoxDecoration(

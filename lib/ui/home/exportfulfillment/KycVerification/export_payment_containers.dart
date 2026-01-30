@@ -105,6 +105,7 @@ Widget paymentContainer(
                       12.0,
                       subtitlefontweight ?? FontWeight.w500,
                       subtitlecolor ?? colorCodes.graniteGrey,
+                      fontFamily: "",
                     ),
                   ),
                 ],
@@ -170,7 +171,6 @@ Widget bankDetailColumn(title, detail, func, {suffix}) {
         width: 323,
         child: Divider(color: HexColor("#E0E0E0"), thickness: 1.2),
       ),
-      
     ],
   );
 }

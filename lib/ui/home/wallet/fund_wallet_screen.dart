@@ -168,6 +168,22 @@ class _FundWalletScreenState extends State<FundWalletScreen> {
                         ),
                         child: Stack(
                           children: [
+                            Positioned(
+                              top: 0,
+                              right: 0,
+                              bottom: 1,
+                              // left: 1,
+                              child: Image.asset(
+                                "assets/images/icons/Union (2).png",
+                                height: 216,
+                                width: 216,
+                              ),
+                            ),
+                            Positioned(
+                              child: Image.asset(
+                                "assets/images/Group 3016006.png",
+                              ),
+                            ),
                             Container(
                               alignment: Alignment.center,
                               decoration: BoxDecoration(
@@ -219,23 +235,6 @@ class _FundWalletScreenState extends State<FundWalletScreen> {
                                 ),
                               ),
                             ),
-
-                            Positioned(
-                              top: 0,
-                              right: 0,
-                              bottom: 1,
-                              // left: 1,
-                              child: Image.asset(
-                                "assets/images/icons/Union (2).png",
-                                height: 216,
-                                width: 216,
-                              ),
-                            ),
-                            Positioned(
-                              child: Image.asset(
-                                "assets/images/Group 3016006.png",
-                              ),
-                            ),
                           ],
                         ),
                       ),
@@ -244,8 +243,8 @@ class _FundWalletScreenState extends State<FundWalletScreen> {
                       fundWalletColumn(
                         "Enter Amount",
                         "",
-                      
-                         fundAccountfield,
+
+                        fundAccountfield,
                         "₦1000",
                         (value) {
                           // Remove commas
@@ -493,9 +492,10 @@ class _FundWalletScreenState extends State<FundWalletScreen> {
       onTap: selctFunc,
       child: Container(
         height: 35,
-        width: 110,
+        width: 100,
         decoration: BoxDecoration(
           color: colorCodes.white,
+
           borderRadius: BorderRadius.circular(8),
           border: Border.all(width: 1.0, color: colorCodes.antiFlashWhite),
         ),

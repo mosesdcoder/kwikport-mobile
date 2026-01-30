@@ -111,7 +111,7 @@ class _BottomnavigationbarState extends State<Bottomnavigationbar> {
                       screen,
                       style: kwikTextStlye(
                         12.0,
-                        FontWeight.w600,
+                        FontWeight.w500,
                         colorCodes.azureBlue,
                       ),
                     ),

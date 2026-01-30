@@ -84,7 +84,7 @@ Widget fundWalletColumn(
           fontFamily: 'Poppins',
           fontSize: 12,
           fontWeight: FontWeight.w300,
-          color: colorCodes.graniteGrey,
+          color: colorCodes.black,
         ),
         controller: controller,
         autocorrect: true,
@@ -96,7 +96,7 @@ Widget fundWalletColumn(
           hintText: hintText,
           hintStyle: TextStyle(
             fontFamily: '',
-            color: colorCodes.graniteGrey,
+            color: colorCodes.black,
             fontSize: 12,
             fontWeight: FontWeight.w300,
           ),
