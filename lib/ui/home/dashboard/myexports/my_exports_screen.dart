@@ -2,11 +2,15 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:kwik_port/api/controller/contractsApi/publishedcontractsApi.dart';
 import 'package:kwik_port/api/controller/home/dashboard_api.dart';
 import 'package:kwik_port/api/controller/kwikTickets/get_kwik_ticket_api.dart';
+import 'package:kwik_port/api/model/contractModel.dart';
 import 'package:kwik_port/api/model/dashboard_model.dart';
+import 'package:kwik_port/api/utils/money_util.dart';
 import 'package:kwik_port/colors/color.dart';
 import 'package:kwik_port/ui/home/dashboard/exportJourney/current_export_stage_screen.dart';
+import 'package:kwik_port/ui/home/dashboard/exportJourney/export_journey_screen.dart';
 import 'package:kwik_port/ui/home/dashboard/myexports/my_espoort_utils.dart';
 import 'package:kwik_port/ui/home/kwikticket/ticket_details_container.dart';
 import 'package:kwik_port/utils/button/bottom_navigatior_bar.dart';
@@ -53,11 +57,20 @@ class _MyExportsScreenState extends State<MyExportsScreen>
 
   @override
   Widget build(BuildContext context) {
+    final contractProvider = Provider.of<GetContractApi>(context);
+    final contracts = contractProvider.contracts ?? [];
+
+    // Example: Access totalAmountInUSD for each contract (like in dashboard.dart)
+    // contracts.forEach((contract) {
+    //   final formattedAmount = MoneyUtils.formatMoney(contract.totalAmountInUSD, symbol: "\$", decimalDigits: 2);
+    //   print(formattedAmount);
+    // });
     final dashboardApi = Provider.of<DashboardApi>(context);
     final exports = dashboardApi.data?.exports ?? [];
     final activeTickets =
         dashboardApi?.activeKwikTicketsCount ?? 0; //.data?.exports.length ?? 0;
     final completed = dashboardApi.completedExportsCount;
+    final activeExports = dashboardApi.activeExportsCount;
 
     return Scaffold(
       extendBody: true,
@@ -126,7 +139,7 @@ class _MyExportsScreenState extends State<MyExportsScreen>
                           contractStatusContainer(
                             "assets/images/icons/Trending up (1).png",
                             "Active Contracts",
-                            activeTickets.toString(),
+                            activeExports.toString(),
                           ),
                           SizedBox(width: 20),
                           contractStatusContainer(
@@ -137,20 +150,19 @@ class _MyExportsScreenState extends State<MyExportsScreen>
                         ],
                       ),
                       SizedBox(height: 15),
-                      myexportTabbar(_tabController, activeTickets, completed),
+                      myexportTabbar(_tabController, activeExports, completed),
                       SizedBox(height: 19),
                       SizedBox(
-                        // height: 325 * dashboardApi.data?.exports.length??,
-                        height:
-                            (_tabController.index == 0
-                                    ? exports
-                                        .where((e) => e.completedAt == null)
-                                        .length
-                                    : exports
-                                        .where((e) => e.completedAt != null)
-                                        .length)
-                                .toDouble() *
-                            458,
+                        height: (((_tabController.index == 0
+                                        ? exports
+                                            .where((e) => e.completedAt == null)
+                                            .length
+                                        : exports
+                                            .where((e) => e.completedAt != null)
+                                            .length) *
+                                    458)
+                                .toDouble())
+                            .clamp(200.0, 10000.0), // Minimum 200, max 10000
                         child: TabBarView(
                           controller: _tabController,
                           physics: NeverScrollableScrollPhysics(),
@@ -158,10 +170,9 @@ class _MyExportsScreenState extends State<MyExportsScreen>
                             _buildExportList(
                               dashboardApi,
                               statusFilter: "Active",
-                            ), //
+                            ),
                             _buildExportList(
                               dashboardApi,
-
                               statusFilter: "Completed",
                             ),
                           ],
@@ -175,6 +186,7 @@ class _MyExportsScreenState extends State<MyExportsScreen>
           ),
         ],
       ),
+
       bottomNavigationBar: Bottomnavigationbar(2),
     );
   }
@@ -197,8 +209,12 @@ class _MyExportsScreenState extends State<MyExportsScreen>
     DashboardApi dashboardApi, {
     required String statusFilter,
   }) {
+    final contractProvider = Provider.of<GetContractApi>(
+      context,
+      listen: false,
+    );
+    final contracts = contractProvider.contracts ?? [];
     final kwikTickets = dashboardApi.data?.kwikTickets ?? [];
-
     final exports = dashboardApi.data?.exports ?? [];
     // ✅ Filter exports by status
     // Filter by status
@@ -252,32 +268,63 @@ class _MyExportsScreenState extends State<MyExportsScreen>
             kwikTickets
                 .where((ticket) => ticket.exportContractId == export.contractId)
                 .toList();
+        // Try to find the matching contract for this export
+        print('DEBUG: export.contractId = ${export.contractId}');
+        print(
+          'DEBUG: contractId = ${contracts.map((c) => c..contractId).toList()}',
+        );
+        print(
+          'DEBUG: contracts.map((c) => c.contractId) = ${contracts.map((c) => c.id).toList()}',
+        );
+        ContractModel? contract;
+        try {
+          contract = contracts.firstWhere(
+            (c) => c.id?.trim() == export.contractId?.trim(),
+          );
+        } catch (e) {
+          print(
+            'No contract match for export.contractId: \'${export.contractId}\'',
+          );
+          print(
+            'Available contractIds: \'${contracts.map((c) => c.id).toList()}\'',
+          );
+          contract = null;
+        }
+        print(
+          'Matching contract for export.contractId \'${export.contractId}\': $contract',
+        );
         return exporttDetailContainer(
-          // "", //
           export?.contractUniqueId ?? "Unknown",
-          // "", //
           export?.commodityName ?? "Unknown Commodity",
           (export?.kwikTicket?.contract?.contractType == 1
               ? "International Buyer"
               : "Local Buyer"),
-          // "", //
-          export?.selectedCapacity.toString() ?? "0",
+          export?.kwikTicket?.quantityToFulfill.toString() ?? "0",
           export?.destinationCountry ?? "N/A",
-          "", // (export?.totalAmountSpent?.toString() ?? ""),
-          export
-              .buyerName, // // "", //          ticket.kwikTicketAmount.toString()),
-          "\₦${NumberFormat('#,##0.00').format(export.contractTotalAmount)}",
-          // export.contractTotalAmount.toString() ?? "0", // (export?.buyerSpecification?.buyerName?.toString() ?? "N/A"),
+          "",
+          export.buyerName,
+          contract != null
+              ? "${MoneyUtils.formatMoney(contract.totalAmountInUSD, symbol: "\$")}"
+              : "N/A",
           export.estimatedCompletionDate,
           export.completedAt == null ? true : false,
           () {
+            print("==========================================");
+            print("🔍 Navigating to ExportJourneyScreen");
+            print("📋 Export Contract ID: \\${export.exporterContractId}");
+            print("📋 Contract Unique ID: \\${export.contractUniqueId}");
+            print("📋 Commodity: \\${export.commodityName}");
+            print("📋 Buyer: \\${export.buyerName}");
+            print("📋 Index: $index of \\${filteredExports.length} exports");
+            print("==========================================");
             Navigator.push(
               context,
               MaterialPageRoute(
                 builder:
-                    (_) => CurrentExportStageScreen(
-                      exportData: export,
+                    (_) => ExportJourneyScreen(
                       kwikticket: kwikTickets.first,
+                      exporterContractId: export.exporterContractId ?? "",
+                      exportData: export,
                     ),
               ),
             );

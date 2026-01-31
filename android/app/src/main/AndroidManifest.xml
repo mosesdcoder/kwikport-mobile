@@ -1,17 +1,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"  package="com.kwikport.app">
         <!-- Allow HTTP/Internet access -->
     <uses-permission android:name="android.permission.INTERNET" />
-    
-    <!-- Camera Permission -->
-    <uses-permission android:name="android.permission.CAMERA" />
-    
-    <!-- Storage Permissions for different Android versions -->
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="32" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" android:maxSdkVersion="28" />
-    
-    <!-- Android 13+ Photo Permission -->
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
-    
+<uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+<uses-permission android:name="android.permission.CAMERA" />
     <application
         android:label="kwik_port"
         android:name="${applicationName}"

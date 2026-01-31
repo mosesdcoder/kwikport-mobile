@@ -230,7 +230,7 @@ class _FundExportContractState extends State<FundExportContract> {
                                 ),
                               ],
                             ),
-                            SizedBox(height: 30),
+                            SizedBox(height: 20),
                             SizedBox(
                               width: 353,
                               child: Divider(
@@ -327,8 +327,8 @@ class _FundExportContractState extends State<FundExportContract> {
                                     "Estimated return on successful completion",
                                     style: kwikTextStlye(
                                       10.0,
-                                      FontWeight.w300,
-                                      colorCodes.pigmentGreen,
+                                      FontWeight.w500,
+                                      colorCodes.mediumSeaGreen,
                                     ),
                                   ),
                                 ],

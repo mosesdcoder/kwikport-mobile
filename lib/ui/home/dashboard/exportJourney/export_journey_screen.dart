@@ -10,9 +10,7 @@ import 'package:kwik_port/colors/color.dart';
 import 'package:kwik_port/main.dart';
 import 'package:kwik_port/ui/home/dashboard/dashboard.dart';
 import 'package:kwik_port/ui/home/dashboard/exportJourney/export_complete_screen.dart';
-import 'package:kwik_port/ui/home/dashboard/exportJourney/export_stage_screen.dart';
 import 'package:kwik_port/ui/home/dashboard/exportJourney/journey_Subtitle_list.dart';
-import 'package:kwik_port/ui/home/dashboard/exportJourney/journey_check_list.dart';
 import 'package:kwik_port/ui/home/dashboard/exportJourney/packaging_and_documentation.dart';
 import 'package:kwik_port/ui/home/profile/export_accordion.dart';
 import 'package:kwik_port/utils/button/back_nav_header.dart';
@@ -50,31 +48,12 @@ class _ExportJourneyScreenState extends State<ExportJourneyScreen> {
   bool agencySelected = false;
   bool isLoading = true;
 
-  // Map API stage names to UI index
-  final Map<String, int> stageNameToIndex = {
-    "CommoditySourcing": 0,
-    "PackagingQualityControlAndDocumentation": 1,
-    "Logistics": 2,
-    "FreightForwarding": 3,
-    "FinalExport": 4,
-    "Payout": 5,
-  };
-
-  // Map API stage names to UI titles
-  final Map<String, String> stageNameToTitle = {
-    "CommoditySourcing": "Procurement 🏭",
-    "PackagingQualityControlAndDocumentation": "Packaging, Quality Control & Documentation 📋",
-    "Logistics": "Logistics 🚚",
-    "FreightForwarding": "Freight Forwarding (Port Clearance & Vessel Loading) ⚓",
-    "FinalExport": "Final Export 🌍",
-  };
-
   List<String> statusTexts = [
-    "Pending", // Procurement
-    "Pending", // Packaging
-    "Pending", // Logistics
-    "Pending", // Freight Forwarding
-    "Pending", // Final Export
+    "Pending",
+    "Pending",
+    "Pending",
+    "Pending",
+    "Pending",
   ];
   final List<List<String>> stageSubTitles = [
     procurementSubTitles,
@@ -87,23 +66,23 @@ class _ExportJourneyScreenState extends State<ExportJourneyScreen> {
   // int selectedMainStage = 1; // you can change depending on stage
 
   final List<String> _stageTitles = [
-    "Procurement 🏭",
-    "Packaging, Quality Control & Documentation 📋",
-    "Logistics 🚚",
-    "Freight Forwarding (Port Clearance & Vessel Loading) ⚓",
-    "Final Export 🌍",
+    "Procurement",
+    "Packaging, Quality Control & Documentation",
+    "Logistics",
+    "Freight Forwarding ",
+    "Final Export",
   ];
 
   late List<StageStatus> stageStates;
-  int? currentStageIndex;
-  String? currentStageName;
-  List<SubStageInfo> currentSubStages = [];
+  int selectedMainStage = 2;
 
   Timer? _autoRefreshTimer;
+  Map<int, List<ExportSubStageModel>> stageSubStages = {};
   @override
   void initState() {
     super.initState();
 
+    // Try to load cached state first for instant UI
     stageStates = [
       StageStatus.pending,
       StageStatus.pending,
@@ -111,132 +90,50 @@ class _ExportJourneyScreenState extends State<ExportJourneyScreen> {
       StageStatus.pending,
       StageStatus.pending,
     ];
-
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setBool('journeyInProgress', true);
       await prefs.setString('activeExportContractId', widget.exporterContractId);
       await prefs.setString('activeKwikTicket', jsonEncode(widget.kwikticket!.toJson()));
 
-      _loadCurrentStageFromApi();
+      // Load cached stageStates
+      final cachedStates = prefs.getString('exportStageStates_${widget.exporterContractId}');
+      final cachedSubStages = prefs.getString('exportStageSubStages_${widget.exporterContractId}');
+      List<StageStatus>? loadedStates;
+      Map<int, List<ExportSubStageModel>>? loadedSubStages;
+      if (cachedStates != null) {
+        final indices = List<int>.from(jsonDecode(cachedStates));
+        loadedStates = indices.map((i) => StageStatus.values[i]).toList();
+      }
+      if (cachedSubStages != null) {
+        final decoded = jsonDecode(cachedSubStages) as Map<String, dynamic>;
+        loadedSubStages = decoded.map((k, v) => MapEntry(int.parse(k), (v as List).map((e) => ExportSubStageModel.fromJson(e)).toList()));
+      }
+      if (loadedStates != null || loadedSubStages != null) {
+        setState(() {
+          if (loadedStates != null) stageStates = loadedStates;
+          if (loadedSubStages != null) stageSubStages = loadedSubStages;
+        });
+      }
+
+      // Initial load - fetch all 5 stages in parallel
+      await Future.wait([
+        _fetchStage(1),
+        _fetchStage(2),
+        _fetchStage(3),
+        _fetchStage(4),
+        _fetchStage(5),
+      ]);
       if (mounted) {
         setState(() => isLoading = false);
       }
 
+      // Auto-refresh every 30 seconds
       _autoRefreshTimer = Timer.periodic(const Duration(seconds: 30), (_) async {
         debugPrint("⏱ Auto-refreshing export substages...");
+        await _autoRefresh();
       });
     });
-  }
-
-  void _loadCurrentStageFromApi() {
-    final currentStageInfo = widget.exportData.currentStageInfo;
-
-    if (currentStageInfo == null) {
-      debugPrint("⚠️ No currentStageInfo found");
-      return;
-    }
-
-    currentStageName = currentStageInfo.mainStage;
-    currentSubStages = currentStageInfo.allSubStages;
-
-    if (currentStageName == "Payout") {
-      debugPrint("✅ Export journey is complete!");
-      currentStageIndex = null;
-      return;
-    }
-
-    currentStageIndex = stageNameToIndex[currentStageName];
-
-    if (currentStageIndex == null) {
-      debugPrint("⚠️ Unknown stage name: $currentStageName");
-      return;
-    }
-
-    debugPrint("📍 Current Stage: $currentStageName (Index: $currentStageIndex)");
-    debugPrint("📋 Substages: ${currentSubStages.length}");
-
-    final allCompleted = currentSubStages.every((s) => s.isCompleted);
-    final anyCompleted = currentSubStages.any((s) => s.isCompleted);
-    final anyActive = currentSubStages.any((s) => s.isCurrent);
-
-    if (mounted) {
-      setState(() {
-        if (allCompleted) {
-          stageStates[currentStageIndex!] = StageStatus.completed;
-        } else if (anyCompleted) {
-          // If any substage is actually completed, show in progress
-          stageStates[currentStageIndex!] = StageStatus.inProgress;
-        } else {
-          // If no substage has been completed yet (even if current), show select agency
-          stageStates[currentStageIndex!] = StageStatus.selectAgency;
-        }
-      });
-    }
-  }
-
-  /// Initialize journey, clear old data, and fetch stages
-  Future<void> _initJourney() async {
-    await _resetJourneyPersistency();
-    _resetUIState();
-    await _fetchAllStages();
-
-    // Start auto-refresh every 30s
-    _autoRefreshTimer = Timer.periodic(const Duration(seconds: 30), (_) async {
-      await _autoRefreshIncompleteStages();
-    });
-
-    setState(() => isLoading = false);
-  }
-
-  /// Clear old journey data from SharedPreferences
-  Future<void> _resetJourneyPersistency() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.remove('activeExportContractId');
-    await prefs.remove('journeyInProgress');
-    await prefs.remove('procurementCompleted');
-    await prefs.remove('procurementInProgress');
-    await prefs.remove('packagingCompleted');
-    await prefs.remove('packagingInProgress');
-    await prefs.remove('procurementStartTime');
-
-    // Save the new exporter ID
-    await prefs.setString('activeExportContractId', widget.exporterContractId);
-    await prefs.setBool('journeyInProgress', true);
-  }
-
-  /// Reset UI state and provider
-  void _resetUIState() {
-    stageStates = [
-      StageStatus.pending,
-      StageStatus.pending,
-      StageStatus.pending,
-      StageStatus.pending,
-      StageStatus.pending,
-    ];
-    stageSubStages.clear();
-
-    final exportProvider = Provider.of<ExportSubStageApi>(
-      context,
-      listen: false,
-    );
-    exportProvider.subStages = [];
-  }
-
-  /// Fetch all stages for current exporter
-  Future<void> _fetchAllStages() async {
-    for (int stage = 1; stage <= _stageTitles.length; stage++) {
-      await _fetchStage(stage);
-    }
-  }
-
-  /// Only refresh incomplete stages
-  Future<void> _autoRefreshIncompleteStages() async {
-    for (int stage = 1; stage <= _stageTitles.length; stage++) {
-      if (stageStates[stage - 1] != StageStatus.completed) {
-        await _fetchStage(stage);
-      }
-    }
   }
 
   @override
@@ -247,31 +144,31 @@ class _ExportJourneyScreenState extends State<ExportJourneyScreen> {
 
   Future<void> _autoRefresh() async {
     if (!mounted) return;
-    // Only refresh stages that are NOT completed
+    
+    // Fetch incomplete stages in parallel
+    final refreshFutures = <Future>[];
     for (int stage = 1; stage <= _stageTitles.length; stage++) {
       if (stageStates[stage - 1] != StageStatus.completed) {
-        await _fetchStage(stage);
+        refreshFutures.add(_fetchStage(stage));
       }
     }
+    await Future.wait(refreshFutures);
   }
-
-  Map<int, List<ExportSubStageModel>> stageSubStages = {};
+  
   Future<void> _fetchStage(int mainStage) async {
     final api = Provider.of<ExportSubStageApi>(context, listen: false);
 
-    final apiStage = mainStage + 1; // UI stage 1 (Procurement) queries API with 2
-
-    // ⬅️ Get the response directly from the function
     final fetchedSubStages = await api.getSubStages(
       exporterContractId: widget.exporterContractId,
-      mainStage: apiStage,
+      mainStage: mainStage,
     );
-    fetchedSubStages!.forEach((s) {
-      debugPrint("${s.subStageName}: isCompleted=${s.isCompleted}");
-    });
+    
+    if (fetchedSubStages != null) {
+      fetchedSubStages.forEach((s) {
+        debugPrint("${s.subStageName}: isCompleted=${s.isCompleted}, isActive=${s.isActive}");
+      });
+    }
 
-    final substagesForStage = stageSubStages[mainStage] ?? [];
-    print('Stage $mainStage has ${substagesForStage.length} substages');
     if (fetchedSubStages == null || fetchedSubStages.isEmpty) {
       debugPrint('Stage $mainStage returned no substages.');
       if (mounted) {
@@ -287,46 +184,66 @@ class _ExportJourneyScreenState extends State<ExportJourneyScreen> {
     if (mounted) {
       setState(() {
         stageSubStages[mainStage] = fetchedSubStages;
-        // exportSubStageProvider.subStages = fetchedSubStages; // Update provider
-        debugPrint(
-          "Raw JSON for stage $mainStage: ${jsonEncode(fetchedSubStages)}",
-        );
+        debugPrint("Raw JSON for stage $mainStage: ${jsonEncode(fetchedSubStages)}");
       });
-    }
 
-    final allCompleted = fetchedSubStages.every((s) => s.isCompleted ?? false);
-    final anyActive = fetchedSubStages.any((s) => s.isActive ?? false);
-    final index = mainStage - 1; // because stages start at 1
-    if (index >= 0 && index < stageStates.length && mounted) {
-      setState(() {
-        if (allCompleted) {
-          stageStates[index] = StageStatus.completed;
-          _unlockNextStage(mainStage + 1);
-        } else if (anyActive) {
-          stageStates[index] = StageStatus.inProgress;
-        } else {
-          stageStates[index] = StageStatus.pending;
-        }
-      });
+      final allCompleted = fetchedSubStages.every((s) => s.isCompleted ?? false);
+      final anyActive = fetchedSubStages.any((s) => s.isActive ?? false);
+      // ✅ NEW: Check for agency/truck selection based on stage and substage name
+      final agencySubstage = fetchedSubStages.firstWhere(
+        (s) {
+          final name = s.subStageName?.toLowerCase() ?? '';
+          // ✅ Only check for agency selection in stages 1-4 (NOT stage 5)
+          if (mainStage == 5) return false; // Final Export has no agency selection
+          return name.contains('agency assigned') || 
+                 name.contains('truck assigned') ||
+                 name.contains('in transit');
+        },
+        orElse: () => ExportSubStageModel(
+          id: '',
+          subStageName: '',
+          order: 0,
+          estimatedDays: 0,
+          isCompleted: true,
+          isActive: false,
+        ),
+      );
+      final needsAgencySelection = 
+          (mainStage != 5) && // ✅ Never show "Select Agency" for Final Export
+          (agencySubstage.isCompleted == false) && 
+          (agencySubstage.isActive == true);
+      debugPrint("🔍 Stage $mainStage - Agency/Truck needs selection: $needsAgencySelection");
+      debugPrint("🔍 Found substage: ${agencySubstage.subStageName}");
+      final index = mainStage - 1;
+      if (index >= 0 && index < stageStates.length) {
+        setState(() {
+          if (allCompleted) {
+            stageStates[index] = StageStatus.completed;
+            _unlockNextStage(mainStage + 1);
+          } else if (needsAgencySelection) {
+            // ✅ Set to selectAgency when agency substage is active but not completed
+            stageStates[index] = StageStatus.selectAgency;
+          } else if (anyActive) {
+            stageStates[index] = StageStatus.inProgress;
+          } else {
+            stageStates[index] = StageStatus.pending;
+          }
+        });
+      }
+      // Save updated state to SharedPreferences for instant UI next time
+      final prefs = await SharedPreferences.getInstance();
+      // Save stageStates as list of indices
+      await prefs.setString('exportStageStates_${widget.exporterContractId}', jsonEncode(stageStates.map((e) => e.index).toList()));
+      // Save stageSubStages as map of int to list of json
+      final subStagesToSave = stageSubStages.map((k, v) => MapEntry(k.toString(), v.map((e) => e.toJson()).toList()));
+      await prefs.setString('exportStageSubStages_${widget.exporterContractId}', jsonEncode(subStagesToSave));
     }
-
-    // setState(() {
-    //   if (allCompleted) {
-    //     //  stageStates[mainStage - 1]
-    //     stageStates[mainStage - 2] = StageStatus.completed;
-    //     _unlockNextStage(mainStage + 1);
-    //   } else if (anyActive) {
-    //     stageStates[mainStage - 2] = StageStatus.inProgress;
-    //   } else {
-    //     stageStates[mainStage - 2] = StageStatus.pending;
-    //   }
-    // });
   }
 
   void _unlockNextStage(int nextStage) {
-    final index = nextStage - 1; // align to stages starting at 1
-    if (index >= 0 && index < stageStates.length) {
-      if (stageStates[index] == StageStatus.pending && mounted) {
+    final index = nextStage - 1;
+    if (index >= 0 && index < stageStates.length && mounted) {
+      if (stageStates[index] == StageStatus.pending) {
         setState(() {
           stageStates[index] = StageStatus.selectAgency;
         });
@@ -368,39 +285,10 @@ class _ExportJourneyScreenState extends State<ExportJourneyScreen> {
 
   @override
   Widget build(BuildContext context) {
-    if (currentStageName == "Payout") {
-      return ExportCompleteScreen(kwikticket: widget.kwikticket);
-    }
-
-    if (currentStageIndex == null) {
-      return Scaffold(
-        appBar: PreferredSize(
-          preferredSize: const Size.fromHeight(85.0),
-          child: Padding(
-            padding: const EdgeInsets.only(left: 20.0, top: 42.0, bottom: 15),
-            child: Align(
-              alignment: Alignment.centerLeft,
-              child: backNavRow(
-                context,
-                "Your Export Journey",
-                func: () => Navigator.pop(context),
-              ),
-            ),
-          ),
-        ),
-        backgroundColor: colorCodes.whiteSmoke,
-        body: Center(
-          child: Text(
-            "No active stage found",
-            style: kwikTextStlye(14.0, FontWeight.w500, colorCodes.darkGrey),
-          ),
-        ),
-      );
-    }
-
-    final currentStageTitle = stageNameToTitle[currentStageName] ?? "Unknown Stage";
-    final currentStatus = stageStates[currentStageIndex!];
-
+        debugPrint('ExportJourneyScreen: kwikticket = \\${widget.kwikticket}');
+        debugPrint('ExportJourneyScreen: commodity = \\${widget.kwikticket?.commodity}');
+        debugPrint('ExportJourneyScreen: commodity name = \\${widget.kwikticket?.commodity?.name}');
+      debugPrint('ExportJourneyScreen: commodity name = ' + (widget.kwikticket?.commodity?.name ?? 'null'));
     return Scaffold(
       extendBody: true,
       appBar: PreferredSize(
@@ -468,38 +356,34 @@ class _ExportJourneyScreenState extends State<ExportJourneyScreen> {
                               // child: SizedBox(),
                               child:
                                   canExpand
-                                      ? SizedBox(
-                                        height: 450,
-                                        child: ListView.separated(
-                                          shrinkWrap: true,
+                                  ? SizedBox(
+                                      height: 450,
+                                      child: ListView.separated(
+                                        shrinkWrap: true,
                                           physics:
                                               const NeverScrollableScrollPhysics(),
                                           separatorBuilder:
                                               (_, __) =>
                                                   const SizedBox(height: 10),
 
-                                          itemCount: substagesForStage.length,
+                                        itemCount: substagesForStage.length,
                                           // itemCount: subStages.length,
-                                          itemBuilder: (ctx, subIndex) {
-                                            final sub =
-                                                substagesForStage[subIndex];
-                                            final isChecked =
-                                                sub.isCompleted ?? false;
-                                            final isActive =
-                                                sub.isActive ?? false;
-                                            final subTitle =
-                                                subTitles[subIndex];
-                                            return checkContainer(
+                                        itemBuilder: (ctx, subIndex) {
+                                            final sub = substagesForStage[subIndex];
+                                            final isChecked = sub.isCompleted ?? false;
+                                            final isActive = sub.isActive ?? false;
+                                            final subTitle = subIndex < subTitles.length ? subTitles[subIndex] : "";
+                                          return checkContainer(
                                               sub.subStageName, // progressTitle[subIndex],
                                               // sub.isCompleted, //  isCheckedSections[index],
                                               isChecked, // isChecked[subIndex],
-                                              subTitle,
-                                              false,
-                                              "",
-                                            );
-                                          },
-                                        ),
-                                      )
+                                            subTitle,
+                                            false,
+                                            "",
+                                          );
+                                        },
+                                      ),
+                                    )
                                       : const SizedBox.shrink(), // 🚫 don’t show substages when locked
 
                               onButtonPressed: () async {
@@ -513,8 +397,40 @@ class _ExportJourneyScreenState extends State<ExportJourneyScreen> {
                                   );
                                   return;
                                 }
-                                // await _fetchStage(mainStage);
-                                await _handleCurrentStageButton();
+
+                                // ✅ Handle "Select Agency" button click
+                                if (stageStates[index] == StageStatus.selectAgency) {
+                                  await Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (_) => PackagingAndDocumentation(
+                                        kwikticket: widget.kwikticket,
+                                        stageType: mainStage,
+                                        exporterContractId: widget.exporterContractId,
+                                        exportData: widget.exportData,
+                                      ),
+                                    ),
+                                  );
+                                  
+                                  // Refresh after returning
+                                  await _fetchStage(mainStage);
+                                } else if (stageStates[index] == StageStatus.inProgress) {
+                                  showToastContainer(
+                                    "In Progress ⚙️",
+                                    "This stage is currently being processed.",
+                                    colorCodes.azureBlue,
+                                    colorCodes.white,
+                                    context,
+                                  );
+                                } else if (stageStates[index] == StageStatus.completed) {
+                                  showToastContainer(
+                                    "Completed ✅",
+                                    "This stage has been completed.",
+                                    colorCodes.pigmentGreen,
+                                    colorCodes.white,
+                                    context,
+                                  );
+                                }
                               },
                               canExpand: canExpand,
                             ),
@@ -526,82 +442,16 @@ class _ExportJourneyScreenState extends State<ExportJourneyScreen> {
                 ),
                 SizedBox(height: 15),
 
-                if (currentStatus == StageStatus.selectAgency)
-                  Container(
-                      height: 160,
-                      width: 391,
-                      padding: EdgeInsets.symmetric(horizontal: 12, vertical: 20),
-                      decoration: BoxDecoration(
-                        color: colorCodes.white,
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      child: Column(
-                        children: [
-                          Container(
-                            height: 104,
-                            width: 350,
-                            alignment: Alignment.center,
-                            padding: EdgeInsets.symmetric(
-                              horizontal: 10,
-                              vertical: 15,
-                            ),
-                            decoration: BoxDecoration(
-                              color: colorCodes.white,
-                              borderRadius: BorderRadius.circular(16),
-                              border: Border.all(
-                                width: 1.5,
-                                color: colorCodes.sunset,
-                              ),
-                            ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Image.asset(
-                                  "assets/images/icons/dashboard/Frame 10000060291.png",
-                                  height: 24,
-                                  width: 24,
-                                ),
-                                SizedBox(width: 8),
-                                SizedBox(
-                                  width: 238,
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        "Agency Selection Required",
-                                        style: kwikTextStlye(
-                                          14.0,
-                                          FontWeight.w600,
-                                          colorCodes.sinopia,
-                                        ),
-                                      ),
-                                      Text(
-                                        "Select an agency to continue your export journey.",
-                                        style: kwikTextStlye(
-                                          10.0,
-                                          FontWeight.w300,
-                                          colorCodes.black,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-
-                SizedBox(height: 15),
-
-                kwikbutton("Continue", () async {
-                  final prefs = await SharedPreferences.getInstance();
-                  await prefs.remove('journeyInProgress');
-                  await prefs.remove('activeExportContractId');
-                  await prefs.remove('activeKwikTicket');
-
+                // ✅ Only show Continue button when all stages are completed
+                if (stageStates.every((status) => status == StageStatus.completed))
+                  kwikbutton("Continue", () async {
+                    final prefs = await SharedPreferences.getInstance();
+                    await prefs.remove('journeyInProgress');
+                    await prefs.remove('activeExportContractId');
+                    await prefs.remove('activeKwikTicket');
+                    await prefs.remove('procurementCompleted');
+                  await prefs.remove('procurementInProgress');
+                  
                   Navigator.push(
                     context,
                     MaterialPageRoute(
@@ -723,25 +573,97 @@ class _ExportJourneyScreenState extends State<ExportJourneyScreen> {
     );
   }
 
-  Future<void> _handleCurrentStageButton() async {
-    if (currentStageIndex == null) return;
-
-    // API stage types start from 2 (Procurement=2, Packaging=3, etc.)
-    final apiStageType = currentStageIndex! + 2;
-
-    await Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (_) => PackagingAndDocumentation(
-          kwikticket: widget.kwikticket,
-          stageType: apiStageType,
-          exporterContractId: widget.exporterContractId,
+  Future<void> _handleStageButton(int index) async {
+    final currentStage = index + 1;
+    
+    if (stageStates[index] == StageStatus.pending) {
+      showToastContainer(
+        "Locked Stage 🚧",
+        "Complete the previous stage to unlock this one.",
+        colorCodes.sunset,
+        colorCodes.white,
+        context,
+      );
+      return;
+    }
+    
+    if (stageStates[index] == StageStatus.selectAgency) {
+      await Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => PackagingAndDocumentation(
+            kwikticket: widget.kwikticket,
+            stageType: currentStage,
+            exporterContractId: widget.exporterContractId,
+            exportData: widget.exportData,
+          ),
         ),
-      ),
-    );
+      );
 
-    setState(() {});
+      await _fetchStage(currentStage);
+      if (mounted) {
+        setState(() {
+          stageStates[index] = StageStatus.inProgress;
+        });
+      }
+    } else {
+      showToastContainer(
+        "Export Stage",
+        stageStates[index] == StageStatus.completed
+            ? "Stage already completed ✅"
+            : "Stage is currently in progress ⚙️",
+        colorCodes.azureBlue,
+        colorCodes.mediumSeaGreen,
+        context,
+      );
+    }
   }
+
+  // Future<void> _handleStageButton(int index) async {
+  //   final currentStage = index + 1;
+    
+  //   if (stageStates[index] == StageStatus.pending) {
+  //     showToastContainer(
+  //       "Locked Stage 🚧",
+  //       "Complete the previous stage to unlock this one.",
+  //       colorCodes.sunset,
+  //       colorCodes.white,
+  //       context,
+  //     );
+  //     return;
+  //   }
+    
+  //   if (stageStates[index] == StageStatus.selectAgency) {
+  //     await Navigator.push(
+  //       context,
+  //       MaterialPageRoute(
+  //         builder: (_) => PackagingAndDocumentation(
+  //           kwikticket: widget.kwikticket,
+  //           stageType: currentStage,
+  //           exporterContractId: widget.exporterContractId,
+  //           exportData: widget.exportData,
+  //         ),
+  //       ),
+  //     );
+
+  //     await _fetchStage(currentStage);
+  //     if (mounted) {
+  //       setState(() {
+  //         stageStates[index] = StageStatus.inProgress;
+  //       });
+  //     }
+  //   } else {
+  //     showToastContainer(
+  //       "Export Stage",
+  //       stageStates[index] == StageStatus.completed
+  //           ? "Stage already completed ✅"
+  //           : "Stage is currently in progress ⚙️",
+  //       colorCodes.azureBlue,
+  //       colorCodes.mediumSeaGreen,
+  //       context,
+  //     );
+  //   }
+  // }
 
   Widget _accordionStage({
     required String title,

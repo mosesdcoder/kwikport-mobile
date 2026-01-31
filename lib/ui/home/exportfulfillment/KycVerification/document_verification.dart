@@ -54,6 +54,15 @@ class _DocumentVerificationState extends State<DocumentVerification> {
     "ProofOfAddress",
     "Selfie",
   ];
+
+  bool get _isFormValid {
+    return widget.certificationType != null &&
+        widget.certificationType!.isNotEmpty &&
+        widget.iDNumberController.text.isNotEmpty &&
+        widget.idDocumentFile != null &&
+        widget.proofOfAddressFile != null;
+  }
+
   final ImagePicker _picker = ImagePicker();
 
   Future<void> pickImage(bool isIdDocument) async {
@@ -99,7 +108,7 @@ class _DocumentVerificationState extends State<DocumentVerification> {
     return source ?? ImageSource.gallery;
   }
 
-  bool _isFormValid = false;
+  // bool _isFormValid = false;
 
   @override
   void initState() {
@@ -122,7 +131,7 @@ class _DocumentVerificationState extends State<DocumentVerification> {
 
     if (_isFormValid != isValid) {
       setState(() {
-        _isFormValid = isValid;
+        _isFormValid == isValid;
       });
     }
   }
@@ -505,7 +514,7 @@ class _DocumentVerificationState extends State<DocumentVerification> {
                     "ID Number",
                     "",
                     widget.iDNumberController,
-                    hintText: "Peter Walker",
+                    hintText: "01234567",
                   ),
                   SizedBox(height: 15),
                   uploadImageContainer(
@@ -575,9 +584,8 @@ class _DocumentVerificationState extends State<DocumentVerification> {
                   width: 150,
                   child: kwikbutton(
                     "Next",
-                    widget.nextFunc,
-                    // _isFormValid ? widget.nextFunc : () {},
-                    // enabled: _isFormValid,
+                    _isFormValid ? widget.nextFunc : null,
+                    enabled: _isFormValid,
                     fontSize: 12.0,
                     buttonChild: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -587,9 +595,9 @@ class _DocumentVerificationState extends State<DocumentVerification> {
                           style: kwikTextStlye(
                             14.0,
                             FontWeight.w500,
-                            // _isFormValid  ?
-                            colorCodes.whiteSmoke,
-                            // : colorCodes.aluminium,
+                            _isFormValid
+                                ? colorCodes.whiteSmoke
+                                : colorCodes.aluminium,
                           ),
                         ),
                         SizedBox(width: 8),

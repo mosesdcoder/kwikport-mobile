@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:image_picker/image_picker.dart';
 
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -26,61 +27,10 @@ class IdentityVerification extends StatefulWidget {
 }
 
 class _IdentityVerificationState extends State<IdentityVerification> {
+  File? _selectedImage;
   final ImagePicker _picker = ImagePicker();
-  bool _isFormValid = false;
 
-  @override
-  void initState() {
-    super.initState();
-    _validateForm();
-  }
-
-  void _validateForm() {
-    final isValid = widget.selfieFile != null;
-    if (_isFormValid != isValid) {
-      setState(() {
-        _isFormValid = isValid;
-      });
-    }
-  }
-
-  Future<void> pickImage() async {
-    final XFile? image = await _picker.pickImage(
-      source: await _showPickerDialog(),
-      imageQuality: 80,
-    );
-
-    if (image != null) {
-      final file = File(image.path);
-
-      widget.onSelfieChanged(file);
-    }
-  }
-
-  Future<ImageSource> _showPickerDialog() async {
-    ImageSource? source = await showModalBottomSheet<ImageSource>(
-      context: context,
-      builder:
-          (context) => Container(
-            height: 140,
-            child: Column(
-              children: [
-                ListTile(
-                  leading: Icon(Icons.photo_library),
-                  title: Text("Gallery"),
-                  onTap: () => Navigator.pop(context, ImageSource.gallery),
-                ),
-                ListTile(
-                  leading: Icon(Icons.camera_alt),
-                  title: Text("Camera"),
-                  onTap: () => Navigator.pop(context, ImageSource.camera),
-                ),
-              ],
-            ),
-          ),
-    );
-    return source ?? ImageSource.gallery;
-  }
+  bool get _isFormValid => _selectedImage != null;
 
   @override
   Widget build(BuildContext context) {
@@ -223,13 +173,17 @@ class _IdentityVerificationState extends State<IdentityVerification> {
                   ),
                 ),
                 SizedBox(height: 15),
-                // uploadImageContainer("Upload Selfie Photo", () {}),
-                uploadImageContainer(
-                  "Upload Selfie Photo",
-
-                  () => pickImage(),
-                  imageFile: widget.selfieFile,
-                ),
+                uploadImageContainer("Upload Selfie Photo", () async {
+                  final pickedFile = await _picker.pickImage(
+                    source: ImageSource.camera,
+                    imageQuality: 80,
+                  );
+                  if (pickedFile != null) {
+                    setState(() {
+                      _selectedImage = File(pickedFile.path);
+                    });
+                  }
+                }, imageFile: _selectedImage),
               ],
             ),
           ),
@@ -254,7 +208,8 @@ class _IdentityVerificationState extends State<IdentityVerification> {
                 width: 150,
                 child: kwikbutton(
                   "Next",
-                  widget.nextFunc,
+                  _isFormValid ? widget.nextFunc : null,
+                  enabled: _isFormValid,
                   fontSize: 12.0,
                   buttonChild: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -264,7 +219,9 @@ class _IdentityVerificationState extends State<IdentityVerification> {
                         style: kwikTextStlye(
                           14.0,
                           FontWeight.w500,
-                          colorCodes.whiteSmoke,
+                          _isFormValid
+                              ? colorCodes.whiteSmoke
+                              : colorCodes.aluminium,
                         ),
                       ),
                       SizedBox(width: 8),

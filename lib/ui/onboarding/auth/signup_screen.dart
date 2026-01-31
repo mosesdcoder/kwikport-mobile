@@ -7,6 +7,7 @@ import 'package:kwik_port/ui/onboarding/account_create_sucess.dart';
 import 'package:kwik_port/ui/onboarding/auth/confirm_otp_screen.dart';
 import 'package:kwik_port/ui/onboarding/auth/login_screen.dart';
 import 'package:kwik_port/ui/onboarding/auth/profile_setup_screen.dart';
+import 'package:kwik_port/ui/onboarding/auth/terms_and_conditions_screen.dart';
 import 'package:kwik_port/utils/button/backNav_button.dart';
 import 'package:kwik_port/utils/button/kwik_button.dart';
 import 'package:kwik_port/utils/button/loading_dialog.dart';
@@ -17,6 +18,8 @@ import 'package:kwik_port/utils/textFields/nameField_column.dart';
 import 'package:kwik_port/utils/textFields/passwordField_column.dart';
 import 'package:kwik_port/utils/textFields/phoneNumber_field.dart';
 import 'package:kwik_port/utils/toast.dart';
+import 'package:kwik_port/ui/onboarding/auth/terms_and_conditions_screen.dart';
+import 'package:provider/provider.dart';
 import 'package:provider/provider.dart';
 
 class SignupScreen extends StatefulWidget {
@@ -33,6 +36,7 @@ class _SignupScreenState extends State<SignupScreen> {
   TextEditingController phoneNumberController = TextEditingController(
     text: "+",
   );
+  bool _acceptedTerms = false;
 
   FocusNode phoneNumberFocusNode = FocusNode();
   String flag = "assets/images/icons/Indonesia (ID).png";
@@ -213,7 +217,7 @@ class _SignupScreenState extends State<SignupScreen> {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              backnavButton(context),
+              // backnavButton(context),
               SizedBox(height: 27),
               headerSubtitleDescription(
                 'Create an Account',
@@ -239,13 +243,11 @@ class _SignupScreenState extends State<SignupScreen> {
                 phoneNumberController,
                 countryCode,
                 dialCode,
-
                 () async {
                   setState(() {
                     countList = !countList;
                   });
                 },
-
                 // countryNumLength + 1,
                 _onChanged,
                 context,
@@ -264,17 +266,57 @@ class _SignupScreenState extends State<SignupScreen> {
                 },
                 context,
               ),
-              SizedBox(height: 109),
+              SizedBox(height: 16),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Checkbox(
+                    value: _acceptedTerms,
+                    onChanged: (value) {
+                      setState(() {
+                        _acceptedTerms = value ?? false;
+                      });
+                    },
+                  ),
+                  Expanded(
+                    child: GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => TermsAndConditionsScreen(),
+                          ),
+                        );
+                      },
+                      child: RichText(
+                        text: TextSpan(
+                          text: 'I agree to the ',
+                          style: TextStyle(color: Colors.black),
+                          children: [
+                            TextSpan(
+                              text: 'Terms and Conditions',
+                              style: TextStyle(
+                                color: colorCodes.blueBlack,
+                                decoration: TextDecoration.underline,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(height: 60),
               kwikbutton(
                 'Continue',
                 () => register(registerProvider),
                 enabled:
                     emailController.text.isNotEmpty &&
-                            fullnameController.text.isNotEmpty &&
-                            passwordController.text.isNotEmpty &&
-                            phoneNumberController.text.isNotEmpty
-                        ? true
-                        : false,
+                    fullnameController.text.isNotEmpty &&
+                    passwordController.text.isNotEmpty &&
+                    phoneNumberController.text.isNotEmpty &&
+                    _acceptedTerms,
               ),
               SizedBox(height: 12),
               Align(
@@ -288,11 +330,12 @@ class _SignupScreenState extends State<SignupScreen> {
               ),
             ],
           ),
-        ],
-      ),
-    );
-  }
+    ],
+    ),
+  );
+}
 
+register(Registerapi registerProvider) async {
   register(Registerapi registerProvider) async {
     if (emailController.text.isNotEmpty &&
         fullnameController.text.isNotEmpty &&
@@ -366,4 +409,5 @@ class _SignupScreenState extends State<SignupScreen> {
       showToastE(context: context, message: "Fill fields properly");
     }
   }
+}
 }

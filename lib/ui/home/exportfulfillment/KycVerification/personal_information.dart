@@ -8,6 +8,7 @@ import 'package:kwik_port/utils/textFields/date_of_birth_field.dart';
 import 'package:kwik_port/utils/textFields/emailField_column.dart';
 import 'package:kwik_port/utils/textFields/nameField_column.dart';
 import 'package:kwik_port/utils/textFields/phoneNumber_field.dart';
+import 'package:kwik_port/utils/countries.dart';
 
 class PersonalInformation extends StatefulWidget {
   final TextEditingController firstNameController;
@@ -47,13 +48,13 @@ class _PersonalInformationState extends State<PersonalInformation> {
   bool isdropdownExpanded = false;
   bool _isFormValid = false;
 
-  List<String> nationalityList = [
-    'Nigerian',
-    'Kenyan',
-    'Ghanian',
-    'American',
-    'Other',
-  ];
+  // Use the countryList from utils/countries.dart
+
+  String? get _validNationalityOrNull {
+    if (widget.nationality == null) return null;
+    // Ensure the value is in the countryList
+    return countryList.contains(widget.nationality) ? widget.nationality : null;
+  }
 
   @override
   void initState() {
@@ -354,121 +355,137 @@ class _PersonalInformationState extends State<PersonalInformation> {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 990,
       width: 391,
       child: Padding(
         padding: const EdgeInsets.only(bottom: 30.0),
-        child: Column(
-          children: [
-            Container(
-              height: 865,
-              width: 391,
-              padding: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-              decoration: BoxDecoration(
-                color: colorCodes.white,
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: Column(
-                children: [
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Image.asset(
-                        "assets/images/icons/dashboard/Frame 1000006029 (3).png",
-                        height: 25,
-                        width: 25,
-                      ),
-                      SizedBox(width: 12),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            "Personal Information",
-                            style: kwikTextStlye(
-                              18.0,
-                              FontWeight.w600,
-                              colorCodes.black,
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              Container(
+                width: 391,
+                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+                decoration: BoxDecoration(
+                  color: colorCodes.white,
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Column(
+                  children: [
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Image.asset(
+                          "assets/images/icons/dashboard/Frame 1000006029 (3).png",
+                          height: 25,
+                          width: 25,
+                        ),
+                        SizedBox(width: 12),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              "Personal Information",
+                              style: kwikTextStlye(
+                                18.0,
+                                FontWeight.w600,
+                                colorCodes.black,
+                              ),
                             ),
-                          ),
-                          Text(
-                            "Provide your basic personal details",
-                            style: kwikTextStlye(
-                              12.0,
-                              FontWeight.w300,
-                              colorCodes.graniteGrey,
+                            Text(
+                              "Provide your basic personal details",
+                              style: kwikTextStlye(
+                                12.0,
+                                FontWeight.w300,
+                                colorCodes.graniteGrey,
+                              ),
                             ),
+                          ],
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 25),
+                    // First and Last Name Row
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Flexible(
+                          fit: FlexFit.loose,
+                          child: kycnameFieldColumn(
+                            "First Name",
+                            "",
+                            widget.firstNameController,
+                            hintText: "John",
+                            textColor: colorCodes.black,
                           ),
-                        ],
+                        ),
+                        SizedBox(width: 16),
+                        Flexible(
+                          fit: FlexFit.loose,
+                          child: kycnameFieldColumn(
+                            "Last Name",
+                            "",
+                            widget.lastNameController,
+                            hintText: "Doe",
+                            textColor: colorCodes.black,
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 15),
+                    // Email Field (moved below names)
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: kycemailFieldColumn(
+                        "",
+                        widget.emailController,
+                        textColor: colorCodes.black,
                       ),
-                    ],
-                  ),
-                  SizedBox(height: 25),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      SizedBox(
-                        width: 139,
-                        child: kycnameFieldColumn(
-                          "First Name",
-                          "",
-                          widget.firstNameController,
-                          textColor: colorCodes.black,
+                    ),
+                    SizedBox(height: 15),
+                    // Phone and DOB Row
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Flexible(
+                          fit: FlexFit.loose,
+                          child: kycphonenumberFieldColumn(
+                            "",
+                            widget.phoneController,
+                            textColor: colorCodes.black,
+                          ),
                         ),
-                      ),
-                      SizedBox(
-                        width: 139,
-                        child: kycnameFieldColumn(
-                          "Last Name",
-                          "",
-                          widget.lastNameController,
-                          textColor: colorCodes.black,
+                        SizedBox(width: 16),
+                        Flexible(
+                          fit: FlexFit.loose,
+                          child: dateofbirthTxtField(
+                            "Date of Birth",
+                            widget.dobController,
+                            "",
+                            () async {
+                              var date = DateTime.now();
+                              DateTime? dateofBirth = await showDatePicker(
+                                context: context,
+                                initialDate: DateTime.now().subtract(
+                                  Duration(days: 18 * 365),
+                                ),
+                                firstDate: DateTime(1950),
+                                lastDate: DateTime.now().subtract(
+                                  Duration(days: 18 * 365),
+                                ),
+                              );
+                              if (dateofBirth != null) {
+                                setState(() {
+                                  widget.dobController.text = DateFormat(
+                                    'dd/MM/yyyy',
+                                  ).format(dateofBirth);
+                                });
+                              }
+                            },
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
-
-                  kycemailFieldColumn(
-                    "",
-                    widget.emailController,
-                    textColor: colorCodes.black,
-                  ),
-                  SizedBox(height: 15),
-                  kycphonenumberFieldColumn(
-                    "",
-                    widget.phoneController,
-                    textColor: colorCodes.black,
-                  ),
-                  SizedBox(height: 15),
-                  dateofbirthTxtField(
-                    "Date of Birth",
-                    widget.dobController,
-                    "",
-                    () async {
-                      var date = DateTime.now();
-                      DateTime? dateofBirth = await showDatePicker(
-                        context: context,
-                        initialDate: DateTime.now().subtract(
-                          Duration(days: 18 * 365),
-                        ),
-                        firstDate: DateTime(1950),
-                        lastDate: DateTime.now().subtract(
-                          Duration(days: 18 * 365),
-                        ),
-                      );
-                      if (dateofBirth != null) {
-                        setState(() {
-                          widget.dobController.text = DateFormat(
-                            'dd/MM/yyyy',
-                          ).format(dateofBirth);
-                        });
-                      }
-                    },
-                  ),
-                  SizedBox(height: 15),
-                  SizedBox(
-                    height: 152,
-                    width: 351,
-                    child: kycnameFieldColumn(
+                      ],
+                    ),
+                    SizedBox(height: 15),
+                    kycnameFieldColumn(
                       "Street Address",
                       "",
                       widget.streetAddressController,
@@ -477,123 +494,118 @@ class _PersonalInformationState extends State<PersonalInformation> {
                       // maxLength: 200,
                       textColor: colorCodes.black,
                     ),
-                  ),
-                  SizedBox(height: 15),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      SizedBox(
-                        width: 140,
-                        child: kycnameFieldColumn(
-                          "City",
-                          "",
-                          widget.cityController,
-                          hintText: "Lagos",
-                          textColor: colorCodes.black,
-                        ),
-                      ),
-                      SizedBox(
-                        width: 140,
-                        child: kycnameFieldColumn(
-                          "State",
-                          "",
-                          widget.stateController,
-                          hintText: "Lagos",
-                          textColor: colorCodes.black,
-                        ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: 15),
-                  Align(
-                    alignment: Alignment.centerLeft,
-                    child: Text(
-                      "Nationality",
-                      style: TextStyle(
-                        fontFamily: 'Poppins',
-                        fontSize: 12,
-                        fontWeight: FontWeight.w500,
-                        color: colorCodes.black,
-                      ),
-                    ),
-                  ),
-                  SizedBox(height: 8),
-                  kycNationalityDropdown(
-                    widget.nationality,
-                    "Select nationality",
-                    nationalityList.map(dropMenuItem).toList(),
-                    (value) {
-                      widget.onNationalityChanged(value as String?);
-                      _validateForm();
-                    }, // (newValue) {
-                    //   setState(() {
-                    //     widget.nationality = newValue;
-                    //   });
-                    // },
-                    (isOpen) {
-                      setState(() {
-                        isiconExpanded = isOpen;
-                        isdropdownExpanded = isOpen;
-                      });
-                    },
-                  ),
-
-                  SizedBox(height: 15),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      SizedBox(
-                        height: 38,
-                        width: 140,
-                        child: kwikbutton(
-                          "Cancel",
-                          () {
-                            Navigator.pop(context);
-                          },
-                          backgroundcolor: colorCodes.white,
-                          textColor: colorCodes.black,
-                          borderColor: colorCodes.antiFlashWhite,
-                          fontSize: 12.0,
-                        ),
-                      ),
-                      SizedBox(
-                        height: 38,
-                        width: 140,
-                        child: kwikbutton(
-                          "Next",
-                          _isFormValid ? widget.nextFunc : () {},
-                          enabled: _isFormValid,
-                          fontSize: 12.0,
-                          buttonChild: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Text(
-                                "Next",
-                                style: kwikTextStlye(
-                                  14.0,
-                                  FontWeight.w500,
-                                  _isFormValid
-                                      ? colorCodes.whiteSmoke
-                                      : colorCodes.aluminium,
-                                ),
-                              ),
-                              SizedBox(width: 8),
-                              Image.asset(
-                                "assets/images/icons/arrow-right.png",
-                                height: 18,
-                                width: 18,
-                              ),
-                            ],
+                    SizedBox(height: 45),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Flexible(
+                          fit: FlexFit.loose,
+                          child: kycnameFieldColumn(
+                            "City",
+                            "",
+                            widget.cityController,
+                            hintText: "Lagos",
+                            textColor: colorCodes.black,
                           ),
                         ),
+                        SizedBox(width: 16),
+                        Flexible(
+                          fit: FlexFit.loose,
+                          child: kycnameFieldColumn(
+                            "State",
+                            "",
+                            widget.stateController,
+                            hintText: "Lagos",
+                            textColor: colorCodes.black,
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 15),
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        "Nationality",
+                        style: TextStyle(
+                          fontFamily: 'Poppins',
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                          color: colorCodes.black,
+                        ),
                       ),
-                    ],
-                  ),
-                  SizedBox(height: 30),
-                ],
+                    ),
+                    SizedBox(height: 8),
+                    kycNationalityDropdown(
+                      _validNationalityOrNull,
+                      "Select nationality",
+                      countryList.map(dropMenuItem).toList(),
+                      (value) {
+                        widget.onNationalityChanged(value as String?);
+                      },
+                      (isOpen) {
+                        setState(() {
+                          isiconExpanded = isOpen;
+                          isdropdownExpanded = isOpen;
+                        });
+                      },
+                    ),
+                    SizedBox(height: 15),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        SizedBox(
+                          height: 38,
+                          width: 140,
+                          child: kwikbutton(
+                            "Cancel",
+                            () {
+                              Navigator.pop(context);
+                            },
+                            backgroundcolor: colorCodes.white,
+                            textColor: colorCodes.black,
+                            borderColor: colorCodes.antiFlashWhite,
+                            fontSize: 12.0,
+                          ),
+                        ),
+                        SizedBox(
+                          height: 38,
+                          width: 140,
+                          child: kwikbutton(
+                            "Next",
+                            _isFormValid ? widget.nextFunc : null,
+                            enabled: _isFormValid,
+                            fontSize: 12.0,
+                            buttonChild: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(
+                                  "Next",
+                                  style: kwikTextStlye(
+                                    14.0,
+                                    FontWeight.w500,
+                                    _isFormValid
+                                        ? colorCodes.whiteSmoke
+                                        : colorCodes.aluminium,
+                                  ),
+                                ),
+                                SizedBox(width: 8),
+                                Image.asset(
+                                  "assets/images/icons/arrow-right.png",
+                                  height: 18,
+                                  width: 18,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 30),
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

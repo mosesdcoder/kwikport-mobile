@@ -6,7 +6,9 @@ import 'package:kwik_port/utils/text/textstyle.dart';
 import 'package:kwik_port/utils/textFields/nameField_column.dart';
 
 class BussinessInformation extends StatefulWidget {
-  final VoidCallback submitFunc;
+  final Future<void> Function() submitFunc;
+
+  // final VoidCallback submitFunc;
   final VoidCallback previousFunc;
 
   final TextEditingController businessNameController;
@@ -34,11 +36,27 @@ class BussinessInformation extends StatefulWidget {
 }
 
 class _BussinessInformationState extends State<BussinessInformation> {
+  // List of export experience options (years)
+  final List<String> exportExperienceList = [
+    '1 - 3 Years',
+    '3 - 5 Years',
+    '5 - 7 Years',
+    '7 - 9 Years',
+    '10+ Years',
+  ];
+  String? exportExperience;
+  bool exportExperienceiconExpanded = false;
+  bool exportExperiencedropdownExpanded = false;
+  // Removed duplicate dropMenuItem definition
+  TextEditingController bussinessnamecontroller = TextEditingController();
+  TextEditingController bussinessRegistratinNumber = TextEditingController();
+  TextEditingController bussinessAddresscontroller = TextEditingController();
+  TextEditingController typeofbusinesscontroller = TextEditingController();
   String? bussinessType;
   bool isiconExpanded = false;
   bool isdropdownExpanded = false;
-  bool exportExperienceiconExpanded = false;
-  bool exportExperiencedropdownExpanded = false;
+
+  bool isSubmitting = false;
 
   List<String> bussinessTypeList = [
     'Nigerian',
@@ -47,13 +65,7 @@ class _BussinessInformationState extends State<BussinessInformation> {
     'American',
     'Other',
   ];
-  List<String> exportExperienceList = [
-    'Nigerian',
-    'Kenyan',
-    'Ghanian',
-    'American',
-    'Other',
-  ];
+
   bool _isFormValid = false;
 
   @override
@@ -393,8 +405,38 @@ class _BussinessInformationState extends State<BussinessInformation> {
   //   );
   // }
 
+  // exportExperienceList already defined above, remove duplicate
   @override
   Widget build(BuildContext context) {
+    Align(
+      alignment: Alignment.centerLeft,
+      child: Text(
+        "Export Experience (years)",
+        style: TextStyle(
+          fontFamily: 'Poppins',
+          fontSize: 12,
+          fontWeight: FontWeight.w500,
+          color: colorCodes.black,
+        ),
+      ),
+    );
+    SizedBox(height: 8);
+    kycNationalityDropdown(
+      exportExperience,
+      "Select years of experience",
+      exportExperienceList.map(dropMenuItem).toList(),
+      (newValue) {
+        setState(() {
+          exportExperience = newValue;
+        });
+      },
+      (isOpen) {
+        setState(() {
+          exportExperienceiconExpanded = isOpen;
+          exportExperiencedropdownExpanded = isOpen;
+        });
+      },
+    );
     return SizedBox(
       height: 1000,
       width: 391,
@@ -449,8 +491,8 @@ class _BussinessInformationState extends State<BussinessInformation> {
                   kycnameFieldColumn(
                     "Business Name",
                     "",
-                    widget.businessNameController,
-                    hintText: "Peter Walker",
+                    bussinessnamecontroller,
+                    hintText: "KwikPort Ltd",
                   ),
 
                   SizedBox(height: 15),
@@ -510,15 +552,15 @@ class _BussinessInformationState extends State<BussinessInformation> {
                   kycnameFieldColumn(
                     "Business Registration Number (optional)",
                     "",
-                    widget.businessRegNumberController,
-                    hintText: "Peter Walker",
+                    bussinessRegistratinNumber,
+                    hintText: "KXPT1234567",
                   ),
                   SizedBox(height: 15),
 
                   Align(
                     alignment: Alignment.centerLeft,
                     child: Text(
-                      "Export Experience",
+                      "Export Experience (years)",
                       style: TextStyle(
                         fontFamily: 'Poppins',
                         fontSize: 12,
@@ -529,16 +571,16 @@ class _BussinessInformationState extends State<BussinessInformation> {
                   ),
                   SizedBox(height: 8),
                   kycNationalityDropdown(
-                    widget.exportExperience,
-                    "Select",
+                    exportExperience,
+                    "Select years of experience",
                     exportExperienceList.map(dropMenuItem).toList(),
                     (newValue) {
                       widget.onExportExperienceChanged(newValue);
                     },
                     (isOpen) {
                       setState(() {
-                        isiconExpanded = isOpen;
-                        isdropdownExpanded = isOpen;
+                        exportExperienceiconExpanded = isOpen;
+                        exportExperiencedropdownExpanded = isOpen;
                       });
                     },
                   ),
@@ -670,31 +712,54 @@ class _BussinessInformationState extends State<BussinessInformation> {
                   width: 140,
                   child: kwikbutton(
                     "Submit KYC",
-                    widget.submitFunc,
-                    // _isFormValid ? widget.submitFunc : () {},
-                    // enabled: _isFormValid,
+                    isSubmitting
+                        ? null
+                        : () async {
+                          setState(() {
+                            isSubmitting = true;
+                          });
+                          try {
+                            await widget.submitFunc();
+                          } finally {
+                            if (mounted) {
+                              setState(() {
+                                isSubmitting = false;
+                              });
+                            }
+                          }
+                        },
                     fontSize: 12.0,
-                    buttonChild: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          "Submit KYC",
-                          style: kwikTextStlye(
-                            14.0,
-                            FontWeight.w500,
-                            // _isFormValid ?
-                            colorCodes.whiteSmoke,
-                            // : colorCodes.aluminium,
-                          ),
-                        ),
-                        SizedBox(width: 8),
-                        Image.asset(
-                          "assets/images/icons/arrow-right.png",
-                          height: 18,
-                          width: 18,
-                        ),
-                      ],
-                    ),
+                    buttonChild:
+                        isSubmitting
+                            ? SizedBox(
+                              height: 20,
+                              width: 20,
+                              child: CircularProgressIndicator(
+                                valueColor: AlwaysStoppedAnimation<Color>(
+                                  colorCodes.whiteSmoke,
+                                ),
+                                strokeWidth: 2.5,
+                              ),
+                            )
+                            : Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(
+                                  "Submit KYC",
+                                  style: kwikTextStlye(
+                                    14.0,
+                                    FontWeight.w500,
+                                    colorCodes.whiteSmoke,
+                                  ),
+                                ),
+                                SizedBox(width: 8),
+                                Image.asset(
+                                  "assets/images/icons/arrow-right.png",
+                                  height: 18,
+                                  width: 18,
+                                ),
+                              ],
+                            ),
                   ),
                 ),
               ],

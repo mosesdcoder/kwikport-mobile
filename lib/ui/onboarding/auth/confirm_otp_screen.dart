@@ -101,36 +101,34 @@ class _ConfirmOtpScreenState extends State<ConfirmOtpScreen> {
                       () {},
                       emailOtpVal,
                     ),
-                  ],
-                ),
-                Align(
-                  alignment: Alignment.bottomCenter,
-                  child: kwikbutton(
-                    'Confirm Code',
-                    () => verifyEmailFunction(verifyEmailProvider),
+                    SizedBox(height: 32),
+                    kwikbutton(
+                      'Confirm Code',
+                      () => verifyEmailFunction(verifyEmailProvider),
 
-                    // () {
-                    //   if (pinController.text.length == 6) {
-                    //     // if (pinController.text != "123456") {
-                    //     showToastContainer(
-                    //       'Oops! Invalid code .',
-                    //       'Please double check and enter it correctly.',
-                    //       colorCodes.mistyRose,
-                    //       colorCodes.portlandOrange,
-                    //       context,
-                    //     );
-                    //     // } else {
-                    //     Navigator.push(
-                    //       context,
-                    //       MaterialPageRoute(
-                    //         builder: (context) => widget.screen,
-                    //       ),
-                    //     );
-                    //     // }
-                    //   } else {}
-                    // },
-                    enabled: pinController.text.length == 6 ? true : false,
-                  ),
+                      // () {
+                      //   if (pinController.text.length == 6) {
+                      //     // if (pinController.text != "123456") {
+                      //     showToastContainer(
+                      //       'Oops! Invalid code .',
+                      //       'Please double check and enter it correctly.',
+                      //       colorCodes.mistyRose,
+                      //       colorCodes.portlandOrange,
+                      //       context,
+                      //     );
+                      //     // } else {
+                      //     Navigator.push(
+                      //       context,
+                      //       MaterialPageRoute(
+                      //         builder: (context) => widget.screen,
+                      //       ),
+                      //     );
+                      //     // }
+                      //   } else {}
+                      // },
+                      enabled: pinController.text.length == 6 ? true : false,
+                    ),
+                  ],
                 ),
               ],
             ),
@@ -146,6 +144,19 @@ class _ConfirmOtpScreenState extends State<ConfirmOtpScreen> {
         emailOtpVal = 'Please enter all OTP codes';
         defaultBorderColor = colorCodes.portlandOrange;
       });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Please enter all OTP codes'),
+          backgroundColor: colorCodes.portlandOrange,
+          duration: Duration(seconds: 5),
+          behavior: SnackBarBehavior.floating,
+          margin: EdgeInsets.only(
+            left: 20,
+            right: 20,
+            bottom: 80,
+          ),
+        ),
+      );
       return;
     }
 
@@ -191,12 +202,18 @@ class _ConfirmOtpScreenState extends State<ConfirmOtpScreen> {
           ),
         );
       } else {
-        showToastContainer(
-          "Verification Failed",
-          verifyEmailProvider.message,
-          colorCodes.mistyRose,
-          colorCodes.portlandOrange,
-          context,
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(verifyEmailProvider.message),
+            backgroundColor: colorCodes.portlandOrange,
+            duration: Duration(seconds: 5),
+            behavior: SnackBarBehavior.floating,
+            margin: EdgeInsets.only(
+              left: 20,
+              right: 20,
+              bottom: 80,
+            ),
+          ),
         );
       }
     } else if (widget.flowType == "forgotPassword") {

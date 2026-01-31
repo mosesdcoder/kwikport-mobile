@@ -16,8 +16,9 @@ Widget ticketDetailContainer(
 
   commodityCostPrice,
 
-  pricePerTon,
+   pricePerUnitInUSD,
   projectedIncome,
+  projectedIncomeInDollars,
   timeadded,
   kwiticketStatus,
   payforticketFunc,
@@ -86,12 +87,15 @@ Widget ticketDetailContainer(
         dataDetail("Export Item", "Contract Type", exportItem, contractType),
         SizedBox(height: 21.0),
         dataDetail(
-          "Selected Capacity",
+          "Quantity",
           "Destination",
           selectedCapacity,
           destination,
         ),
         SizedBox(height: 20.0),
+      
+    
+      
         Container(
           height: 115,
           width: 352,
@@ -102,6 +106,7 @@ Widget ticketDetailContainer(
           ),
           child: Column(
             children: [
+              // Commodity Cost Row (fixed)
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -114,41 +119,18 @@ Widget ticketDetailContainer(
                     ),
                   ),
                   Text(
-
-                    MoneyUtils.formatMoney(commodityCostPrice),
+                    MoneyUtils.formatMoney(commodityCostPrice,  decimalDigits: 2),
                     style: kwikTextStlye(
                       14.0,
                       FontWeight.w600,
                       colorCodes.textBlack,
                       fontFamily: "",
-                    ),  
+                    ),
                   ),
                 ],
               ),
               SizedBox(height: 6),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    "Buyer Price/Ton",
-                    style: kwikTextStlye(
-                      12.0,
-                      FontWeight.w300,
-                      colorCodes.graniteGrey,
-                    ),
-                  ),
-                  Text(
-
-                    MoneyUtils.formatMoney(pricePerTon),
-                    style: kwikTextStlye(
-                      14.0,
-                      FontWeight.w600,
-                      colorCodes.textBlack,
-                      fontFamily: "",
-                    ),
-                  ),
-                ],
-              ),
+         
               SizedBox(height: 6),
               SizedBox(
                 width: 310,
@@ -168,16 +150,16 @@ Widget ticketDetailContainer(
                   ),
                   Row(
                     children: [
-                      Image.asset(
-                        "assets/images/icons/Trending up.png",
-                        height: 16,
-                        width: 16,
-                      ),
+                      // Image.asset(
+                      //   "assets/images/icons/Trending up.png",
+                      //   height: 16,
+                      //   width: 16,
+                      // ),
                       SizedBox(width: 5),
                       Text(
                           //"\₦${NumberFormat('#,##0.00').format(projectedIncome)}",
 
-                        MoneyUtils.formatMoney(projectedIncome),
+                        MoneyUtils.formatMoney(projectedIncomeInDollars, symbol: '\$', decimalDigits: 2),
                         style: kwikTextStlye(
                           14.0,
                           FontWeight.w500,
@@ -246,7 +228,7 @@ Widget ticketDetailContainer(
                 border: Border.all(
                   width: 1.2,
                   color:
-                      kwiticketStatus == 1
+                      (kwiticketStatus == 1 || kwiticketStatus == 3)
                           ? colorCodes.bluetiful
                           : kwiticketStatus == 2
                           ? HexColor("#FFAA33")
@@ -256,7 +238,7 @@ Widget ticketDetailContainer(
                 ),
                 borderRadius: BorderRadius.circular(22),
                 color:
-                    kwiticketStatus == 1
+                    (kwiticketStatus == 1 || kwiticketStatus == 3)
                         ? colorCodes.bluetiful
                         : kwiticketStatus == 2
                         ? HexColor("#FFAA33")
@@ -273,7 +255,7 @@ Widget ticketDetailContainer(
                   //   width: 16,
                   // ),
                   Text(
-                    kwiticketStatus == 1
+                    (kwiticketStatus == 1 || kwiticketStatus == 3)
                         ? "Active"
                         : kwiticketStatus == 2
                         ? "Non-Active"
@@ -391,7 +373,7 @@ Widget exporttDetailContainer(
         dataDetail("Export Item", "Contract Type", exportItem, contractType),
         SizedBox(height: 21.0),
         dataDetail(
-          "Selected Capacity",
+          "Quantity",
           "Destination",
           selectedCapacity,
           destination,

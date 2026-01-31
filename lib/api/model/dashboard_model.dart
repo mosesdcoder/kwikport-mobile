@@ -75,6 +75,7 @@ class UserProfile {
   final String phoneNumber;
   final String businessName;
   final DateTime? createdAt;
+  final String exporterUniqueId;
 
   UserProfile({
     required this.id,
@@ -85,6 +86,7 @@ class UserProfile {
     required this.phoneNumber,
     required this.businessName,
     this.createdAt,
+    this.exporterUniqueId = '',
   });
 
   factory UserProfile.fromJson(Map<String, dynamic> json) {
@@ -98,6 +100,7 @@ class UserProfile {
       phoneNumber: json['phoneNumber'] ?? '',
       businessName: json['businessName'] ?? '',
       createdAt: created != null ? DateTime.tryParse(created) : null,
+      exporterUniqueId: json['exporterUniqueId'] ?? '',
     );
   }
   Map<String, dynamic> toJson() {
@@ -110,6 +113,7 @@ class UserProfile {
       'phoneNumber': phoneNumber,
       'businessName': businessName,
       'createdAt': createdAt?.toIso8601String(),
+      'exporterUniqueId': exporterUniqueId,
     };
   }
 }
@@ -608,6 +612,8 @@ class ExportSummaryModel {
   final double? selectedCapacity;
   final String? contractType;
   final CurrentStageInfo? currentStageInfo;
+  final String exporterContractId;
+  final bool isInProgress;
 
   ExportSummaryModel({
     required this.id,
@@ -631,6 +637,8 @@ class ExportSummaryModel {
     this.selectedCapacity,
     this.contractType,
     this.currentStageInfo,
+    required this.exporterContractId,
+    this.isInProgress = false,
   });
 
   factory ExportSummaryModel.fromJson(Map<String, dynamic> json) {
@@ -668,6 +676,8 @@ class ExportSummaryModel {
           json['currentStageInfo'] != null
               ? CurrentStageInfo.fromJson(json['currentStageInfo'])
               : null,
+      exporterContractId: json['exporterContractId'] ?? '',
+      isInProgress: json['isInProgress'] ?? false,
     );
   }
 
@@ -693,6 +703,8 @@ class ExportSummaryModel {
     'selectedCapacity': selectedCapacity ?? 0.0,
     'contractType': contractType,
     'currentStageInfo': currentStageInfo?.toJson(),
+    'exporterContractId': exporterContractId,
+    'isInProgress': isInProgress,
   };
 }
 

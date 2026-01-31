@@ -246,36 +246,46 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   void _showErrorSnackBar(BuildContext context, String title, String message) {
-    final snackBar = SnackBar(
-      behavior: SnackBarBehavior.floating,
-      margin: EdgeInsets.fromLTRB(16, 0, 16, 16),
-      backgroundColor: colorCodes.portlandOrange,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      duration: Duration(seconds: 4),
-      content: Row(
-        children: [
-          Icon(Icons.error_outline, color: Colors.white),
-          SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(title, style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
-                SizedBox(height: 2),
-                Text(message, maxLines: 3, overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
-              ],
+    showDialog(
+      context: context,
+      barrierDismissible: true,
+      builder: (BuildContext dialogContext) {
+        return Center(
+          child: Material(
+            color: Colors.transparent,
+            child: Container(
+              margin: EdgeInsets.symmetric(horizontal: 24),
+              padding: EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: colorCodes.portlandOrange,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.error_outline, color: Colors.white),
+                  SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(title, style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
+                        SizedBox(height: 2),
+                        Text(message, maxLines: 3, overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
-        ],
-      ),
-      action: SnackBarAction(
-        label: 'Dismiss',
-        textColor: Colors.white,
-        onPressed: () => ScaffoldMessenger.of(context).hideCurrentSnackBar(),
-      ),
+        );
+      },
     );
-    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    Future.delayed(Duration(seconds: 4), () {
+      if (Navigator.of(context).canPop()) Navigator.of(context).pop();
+    });
   }
 
   Widget signInContainer(img, text) {

@@ -268,7 +268,7 @@ class _ContractDetailsDeliveredScreenState
                       "Nigeria ",
                       style: kwikTextStlye(
                         10.0,
-                        FontWeight.w300,
+                        FontWeight.w600,
                         colorCodes.graniteGrey,
                       ),
                     ),
@@ -283,7 +283,7 @@ class _ContractDetailsDeliveredScreenState
                       widget.contract.destinationCountry,
                       style: kwikTextStlye(
                         10.0,
-                        FontWeight.w300,
+                        FontWeight.w600,
                         colorCodes.graniteGrey,
                       ),
                     ),
@@ -294,43 +294,37 @@ class _ContractDetailsDeliveredScreenState
                   "CONTRACT OVERVIEW",
                   style: kwikTextStlye(20.0, FontWeight.w600, colorCodes.black),
                 ),
-                overviewRichText("Commodity", widget.contract.commodityName),
-                SizedBox(height: 4),
-                overviewRichText(
+                _overviewRow("Commodity", widget.contract.commodityName),
+                _overviewRow(
                   "Contract Type",
                   widget.contract.contractType == 1
                       ? "International Buyer Agreement — verified & binding"
                       : "Local Buyer Agreement — verified & binding",
                 ),
-                SizedBox(height: 4),
-                overviewRichText(
-                  "Total Volume Requested",
+                _overviewRow(
+                  "Volume",
                   "${widget.contract.totalQuantity} tons",
                 ),
-                SizedBox(height: 4),
-                overviewRichText(
-                  "Price per Ton (₦)",
-                  "${MoneyUtils.formatMoney(widget.contract.pricePerUnitInNGN)}",
+                    _overviewRow(
+                  "Buyer Price per Ton (USD)",
+                  "${MoneyUtils.formatMoney(widget.contract.pricePerUnitInUSD, decimalDigits: 2, symbol: "\$")}",
                 ),
-                SizedBox(height: 4),
-                overviewRichText(
-                  "Projected Earnings per Ton (USD)",
-                  "${MoneyUtils.formatMoney(widget.contract.pricePerUnitInUSD, symbol: '\$')}",
+                _overviewRow(
+                  "Price (per ton)",
+                  "${MoneyUtils.formatMoney(widget.contract.pricePerUnitInNGN, symbol: '₦')}",
                 ),
-                SizedBox(height: 4),
-                overviewRichText(
-                  "Contract Duration",
+                // _overviewRow(
+                //   "Projected Earnings Per Ton (USD)",
+                //   "${MoneyUtils.formatMoney(widget.contract.pricePerUnitInUSD, decimalDigits: 2, symbol: '\$')}",
+                // ),
+                _overviewRow(
+                  "Duration (days)",
                   "${widget.contract.exportNumberOfDays} days from activation",
                 ),
-                SizedBox(height: 4),
-                overviewRichText(
-                  "Buyer Price per Ton (NGN)",
-                  "${MoneyUtils.formatMoney(widget.contract.buyerSpecification?.buyerPricePerUnit)}",
-                ),
-                SizedBox(height: 4),
-                overviewRichText(
+            
+                _overviewRow(
                   "Quick Snapshot",
-                  "${widget.contract.totalQuantity} tons | ${MoneyUtils.formatMoney(widget.contract.buyerSpecification?.buyerPricePerUnit)}ton | ${MoneyUtils.formatMoney(widget.contract.pricePerUnitInUSD)} projected earnings",
+                  "${widget.contract.totalQuantity} tons | ${MoneyUtils.formatMoney(widget.contract.pricePerUnitInNGN)}/ton | ${MoneyUtils.formatMoney(widget.contract.pricePerUnitInUSD, decimalDigits: 2, symbol: "\$")} projected earnings",
                 ),
                 SizedBox(height: 34),
                 Text(
@@ -889,7 +883,7 @@ class _ContractDetailsDeliveredScreenState
                   text: description == "" ? description : ": $description",
                   style: TextStyle(
                     fontWeight: FontWeight.w300,
-                    color: colorCodes.graniteGrey,
+                    color: colorCodes.black,
                   ),
                 ),
               ],
@@ -928,6 +922,48 @@ class _ContractDetailsDeliveredScreenState
               style: kwikTextStlye(12.0, FontWeight.w300, colorCodes.black),
             ),
           ),
+        ),
+      ],
+    );
+  }
+
+  Widget _overviewRow(String label, String value) {
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 14.0),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SizedBox(
+                width: 130,
+                child: Text(
+                  label,
+                  style: kwikTextStlye(
+                    14.0,
+                    FontWeight.w600,
+                    colorCodes.black,
+                  ),
+                ),
+              ),
+              SizedBox(width: 60),
+              Expanded(
+                child: Text(
+                  value,
+                  textAlign: TextAlign.left,
+                  style: kwikTextStlye(
+                    13.0,
+                    FontWeight.w400,
+                    colorCodes.black,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        Divider(
+          height: 1,
+          color: colorCodes.antiFlashWhite,
         ),
       ],
     );

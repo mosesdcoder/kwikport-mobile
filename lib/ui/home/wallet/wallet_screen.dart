@@ -119,7 +119,7 @@ class _WalletScreenState extends State<WalletScreen> {
                             HexColor("#061042"),
                             "assets/images/icons/dashboard/Union.png",
                             "2mins ago",
-                            "${userDataVar?.exporter?.exporterUniqueId}",
+                            "${userDataVar?.exporterUniqueId}",//.exporter?.exporterUniqueId}",
                             // "******KWP-2024-001",
                             showKwikwalletBalance,
                             () {

@@ -25,6 +25,10 @@ class _ExportCompleteScreenState extends State<ExportCompleteScreen> {
   );
 }
   Widget build(BuildContext context) {
+        debugPrint('ExportCompleteScreen: kwikticket = \\${widget.kwikticket}');
+        debugPrint('ExportCompleteScreen: commodity = \\${widget.kwikticket?.commodity}');
+        debugPrint('ExportCompleteScreen: commodity name = \\${widget.kwikticket?.commodity?.name}');
+      debugPrint('ExportCompleteScreen: commodity name = ' + (widget.kwikticket?.commodity?.name ?? 'null'));
     return Scaffold(
       backgroundColor: colorCodes.azureBlue,
       // extendBody: true,
@@ -177,7 +181,7 @@ class _ExportCompleteScreenState extends State<ExportCompleteScreen> {
                                         ),
                                       ),
                                       Text(
-                                        widget.kwikticket?.commodity?.id?? //.contract?.commodityName ??
+                                        widget.kwikticket?.commodity?.name ?? //.contract?.commodityName ??
                                             '',
                                         style: kwikTextStlye(
                                           12.0,

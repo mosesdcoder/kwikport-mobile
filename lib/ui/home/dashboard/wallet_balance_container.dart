@@ -69,7 +69,7 @@ Widget dashboardBalanceContainer(
           },
           child: Text(
             "View Wallet",
-            style: kwikTextStlye(12.0, FontWeight.w300, HexColor("#D6E7FF")),
+            style: kwikTextStlye(12.0, FontWeight.w500, HexColor("#D6E7FF")),
           ),
         ),
       ],
@@ -102,7 +102,7 @@ Widget activityProgressContainer(img, title, progress, context, func) {
                 title,
                 style: kwikTextStlye(
                   10.0,
-                  FontWeight.w300,
+                  FontWeight.bold,
                   colorCodes.graniteGrey,
                 ),
               ),

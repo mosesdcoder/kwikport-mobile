@@ -106,7 +106,7 @@ Widget procurementAgencyContainer(
         SizedBox(height: 15),
         Column(
           children: [
-            infoRow("Service Fee", displayedServiceFee, displayedServiceFeeConvert),
+            infoRow("Service Fee Per ton", displayedServiceFee, displayedServiceFeeConvert),
             SizedBox(height: 5),
             infoRow("Delivery Time", displayedDeliveryDays, displayedDeliveryHours),
             SizedBox(height: 5),

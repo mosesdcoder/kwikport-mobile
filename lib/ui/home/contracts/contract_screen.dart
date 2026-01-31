@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:kwik_port/api/controller/contractsApi/publishedcontractsApi.dart';
 import 'package:kwik_port/api/model/contrat_enums.dart';
+import 'package:kwik_port/api/utils/money_util.dart';
 import 'package:kwik_port/colors/color.dart';
 import 'package:kwik_port/ui/home/contracts/contract_details_screen.dart';
 import 'package:kwik_port/ui/home/contracts/filter_contract_dialog.dart';
@@ -383,7 +384,7 @@ class _ContractScreenState extends State<ContractScreen>
             "${tonsRemaining}", // "20 tons",
             "${contract.totalQuantity ?? 0}", //100 tons",
             "${percentageLeft.toStringAsFixed(1)}% left",
-            "\$${contract.totalAmountInUSD?.toStringAsFixed(2) ?? '0.00'}",
+            "${MoneyUtils.formatMoney(contract.totalAmountInUSD, decimalDigits: 2, symbol: "\$")}",
             "assets/images/icons/Trending up.png",
             "${contract.profitRatio?.toStringAsFixed(2) ?? '0.00'}%",
             () {

@@ -202,7 +202,7 @@ Widget avaiableontractContainer(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              "Total contract value",
+              "Amount",
               style: kwikTextStlye(
                 10.0,
                 FontWeight.w300,
@@ -210,7 +210,7 @@ Widget avaiableontractContainer(
               ),
             ),
             Text(
-              "Profit ratio",
+              "Profit",
               style: kwikTextStlye(
                 10.0,
                 FontWeight.w300,
@@ -376,7 +376,7 @@ Widget avaiableontractContainerUpdated(
                         ),
                       ),
                       Text(
-                        "Total contract value",
+                        "Amount",
                         style: kwikTextStlye(
                           10.0,
                           FontWeight.w300,

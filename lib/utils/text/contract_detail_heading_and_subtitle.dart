@@ -76,11 +76,11 @@ Widget contractDetailHeadingAndSubtitletwo(
         children: [
           Text(
             leftTitle,
-            style: kwikTextStlye(12.0, FontWeight.w300, colorCodes.graniteGrey),
+            style: kwikTextStlye(14.0, FontWeight.w300, colorCodes.black),
           ),
           Text(
             rightTitle,
-            style: kwikTextStlye(12.0, FontWeight.w300, colorCodes.graniteGrey),
+            style: kwikTextStlye(14.0, FontWeight.w300, colorCodes.black),
           ),
         ],
       ),
@@ -91,7 +91,7 @@ Widget contractDetailHeadingAndSubtitletwo(
             width: 130,
             child: Text(
               leftSubtitle,
-              style: kwikTextStlye(14.0, FontWeight.w500, colorCodes.black),
+              style: kwikTextStlye(12.0, FontWeight.w500, colorCodes.black),
               overflow: TextOverflow.ellipsis,
             ),
           ),
