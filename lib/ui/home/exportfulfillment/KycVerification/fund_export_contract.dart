@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/gestures.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:intl/intl.dart';
 import 'package:kwik_port/api/controller/home/dashboard_api.dart';
@@ -20,6 +21,7 @@ import 'package:kwik_port/utils/textFields/date_of_birth_field.dart';
 import 'package:kwik_port/utils/textFields/nameField_column.dart';
 import 'package:kwik_port/utils/textFields/phoneNumber_field.dart';
 import 'package:kwik_port/utils/toast.dart';
+import 'package:kwik_port/ui/onboarding/auth/terms_and_conditions_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
@@ -586,6 +588,12 @@ class _FundExportContractState extends State<FundExportContract> {
                                     style: TextStyle(
                                       color: colorCodes.azureBlue,
                                     ),
+                                    recognizer: TapGestureRecognizer()..onTap = () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(builder: (context) => TermsAndConditionsScreen()),
+                                      );
+                                    },
                                   ),
                                   TextSpan(text: "and "),
                                   TextSpan(
@@ -593,6 +601,12 @@ class _FundExportContractState extends State<FundExportContract> {
                                     style: TextStyle(
                                       color: colorCodes.azureBlue,
                                     ),
+                                    recognizer: TapGestureRecognizer()..onTap = () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(builder: (context) => TermsAndConditionsScreen()),
+                                      );
+                                    },
                                   ),
                                   TextSpan(
                                     text:
@@ -624,6 +638,32 @@ class _FundExportContractState extends State<FundExportContract> {
         },
       );
       if (selectKwikBalance == true) {
+        final dashboardApi = Provider.of<DashboardApi>(context, listen: false);
+        if (dashboardApi.data!.walletBalance < widget.kwikticket.kwikTicketAmount) {
+          Navigator.pop(context); // Close loading dialog
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              Future.delayed(Duration(seconds: 3), () {
+                if (Navigator.canPop(context)) {
+                  Navigator.pop(context);
+                }
+              });
+              return Dialog(
+                backgroundColor: Colors.red,
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Text(
+                    "Insufficient Wallet Balance",
+                    style: TextStyle(color: Colors.white, fontSize: 16.0),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+              );
+            },
+          );
+          return;
+        }
         await fundTicketApi
             .fundTicket(
               kwikTicketId: widget.kwikticket.id, 
@@ -693,6 +733,7 @@ class _FundExportContractState extends State<FundExportContract> {
           showWebView = true;
         });
       } else {
+        Navigator.pop(context); // Close loading dialog
         showToastContainer(
           "Select Payment Method",
           "Please select a payment method to proceed.",

@@ -91,12 +91,12 @@ class _AllKwikTicketScreenState extends State<AllKwikTicketScreen>
               return t.kwikTicketStatus ==
                   KwikTicketStatusEnum.awaitingPayment.value;
             case "active":
-              return t.kwikTicketStatus == KwikTicketStatusEnum.active.value;
+              return t.kwikTicketStatus == KwikTicketStatusEnum.inProgress.value;
 
             case "fulfilled":
               return t.kwikTicketStatus == KwikTicketStatusEnum.paid.value;
             default:
-              return true;
+              return false;
           }
         }).toList();
     return Scaffold(
@@ -249,12 +249,11 @@ class _AllKwikTicketScreenState extends State<AllKwikTicketScreen>
               return t.kwikTicketStatus ==
                   KwikTicketStatusEnum.awaitingPayment.value;
             case "active":
-              return t.kwikTicketStatus == KwikTicketStatusEnum.active.value ||
-                  t.kwikTicketStatus == KwikTicketStatusEnum.inProgress.value;
+              return t.kwikTicketStatus == KwikTicketStatusEnum.inProgress.value;
             case "fulfilled":
               return t.kwikTicketStatus == KwikTicketStatusEnum.paid.value;
             default:
-              return true;
+              return false;
           }
         }).toList();
 

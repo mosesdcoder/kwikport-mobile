@@ -16,7 +16,7 @@ Widget kwikbutton(
   fontFamily,
 }) {
   return InkWell(
-    onTap: btnFunc,
+    onTap: enabled ? btnFunc : null,
     borderRadius: BorderRadius.circular(30),
     child: Container(
       height: 57,
