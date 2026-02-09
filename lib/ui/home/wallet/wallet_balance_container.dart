@@ -33,6 +33,11 @@ Widget walletBalanceContainer(
     ),
     child: Stack(
       children: [
+        Positioned(
+          top: -15,
+          right: 0,
+          child: Image.asset(starimg, height: 216, width: 216),
+        ),
         Column(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -95,11 +100,7 @@ Widget walletBalanceContainer(
             ),
           ],
         ),
-        Positioned(
-          top: -15,
-          right: 0,
-          child: Image.asset(starimg, height: 216, width: 216),
-        ),
+
         Positioned(
           top: 80,
           right: 42,

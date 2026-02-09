@@ -31,7 +31,8 @@ class FreightForwardingScreen extends StatefulWidget {
   });
 
   @override
-  State<FreightForwardingScreen> createState() => _FreightForwardingScreenState();
+  State<FreightForwardingScreen> createState() =>
+      _FreightForwardingScreenState();
 }
 
 class _FreightForwardingScreenState extends State<FreightForwardingScreen> {
@@ -71,7 +72,12 @@ class _FreightForwardingScreenState extends State<FreightForwardingScreen> {
       ),
       backgroundColor: colorCodes.whiteSmoke,
       body: ListView(
-        padding: const EdgeInsets.only(left: 20, right: 20, top: 20, bottom: 100),
+        padding: const EdgeInsets.only(
+          left: 20,
+          right: 20,
+          top: 20,
+          bottom: 100,
+        ),
         children: [
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 14),
@@ -128,7 +134,7 @@ class _FreightForwardingScreenState extends State<FreightForwardingScreen> {
             ),
           ),
           const SizedBox(height: 20),
-          if (agencyApi.loading) 
+          if (agencyApi.loading)
             const Center(child: CircularProgressIndicator()),
           if (!agencyApi.loading && agencyApi.agencies.isEmpty)
             Center(
@@ -148,14 +154,19 @@ class _FreightForwardingScreenState extends State<FreightForwardingScreen> {
                 final name = agency.name ?? 'Unnamed';
                 final rating = agency.rating?.toDouble() ?? 0.0;
                 final fee = agency.serviceFee?.toString() ?? '0';
-                final serviceFeeInUSD = agency.serviceFeeInUSD?.toString() ?? '0';
+                final serviceFeeInUSD =
+                    agency.serviceFeeInUSD?.toString() ?? '0';
                 final days = agency.numberOfDaysToDeliver?.toString() ?? '0';
 
                 return procurementAgencyContainer(
                   "assets/images/icons/dashboard/procurement_agency_logo.png",
                   name,
                   rating,
-                  MoneyUtils.formatMoney(serviceFeeInUSD, symbol: "\$", decimalDigits: 2),
+                  MoneyUtils.formatMoney(
+                    serviceFeeInUSD,
+                    symbol: "\$",
+                    decimalDigits: 2,
+                  ),
                   MoneyUtils.formatMoney(fee, symbol: "₦", decimalDigits: 2),
                   "$days days",
                   "${daysToHours(int.tryParse(days) ?? 0)} hours",
@@ -186,9 +197,10 @@ class _FreightForwardingScreenState extends State<FreightForwardingScreen> {
                     );
 
                     if (context.mounted) {
-                      context
-                          .read<SelectedAgencyProvider>()
-                          .setSelectedAgency(agency.id!, agency.name!);
+                      context.read<SelectedAgencyProvider>().setSelectedAgency(
+                        agency.id!,
+                        agency.name!,
+                      );
                       Navigator.pop(context);
 
                       if (exportStageApi.success) {
@@ -199,9 +211,15 @@ class _FreightForwardingScreenState extends State<FreightForwardingScreen> {
                             return AgencySelectionConfirmedDialog(
                               kwikticket: widget.kwikticket!,
                               exportData: widget.exportData,
-                              serviceFee: MoneyUtils.formatMoney(serviceFeeInUSD, symbol: "\$", decimalDigits: 2),
-                              totalcostTons: "${widget.kwikticket?.totalQuantity ?? '0'} tons",
-                              totalCost: "₦${widget.kwikticket?.kwikTicketAmount ?? '0'}",
+                              serviceFee: MoneyUtils.formatMoney(
+                                serviceFeeInUSD,
+                                symbol: "\$",
+                                decimalDigits: 2,
+                              ),
+                              totalcostTons:
+                                  "${widget.kwikticket?.totalQuantity ?? '0'} tons",
+                              totalCost:
+                                  "₦${widget.kwikticket?.kwikTicketAmount ?? '0'}",
                               agencyName: agency.name ?? 'Unnamed Agency',
                             );
                           },
@@ -209,6 +227,7 @@ class _FreightForwardingScreenState extends State<FreightForwardingScreen> {
                       }
                     }
                   },
+                  context,
                 );
               },
             ),

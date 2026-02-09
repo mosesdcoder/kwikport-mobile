@@ -166,7 +166,7 @@ class _ExportPaymentConfirmedState extends State<ExportPaymentConfirmed> {
                     SizedBox(height: 11),
                     confirmeddetailRow(
                       "Amount Paid",
-                      "${MoneyUtils.formatMoney(widget.kwikticket.kwikTicketAmount, symbol: "\$")}", // "#2,499,000.00",
+                      "${MoneyUtils.formatMoney(widget.kwikticket.kwikTicketAmount, symbol: "\₦")}", // "#2,499,000.00",
                       detailColor: colorCodes.azureBlue,
                       fontFamily: "",
                     ),

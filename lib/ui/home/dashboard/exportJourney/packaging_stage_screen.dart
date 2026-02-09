@@ -32,15 +32,18 @@ class _PackagingStageScreenState extends State<PackagingStageScreen> {
   @override
   void initState() {
     super.initState();
-    final needsAgencySelection = widget.substages.isNotEmpty &&
+    final needsAgencySelection =
+        widget.substages.isNotEmpty &&
         widget.substages.first.isCurrent == true &&
         widget.substages.first.isCompleted == false;
-    
+
     if (needsAgencySelection) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         final tonnage = widget.kwikticket?.quantityToFulfill?.toInt() ?? 1;
-        Provider.of<GetAgencyApi>(context, listen: false)
-            .fetchAgenciesByStageType(3, tonnage: tonnage);
+        Provider.of<GetAgencyApi>(
+          context,
+          listen: false,
+        ).fetchAgenciesByStageType(3, tonnage: tonnage);
       });
     }
   }
@@ -48,7 +51,8 @@ class _PackagingStageScreenState extends State<PackagingStageScreen> {
   @override
   Widget build(BuildContext context) {
     final agencyProvider = Provider.of<GetAgencyApi>(context);
-    final needsAgencySelection = widget.substages.isNotEmpty &&
+    final needsAgencySelection =
+        widget.substages.isNotEmpty &&
         widget.substages.first.isCurrent == true &&
         widget.substages.first.isCompleted == false;
 
@@ -74,13 +78,33 @@ class _PackagingStageScreenState extends State<PackagingStageScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               if (agencyProvider.loading)
-                const Center(child: Padding(padding: EdgeInsets.all(40), child: CircularProgressIndicator()))
+                const Center(
+                  child: Padding(
+                    padding: EdgeInsets.all(40),
+                    child: CircularProgressIndicator(),
+                  ),
+                )
               else if (agencyProvider.agencies.isEmpty)
-                Center(child: Padding(padding: const EdgeInsets.all(40), child: Text('No agencies available.', style: kwikTextStlye(14.0, FontWeight.w400, colorCodes.black))))
+                Center(
+                  child: Padding(
+                    padding: const EdgeInsets.all(40),
+                    child: Text(
+                      'No agencies available.',
+                      style: kwikTextStlye(
+                        14.0,
+                        FontWeight.w400,
+                        colorCodes.black,
+                      ),
+                    ),
+                  ),
+                )
               else
                 ...agencyProvider.agencies.map((agency) {
                   final serviceFeeNGN = agency.serviceFee ?? 0;
-                  final serviceFeeUSD = agency.fee?.serviceFeePerTonInUSD ?? agency.serviceFeeInUSD ?? 0;
+                  final serviceFeeUSD =
+                      agency.fee?.serviceFeePerTonInUSD ??
+                      agency.serviceFeeInUSD ??
+                      0;
                   final days = agency.numberOfDaysToDeliver ?? 0;
                   return Padding(
                     padding: const EdgeInsets.only(bottom: 20),
@@ -88,57 +112,98 @@ class _PackagingStageScreenState extends State<PackagingStageScreen> {
                       "assets/images/icons/dashboard/procurement_agency_logo.png",
                       agency.name,
                       agency.rating?.toDouble(),
-                      MoneyUtils.formatMoney(serviceFeeUSD, symbol: "\$", decimalDigits: 2),
-                      MoneyUtils.formatMoney(serviceFeeNGN, symbol: "₦", decimalDigits: 2),
+                      MoneyUtils.formatMoney(
+                        serviceFeeUSD,
+                        symbol: "\$",
+                        decimalDigits: 2,
+                      ),
+                      MoneyUtils.formatMoney(
+                        serviceFeeNGN,
+                        symbol: "₦",
+                        decimalDigits: 2,
+                      ),
                       "$days days",
                       "${days * 24} hours",
                       "23 reviews",
                       agency,
                       () {
-                        showDialog(context: context, builder: (_) => AgencyDetailsDialog(agency: agency));
+                        showDialog(
+                          context: context,
+                          builder: (_) => AgencyDetailsDialog(agency: agency),
+                        );
                       },
                       () {
                         // Debug kwikticket values
-                        debugPrint('🎯 Packaging Stage - Select Button Clicked:');
-                        debugPrint('  - kwikticket is null? ${widget.kwikticket == null}');
-                        debugPrint('  - quantityToFulfill: ${widget.kwikticket?.quantityToFulfill}');
-                        debugPrint('  - totalQuantity: ${widget.kwikticket?.totalQuantity}');
-                        debugPrint('  - contract?.totalQuantity: ${widget.kwikticket?.contract?.totalQuantity}');
-                        
+                        debugPrint(
+                          '🎯 Packaging Stage - Select Button Clicked:',
+                        );
+                        debugPrint(
+                          '  - kwikticket is null? ${widget.kwikticket == null}',
+                        );
+                        debugPrint(
+                          '  - quantityToFulfill: ${widget.kwikticket?.quantityToFulfill}',
+                        );
+                        debugPrint(
+                          '  - totalQuantity: ${widget.kwikticket?.totalQuantity}',
+                        );
+                        debugPrint(
+                          '  - contract?.totalQuantity: ${widget.kwikticket?.contract?.totalQuantity}',
+                        );
+
                         // Get tonnage from kwikticket with fallbacks
-                        final tonnage = widget.kwikticket?.quantityToFulfill ?? 
-                                        widget.kwikticket?.totalQuantity ?? 
-                                        widget.kwikticket?.contract?.totalQuantity ?? 
-                                        0;
-                        
+                        final tonnage =
+                            widget.kwikticket?.quantityToFulfill ??
+                            widget.kwikticket?.totalQuantity ??
+                            widget.kwikticket?.contract?.totalQuantity ??
+                            0;
+
                         // Calculate total cost based on tonnage
                         final serviceFeePerTon = agency.serviceFeePerTon ?? 0;
-                        final serviceFeePerTonUSD = agency.serviceFeePerTonInUSD ?? 0;
+                        final serviceFeePerTonUSD =
+                            agency.serviceFeePerTonInUSD ?? 0;
                         final totalCostNGN = serviceFeePerTon * tonnage;
                         final totalCostUSD = serviceFeePerTonUSD * tonnage;
-                        
-                        debugPrint('🧮 Packaging Stage - Calculation for ${agency.name}:');
-                        debugPrint('  - Tonnage: $tonnage (type: ${tonnage.runtimeType})');
-                        debugPrint('  - Service fee per ton (NGN): $serviceFeePerTon');
-                        debugPrint('  - Service fee per ton (USD): $serviceFeePerTonUSD');
+
+                        debugPrint(
+                          '🧮 Packaging Stage - Calculation for ${agency.name}:',
+                        );
+                        debugPrint(
+                          '  - Tonnage: $tonnage (type: ${tonnage.runtimeType})',
+                        );
+                        debugPrint(
+                          '  - Service fee per ton (NGN): $serviceFeePerTon',
+                        );
+                        debugPrint(
+                          '  - Service fee per ton (USD): $serviceFeePerTonUSD',
+                        );
                         debugPrint('  - Total cost (NGN): $totalCostNGN');
                         debugPrint('  - Total cost (USD): $totalCostUSD');
-                        
+
                         showDialog(
                           barrierDismissible: false,
                           context: context,
-                          builder: (_) => ConfirmAgencySelectionDialog(
-                            serviceFee: MoneyUtils.formatMoney(serviceFeePerTonUSD, symbol: "\$", decimalDigits: 2),
-                            totalcostTons: tonnage,
-                            totalCost: totalCostNGN,
-                            agencyFeeDisplay: MoneyUtils.formatMoney(totalCostUSD, symbol: "\$", decimalDigits: 2),
-                            agencyName: agency.name,
-                            kwikticket: widget.kwikticket,
-                            agencyId: agency.id,
-                            agencyType: 3,
-                          ),
+                          builder:
+                              (_) => ConfirmAgencySelectionDialog(
+                                serviceFee: MoneyUtils.formatMoney(
+                                  serviceFeePerTonUSD,
+                                  symbol: "\$",
+                                  decimalDigits: 2,
+                                ),
+                                totalcostTons: tonnage,
+                                totalCost: totalCostNGN,
+                                agencyFeeDisplay: MoneyUtils.formatMoney(
+                                  totalCostUSD,
+                                  symbol: "\$",
+                                  decimalDigits: 2,
+                                ),
+                                agencyName: agency.name,
+                                kwikticket: widget.kwikticket,
+                                agencyId: agency.id,
+                                agencyType: 3,
+                              ),
                         );
                       },
+                      context,
                     ),
                   );
                 }).toList(),
@@ -169,14 +234,22 @@ class _PackagingStageScreenState extends State<PackagingStageScreen> {
       ),
       backgroundColor: colorCodes.whiteSmoke,
       body: ListView(
-        padding: const EdgeInsets.only(left: 20, right: 20, top: 20, bottom: 100),
+        padding: const EdgeInsets.only(
+          left: 20,
+          right: 20,
+          top: 20,
+          bottom: 100,
+        ),
         children: [
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
             decoration: BoxDecoration(
               color: colorCodes.white,
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(width: 1.5, color: colorCodes.paleCornflowerBlue),
+              border: Border.all(
+                width: 1.5,
+                color: colorCodes.paleCornflowerBlue,
+              ),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -191,23 +264,44 @@ class _PackagingStageScreenState extends State<PackagingStageScreen> {
                         shape: BoxShape.circle,
                       ),
                       child: Center(
-                        child: Text("2", style: kwikTextStlye(18.0, FontWeight.w600, colorCodes.paleCornflowerBlue)),
+                        child: Text(
+                          "2",
+                          style: kwikTextStlye(
+                            18.0,
+                            FontWeight.w600,
+                            colorCodes.paleCornflowerBlue,
+                          ),
+                        ),
                       ),
                     ),
                     const SizedBox(width: 12),
-                    Text("Packaging & Documentation", style: kwikTextStlye(18.0, FontWeight.w600, colorCodes.black)),
+                    Text(
+                      "Packaging & Documentation",
+                      style: kwikTextStlye(
+                        18.0,
+                        FontWeight.w600,
+                        colorCodes.black,
+                      ),
+                    ),
                   ],
                 ),
                 const SizedBox(height: 16),
                 Text(
                   "Track packaging, quality checks, and export documentation preparation.",
-                  style: kwikTextStlye(14.0, FontWeight.w400, colorCodes.graniteGrey),
+                  style: kwikTextStlye(
+                    14.0,
+                    FontWeight.w400,
+                    colorCodes.graniteGrey,
+                  ),
                 ),
               ],
             ),
           ),
           const SizedBox(height: 24),
-          Text("Stage Progress", style: kwikTextStlye(16.0, FontWeight.w600, colorCodes.black)),
+          Text(
+            "Stage Progress",
+            style: kwikTextStlye(16.0, FontWeight.w600, colorCodes.black),
+          ),
           const SizedBox(height: 16),
           ListView.separated(
             shrinkWrap: true,

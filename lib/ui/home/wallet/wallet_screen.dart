@@ -119,7 +119,7 @@ class _WalletScreenState extends State<WalletScreen> {
                             HexColor("#061042"),
                             "assets/images/icons/dashboard/Union.png",
                             "2mins ago",
-                            "${userDataVar?.exporterUniqueId}",//.exporter?.exporterUniqueId}",
+                            "${userDataVar?.exporterUniqueId}", //.exporter?.exporterUniqueId}",
                             // "******KWP-2024-001",
                             showKwikwalletBalance,
                             () {
@@ -130,7 +130,9 @@ class _WalletScreenState extends State<WalletScreen> {
                           ),
                         ),
                         walletBalanceContainer(
-                          "\$${NumberFormat('#,##0.00').format(exportWalletBalance)}",
+                          showKwikexportBalance == true
+                              ? "\$${NumberFormat('#,##0.00').format(exportWalletBalance)}"
+                              : "•••••",
                           "Export Wallet",
                           colorCodes.blackPurple,
                           colorCodes.blackPurple,
@@ -139,7 +141,11 @@ class _WalletScreenState extends State<WalletScreen> {
                           "2mins ago",
                           "${userDataVar?.exporter?.exporterUniqueId}",
                           showKwikexportBalance,
-                          () {},
+                          () {
+                            setState(() {
+                              showKwikexportBalance = !showKwikexportBalance;
+                            });
+                          },
                         ),
                       ],
                       // },
@@ -190,7 +196,7 @@ class _WalletScreenState extends State<WalletScreen> {
                             //   context,
                             //   MaterialPageRoute(
                             //     builder:
-                            //         (context) => 
+                            //         (context) =>
                             //         KycVerificationScreen(
                             //           kwikticket: kwikticket,
                             //         ),
@@ -203,16 +209,14 @@ class _WalletScreenState extends State<WalletScreen> {
                           "assets/images/icons/request.png",
                           "Request",
                           () {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder:
-                                              (context) =>
-                                                  RequestContractScreen(),
-                                        ),
-                                      );
-                                      currentIndex = 2;
-                                    },
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => RequestContractScreen(),
+                              ),
+                            );
+                            currentIndex = 2;
+                          },
                           width: 70.0,
                         ),
                         quickActionsContainer(

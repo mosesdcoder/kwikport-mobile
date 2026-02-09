@@ -44,13 +44,17 @@ class _SelectProcurementAgencyScreenState
     debugPrint('  - AgencyType: ${widget.agencyType}');
     debugPrint('  - KwikTicket exists: ${widget.kwikticket != null}');
     debugPrint('  - KwikTicket ID: ${widget.kwikticket?.id}');
-    
+
     if (widget.kwikticket != null) {
-      debugPrint('  - quantityToFulfill: ${widget.kwikticket!.quantityToFulfill}');
+      debugPrint(
+        '  - quantityToFulfill: ${widget.kwikticket!.quantityToFulfill}',
+      );
       debugPrint('  - totalQuantity: ${widget.kwikticket!.totalQuantity}');
       debugPrint('  - contract exists: ${widget.kwikticket!.contract != null}');
       if (widget.kwikticket!.contract != null) {
-        debugPrint('  - contract.totalQuantity: ${widget.kwikticket!.contract!.totalQuantity}');
+        debugPrint(
+          '  - contract.totalQuantity: ${widget.kwikticket!.contract!.totalQuantity}',
+        );
       }
     }
 
@@ -103,21 +107,28 @@ class _SelectProcurementAgencyScreenState
 
   Future<void> _fetchInitialAgency() async {
     debugPrint('📡 _fetchInitialAgency called');
-    
+
     final agencyApi = Provider.of<GetAgencyApi>(context, listen: false);
     final tonnage = _getTonnage();
-    
+
     debugPrint('  - Tonnage for API call: $tonnage');
-    
+
     if (tonnage == null) {
       debugPrint('  ❌ Tonnage is null, showing error');
       _showTonnageError();
       return;
     }
-    
-    debugPrint('  ✅ Fetching agencies with tonnage: $tonnage, agencyType: ${widget.agencyType}');
-    await agencyApi.fetchAgenciesByStageType(widget.agencyType, tonnage: tonnage);
-    debugPrint('  - Fetch completed. Agencies count: ${agencyApi.agencies.length}');
+
+    debugPrint(
+      '  ✅ Fetching agencies with tonnage: $tonnage, agencyType: ${widget.agencyType}',
+    );
+    await agencyApi.fetchAgenciesByStageType(
+      widget.agencyType,
+      tonnage: tonnage,
+    );
+    debugPrint(
+      '  - Fetch completed. Agencies count: ${agencyApi.agencies.length}',
+    );
   }
 
   Future<void> _refresh() async {
@@ -127,7 +138,10 @@ class _SelectProcurementAgencyScreenState
       _showTonnageError();
       return;
     }
-    await agencyApi.fetchAgenciesByStageType(widget.agencyType, tonnage: tonnage);
+    await agencyApi.fetchAgenciesByStageType(
+      widget.agencyType,
+      tonnage: tonnage,
+    );
   }
 
   int? _getTonnage() {
@@ -137,9 +151,10 @@ class _SelectProcurementAgencyScreenState
     debugPrint('  - quantityToFulfill: $quantityToFulfill');
 
     // Only use quantityToFulfill, and ensure it's > 0
-    final tonnage = (quantityToFulfill != null && quantityToFulfill > 0)
-        ? quantityToFulfill.toInt()
-        : null;
+    final tonnage =
+        (quantityToFulfill != null && quantityToFulfill > 0)
+            ? quantityToFulfill.toInt()
+            : null;
 
     debugPrint('  - Final tonnage used: $tonnage');
 
@@ -150,7 +165,9 @@ class _SelectProcurementAgencyScreenState
     debugPrint('⚠️ Showing tonnage error snackbar');
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('Error: Unable to determine tonnage for agency calculation'),
+        content: Text(
+          'Error: Unable to determine tonnage for agency calculation',
+        ),
         backgroundColor: Colors.red,
         duration: Duration(seconds: 4),
       ),
@@ -166,8 +183,10 @@ class _SelectProcurementAgencyScreenState
   @override
   Widget build(BuildContext context) {
     final agencyProvider = Provider.of<GetAgencyApi>(context);
-    
-    debugPrint('🎨 Build called - loading: ${agencyProvider.loading}, agencies: ${agencyProvider.agencies.length}');
+
+    debugPrint(
+      '🎨 Build called - loading: ${agencyProvider.loading}, agencies: ${agencyProvider.agencies.length}',
+    );
 
     if (agencyProvider.loading && agencyProvider.agencies.isEmpty) {
       return Scaffold(
@@ -196,7 +215,9 @@ class _SelectProcurementAgencyScreenState
       );
     }
 
-    debugPrint('  ✅ Rendering full screen with ${agencyProvider.agencies.length} agencies');
+    debugPrint(
+      '  ✅ Rendering full screen with ${agencyProvider.agencies.length} agencies',
+    );
 
     return Scaffold(
       backgroundColor: colorCodes.whiteSmoke,
@@ -222,191 +243,216 @@ class _SelectProcurementAgencyScreenState
       ),
 
       body: RefreshIndicator(
-                onRefresh: _refresh,
-                child: ListView.builder(
-                  controller: _scrollController,
-                  padding: const EdgeInsets.fromLTRB(20, 20, 20, 100),
-                  itemCount: agencyProvider.agencies.length + 5,
-                  itemBuilder: (context, index) {
-                    debugPrint('  📦 Building item $index of ${agencyProvider.agencies.length + 5}');
-                    if (index == 0) {
-                      debugPrint('    ➡️ Showing header');
-                      return Column(
-                        children: [
-                          Center(
-                            child: Image.asset(
-                              "assets/images/icons/procuement_select_check.png",
-                              height: 96,
-                              width: 113,
-                            ),
-                          ),
-                          const SizedBox(height: 31),
-                          Text(
-                            "Choose an agency\nfor your export contract",
-                            textAlign: TextAlign.center,
-                            style: kwikTextStlye(
-                              18.0,
-                              FontWeight.w600,
-                              colorCodes.black,
-                            ),
-                          ),
-                          const SizedBox(height: 5),
-                          Text(
-                            "Your selection will be locked in 24 hours.",
-                            textAlign: TextAlign.center,
-                            style: kwikTextStlye(
-                              14.0,
-                              FontWeight.w300,
-                              colorCodes.graniteGrey,
-                            ),
-                          ),
-                          const SizedBox(height: 17),
-                        ],
-                      );
-                    }
+        onRefresh: _refresh,
+        child: ListView.builder(
+          controller: _scrollController,
+          padding: const EdgeInsets.fromLTRB(20, 20, 20, 100),
+          itemCount: agencyProvider.agencies.length + 5,
+          itemBuilder: (context, index) {
+            debugPrint(
+              '  📦 Building item $index of ${agencyProvider.agencies.length + 5}',
+            );
+            if (index == 0) {
+              debugPrint('    ➡️ Showing header');
+              return Column(
+                children: [
+                  Center(
+                    child: Image.asset(
+                      "assets/images/icons/procuement_select_check.png",
+                      height: 96,
+                      width: 113,
+                    ),
+                  ),
+                  const SizedBox(height: 31),
+                  Text(
+                    "Choose an agency\nfor your export contract",
+                    textAlign: TextAlign.center,
+                    style: kwikTextStlye(
+                      18.0,
+                      FontWeight.w600,
+                      colorCodes.black,
+                    ),
+                  ),
+                  const SizedBox(height: 5),
+                  Text(
+                    "Your selection will be locked in 24 hours.",
+                    textAlign: TextAlign.center,
+                    style: kwikTextStlye(
+                      14.0,
+                      FontWeight.w300,
+                      colorCodes.graniteGrey,
+                    ),
+                  ),
+                  const SizedBox(height: 17),
+                ],
+              );
+            }
 
-                    if (index == 1) {
-                      debugPrint('    ➡️ Showing infoBox');
-                      try {
-                        return _infoBox();
-                      } catch (e, stack) {
-                        debugPrint('    ❌ Error in _infoBox: $e');
-                        debugPrint('    Stack: $stack');
-                        return SizedBox(height: 100, child: Center(child: Text('Error in infoBox: $e')));
-                      }
-                    }
-                    if (index == 2) {
-                      debugPrint('    ➡️ Showing spacer 1');
-                      return const SizedBox(height: 20);
-                    }
-                    if (index == 3) {
-                      debugPrint('    ➡️ Showing timerBox');
-                      try {
-                        return _timerBox();
-                      } catch (e, stack) {
-                        debugPrint('    ❌ Error in _timerBox: $e');
-                        debugPrint('    Stack: $stack');
-                        return SizedBox(height: 100, child: Center(child: Text('Error in timerBox: $e')));
-                      }
-                    }
-                    if (index == 4) {
-                      debugPrint('    ➡️ Showing spacer 2');
-                      return const SizedBox(height: 20);
-                    }
+            if (index == 1) {
+              debugPrint('    ➡️ Showing infoBox');
+              try {
+                return _infoBox();
+              } catch (e, stack) {
+                debugPrint('    ❌ Error in _infoBox: $e');
+                debugPrint('    Stack: $stack');
+                return SizedBox(
+                  height: 100,
+                  child: Center(child: Text('Error in infoBox: $e')),
+                );
+              }
+            }
+            if (index == 2) {
+              debugPrint('    ➡️ Showing spacer 1');
+              return const SizedBox(height: 20);
+            }
+            if (index == 3) {
+              debugPrint('    ➡️ Showing timerBox');
+              try {
+                return _timerBox();
+              } catch (e, stack) {
+                debugPrint('    ❌ Error in _timerBox: $e');
+                debugPrint('    Stack: $stack');
+                return SizedBox(
+                  height: 100,
+                  child: Center(child: Text('Error in timerBox: $e')),
+                );
+              }
+            }
+            if (index == 4) {
+              debugPrint('    ➡️ Showing spacer 2');
+              return const SizedBox(height: 20);
+            }
 
-                    final agencyIndex = index - 5;
-                    debugPrint('    ➡️ Agency index: $agencyIndex');
+            final agencyIndex = index - 5;
+            debugPrint('    ➡️ Agency index: $agencyIndex');
 
-                    if (agencyIndex >= agencyProvider.agencies.length) {
-                      debugPrint('    ⚠️ AgencyIndex $agencyIndex >= agencies.length ${agencyProvider.agencies.length}');
-                      return const SizedBox.shrink();
-                    }
+            if (agencyIndex >= agencyProvider.agencies.length) {
+              debugPrint(
+                '    ⚠️ AgencyIndex $agencyIndex >= agencies.length ${agencyProvider.agencies.length}',
+              );
+              return const SizedBox.shrink();
+            }
 
-                    final agency = agencyProvider.agencies[agencyIndex];
-                    debugPrint('    ✅ Rendering agency: ${agency.name}');
-                    final serviceFeeNGN = agency.serviceFeePerTon ?? agency.serviceFee ?? 0;
-                    final serviceFeeUSD =
-                        agency.serviceFeePerTonInUSD ??
-                        agency.serviceFeeInUSD ??
-                        0;
-                    final days = agency.numberOfDaysToDeliver ?? 0;
-                    debugPrint(
-                      'Rendering agency=${agency.name} serviceFeeUSD=$serviceFeeUSD serviceFeeNGN=$serviceFeeNGN',
-                    );
-                    final rating = agency.rating?.toDouble();
+            final agency = agencyProvider.agencies[agencyIndex];
+            debugPrint('    ✅ Rendering agency: ${agency.name}');
+            final serviceFeeNGN =
+                agency.serviceFeePerTon ?? agency.serviceFee ?? 0;
+            final serviceFeeUSD =
+                agency.serviceFeePerTonInUSD ?? agency.serviceFeeInUSD ?? 0;
+            final days = agency.numberOfDaysToDeliver ?? 0;
+            debugPrint(
+              'Rendering agency=${agency.name} serviceFeeUSD=$serviceFeeUSD serviceFeeNGN=$serviceFeeNGN',
+            );
+            final rating = agency.rating?.toDouble();
 
-                    return Padding(
-                      padding: const EdgeInsets.only(bottom: 20),
-                      child: procurementAgencyContainer(
-                        "assets/images/icons/dashboard/procurement_agency_logo.png",
-                        agency.name,
-                        agency.rating?.toDouble(),
-                        MoneyUtils.formatMoney(serviceFeeUSD, symbol: "\$"),
-                        MoneyUtils.formatMoney(
-                          serviceFeeNGN,
-                          symbol: "₦",
-                          decimalDigits: 2,
-                        ),
-                        "$days days",
-                        "${days * 24} hours",
-                        rating != null
-                            ? "${rating.toStringAsFixed(1)} stars"
-                            : "No rating",
-                        agency,
-                        () {
-                          showDialog(
-                            context: context,
-                            builder: (_) => AgencyDetailsDialog(agency: agency),
-                          );
-                        },
-                        () {
-                          debugPrint('🚀 SELECT BUTTON CLICKED for ${agency.name}');
-                          
-                          // Get tonnage from kwikticket with fallbacks
-                          debugPrint('🔍 Checking kwikticket for tonnage:');
-                          debugPrint('  - kwikticket exists: ${widget.kwikticket != null}');
-                          debugPrint('  - quantityToFulfill: ${widget.kwikticket?.quantityToFulfill}');
-                          debugPrint('  - totalQuantity: ${widget.kwikticket?.totalQuantity}');
-                          debugPrint('  - contract exists: ${widget.kwikticket?.contract != null}');
-                          debugPrint('  - contract.totalQuantity: ${widget.kwikticket?.contract?.totalQuantity}');
-                          
-                          final tonnage = widget.kwikticket?.quantityToFulfill ?? 
-                                          widget.kwikticket?.totalQuantity ?? 
-                                          widget.kwikticket?.contract?.totalQuantity ?? 
-                                          0;
-                          
-                          // Calculate total cost based on tonnage
-                          final serviceFeePerTon = agency.serviceFeePerTon ?? 0;
-                          final serviceFeePerTonUSD = agency.serviceFeePerTonInUSD ?? 0;
-                          final totalCostNGN = serviceFeePerTon * tonnage;
-                          final totalCostUSD = serviceFeePerTonUSD * tonnage;
-                          
-                          debugPrint('🧮 Calculation for ${agency.name}:');
-                          debugPrint('  - Tonnage: $tonnage');
-                          debugPrint('  - Service fee per ton (NGN): $serviceFeePerTon');
-                          debugPrint('  - Service fee per ton (USD): $serviceFeePerTonUSD');
-                          debugPrint('  - Total cost (NGN): $totalCostNGN');
-                          debugPrint('  - Total cost (USD): $totalCostUSD');
-                          
-                          final formattedServiceFee = MoneyUtils.formatMoney(
-                            serviceFeePerTonUSD,
-                            symbol: "\$",
-                            decimalDigits: 2,
-                          );
-                          final formattedAgencyFee = MoneyUtils.formatMoney(
-                            totalCostUSD,
-                            symbol: "\$",
-                            decimalDigits: 2,
-                          );
-                          
-                          debugPrint('📦 Passing to Dialog:');
-                          debugPrint('  - serviceFee: $formattedServiceFee');
-                          debugPrint('  - totalcostTons: $tonnage');
-                          debugPrint('  - totalCost: $totalCostNGN');
-                          debugPrint('  - agencyFeeDisplay: $formattedAgencyFee');
-                          debugPrint('  - agencyType: ${widget.agencyType}');
-                          
-                          showDialog(
-                            barrierDismissible: false,
-                            context: context,
-                            builder:
-                                (_) => ConfirmAgencySelectionDialog(
-                                  serviceFee: formattedServiceFee,
-                                  totalcostTons: tonnage,
-                                  totalCost: totalCostNGN,
-                                  agencyFeeDisplay: formattedAgencyFee,
-                                  agencyName: agency.name,
-                                  kwikticket: widget.kwikticket,
-                                  agencyId: agency.id,
-                                  agencyType: widget.agencyType,
-                                ),
-                          );
-                        },
-                      ),
-                    );
-                  },
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 20),
+              child: procurementAgencyContainer(
+                "assets/images/icons/dashboard/procurement_agency_logo.png",
+                agency.name,
+                agency.rating?.toDouble(),
+                MoneyUtils.formatMoney(serviceFeeUSD, symbol: "\$"),
+                MoneyUtils.formatMoney(
+                  serviceFeeNGN,
+                  symbol: "₦",
+                  decimalDigits: 2,
                 ),
+                "$days days",
+                "${days * 24} hours",
+                rating != null
+                    ? "${rating.toStringAsFixed(1)} stars"
+                    : "No rating",
+                agency,
+                () {
+                  showDialog(
+                    context: context,
+                    builder: (_) => AgencyDetailsDialog(agency: agency),
+                  );
+                },
+                () {
+                  debugPrint('🚀 SELECT BUTTON CLICKED for ${agency.name}');
+
+                  // Get tonnage from kwikticket with fallbacks
+                  debugPrint('🔍 Checking kwikticket for tonnage:');
+                  debugPrint(
+                    '  - kwikticket exists: ${widget.kwikticket != null}',
+                  );
+                  debugPrint(
+                    '  - quantityToFulfill: ${widget.kwikticket?.quantityToFulfill}',
+                  );
+                  debugPrint(
+                    '  - totalQuantity: ${widget.kwikticket?.totalQuantity}',
+                  );
+                  debugPrint(
+                    '  - contract exists: ${widget.kwikticket?.contract != null}',
+                  );
+                  debugPrint(
+                    '  - contract.totalQuantity: ${widget.kwikticket?.contract?.totalQuantity}',
+                  );
+
+                  final tonnage =
+                      widget.kwikticket?.quantityToFulfill ??
+                      widget.kwikticket?.totalQuantity ??
+                      widget.kwikticket?.contract?.totalQuantity ??
+                      0;
+
+                  // Calculate total cost based on tonnage
+                  final serviceFeePerTon = agency.serviceFeePerTon ?? 0;
+                  final serviceFeePerTonUSD = agency.serviceFeePerTonInUSD ?? 0;
+                  final totalCostNGN = serviceFeePerTon * tonnage;
+                  final totalCostUSD = serviceFeePerTonUSD * tonnage;
+
+                  debugPrint('🧮 Calculation for ${agency.name}:');
+                  debugPrint('  - Tonnage: $tonnage');
+                  debugPrint(
+                    '  - Service fee per ton (NGN): $serviceFeePerTon',
+                  );
+                  debugPrint(
+                    '  - Service fee per ton (USD): $serviceFeePerTonUSD',
+                  );
+                  debugPrint('  - Total cost (NGN): $totalCostNGN');
+                  debugPrint('  - Total cost (USD): $totalCostUSD');
+
+                  final formattedServiceFee = MoneyUtils.formatMoney(
+                    serviceFeePerTonUSD,
+                    symbol: "\$",
+                    decimalDigits: 2,
+                  );
+                  final formattedAgencyFee = MoneyUtils.formatMoney(
+                    totalCostUSD,
+                    symbol: "\$",
+                    decimalDigits: 2,
+                  );
+
+                  debugPrint('📦 Passing to Dialog:');
+                  debugPrint('  - serviceFee: $formattedServiceFee');
+                  debugPrint('  - totalcostTons: $tonnage');
+                  debugPrint('  - totalCost: $totalCostNGN');
+                  debugPrint('  - agencyFeeDisplay: $formattedAgencyFee');
+                  debugPrint('  - agencyType: ${widget.agencyType}');
+
+                  showDialog(
+                    barrierDismissible: false,
+                    context: context,
+                    builder:
+                        (_) => ConfirmAgencySelectionDialog(
+                          serviceFee: formattedServiceFee,
+                          totalcostTons: tonnage,
+                          totalCost: totalCostNGN,
+                          agencyFeeDisplay: formattedAgencyFee,
+                          agencyName: agency.name,
+                          kwikticket: widget.kwikticket,
+                          agencyId: agency.id,
+                          agencyType: widget.agencyType,
+                        ),
+                  );
+                },
+                context,
               ),
+            );
+          },
+        ),
+      ),
 
       //bottomNavigationBar: Bottomnavigationbar(1),
     );

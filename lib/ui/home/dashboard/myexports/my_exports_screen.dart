@@ -386,29 +386,29 @@ class _MyExportsScreenState extends State<MyExportsScreen>
 
   Widget contractStatusContainer(icon, status, contractcount) {
     return Container(
-      width: 170,
-      height: 76,
+      width: 150,
+      height: 60,
 
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(8),
         color: colorCodes.white,
       ),
-      padding: const EdgeInsets.fromLTRB(10, 30, 10, 30),
+      padding: const EdgeInsets.fromLTRB(6, 10, 6, 10),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         // crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Image.asset(icon, height: 20, width: 20),
-          SizedBox(width: 10),
+          SizedBox(width: 5),
           Text(
             status,
             style: kwikTextStlye(10.0, FontWeight.w500, colorCodes.black),
           ),
-          SizedBox(width: 10),
+          SizedBox(width: 5),
           Container(
             width: 20,
             height: 20,
-            padding: EdgeInsets.symmetric(horizontal: 2, vertical: 1),
+            // padding: EdgeInsets.symmetric(horizontal: 2, vertical: 1),
             alignment: Alignment.center,
             decoration: BoxDecoration(
               color: colorCodes.portlandOrange,

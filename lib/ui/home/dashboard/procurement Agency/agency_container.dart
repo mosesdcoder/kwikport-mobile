@@ -17,42 +17,69 @@ Widget procurementAgencyContainer(
   AgencyModel? agency,
   viewDetailsFunc,
   selectFunc,
+  context,
 ) {
   // Use AgencyModel properties if available, otherwise fallback to provided values
   // Prioritize per-ton fees if total fees are 0 or null
-  final displayedServiceFee = (agency?.serviceFeePerTonInUSD != null && agency!.serviceFeePerTonInUSD! > 0)
-      ? MoneyUtils.formatMoney(agency.serviceFeePerTonInUSD!, symbol: "\$", decimalDigits: 2)
-      : (agency?.serviceFeeInUSD != null && agency!.serviceFeeInUSD! > 0)
-          ? MoneyUtils.formatMoney(agency.serviceFeeInUSD!, symbol: "\$", decimalDigits: 2)
+  final displayedServiceFee =
+      (agency?.serviceFeePerTonInUSD != null &&
+              agency!.serviceFeePerTonInUSD! > 0)
+          ? MoneyUtils.formatMoney(
+            agency.serviceFeePerTonInUSD!,
+            symbol: "\$",
+            decimalDigits: 2,
+          )
+          : (agency?.serviceFeeInUSD != null && agency!.serviceFeeInUSD! > 0)
+          ? MoneyUtils.formatMoney(
+            agency.serviceFeeInUSD!,
+            symbol: "\$",
+            decimalDigits: 2,
+          )
           : serviceFee;
 
-  final displayedServiceFeeConvert = (agency?.serviceFeePerTon != null && agency!.serviceFeePerTon! > 0)
-      ? MoneyUtils.formatMoney(agency.serviceFeePerTon!, symbol: "₦", decimalDigits: 2)
-      : (agency?.serviceFee != null && agency!.serviceFee! > 0)
-          ? MoneyUtils.formatMoney(agency.serviceFee!, symbol: "₦", decimalDigits: 2)
+  final displayedServiceFeeConvert =
+      (agency?.serviceFeePerTon != null && agency!.serviceFeePerTon! > 0)
+          ? MoneyUtils.formatMoney(
+            agency.serviceFeePerTon!,
+            symbol: "₦",
+            decimalDigits: 2,
+          )
+          : (agency?.serviceFee != null && agency!.serviceFee! > 0)
+          ? MoneyUtils.formatMoney(
+            agency.serviceFee!,
+            symbol: "₦",
+            decimalDigits: 2,
+          )
           : serviceFeeConvert;
 
-  final displayedDeliveryDays = (agency?.numberOfDaysToDeliver != null)
-      ? "${agency!.numberOfDaysToDeliver} days"
-      : deliveryDays;
+  final displayedDeliveryDays =
+      (agency?.numberOfDaysToDeliver != null)
+          ? "${agency!.numberOfDaysToDeliver} days"
+          : deliveryDays;
 
-  final displayedDeliveryHours = (agency?.numberOfDaysToDeliver != null)
-      ? "${agency!.numberOfDaysToDeliver! * 24} hours"
-      : deliveryHours;
+  final displayedDeliveryHours =
+      (agency?.numberOfDaysToDeliver != null)
+          ? "${agency!.numberOfDaysToDeliver! * 24} hours"
+          : deliveryHours;
 
-  final totalCostInUSD = (agency?.totalCostInUSD != null && agency!.totalCostInUSD! > 0)
-      ? MoneyUtils.formatMoney(agency.totalCostInUSD!, symbol: "\$", decimalDigits: 0)
-      : "00";
-  
+  final totalCostInUSD =
+      (agency?.totalCostInUSD != null && agency!.totalCostInUSD! > 0)
+          ? MoneyUtils.formatMoney(
+            agency.totalCostInUSD!,
+            symbol: "\$",
+            decimalDigits: 0,
+          )
+          : "00";
+
   // Use rating from AgencyModel if available
-  final displayedRating = (agency?.rating != null)
-      ? agency!.rating!
-      : agencyRatings;
-  
+  final displayedRating =
+      (agency?.rating != null) ? agency!.rating! : agencyRatings;
+
   // Use name from AgencyModel if available
-  final displayedName = (agency?.name != null && agency!.name!.isNotEmpty)
-      ? agency!.name!
-      : agencyName;
+  final displayedName =
+      (agency?.name != null && agency!.name!.isNotEmpty)
+          ? agency!.name!
+          : agencyName;
   return Container(
     height: 250,
     width: 390,
@@ -63,52 +90,71 @@ Widget procurementAgencyContainer(
     ),
     child: Column(
       children: [
-        Row(
-          children: [
-            Image.asset(agencyLogo, height: 40, width: 40),
-            SizedBox(width: 10),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  displayedName,
-                  style: kwikTextStlye(14.0, FontWeight.w600, colorCodes.black),
-                ),
-                Row(
-                  children: [
-                    Row(
-                      children: List.generate(
-                        5,
-                        (index) => Image.asset(
-                          index < displayedRating.floor()
-                              ? 'assets/images/icons/dashboard/star_filled.png'
-                              : 'assets/images/icons/dashboard/star_unfilled.png',
-                          height: 14,
-                          width: 15,
+        SizedBox(
+          width: MediaQuery.of(context).size.width,
+          child: Row(
+            children: [
+              Image.asset(agencyLogo, height: 40, width: 40),
+              SizedBox(width: 10),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SizedBox(
+                    width: 230,
+                    child: Text(
+                      displayedName,
+                      style: kwikTextStlye(
+                        14.0,
+                        FontWeight.w600,
+                        colorCodes.black,
+                        textOverflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ),
+                  Row(
+                    children: [
+                      Row(
+                        children: List.generate(
+                          5,
+                          (index) => Image.asset(
+                            index < displayedRating.floor()
+                                ? 'assets/images/icons/dashboard/star_filled.png'
+                                : 'assets/images/icons/dashboard/star_unfilled.png',
+                            height: 14,
+                            width: 15,
+                          ),
                         ),
                       ),
-                    ),
-                    SizedBox(width: 8),
-                    Text(
-                      "($displayedRating)",
-                      style: kwikTextStlye(
-                        12.0,
-                        FontWeight.w300,
-                        colorCodes.graniteGrey,
+                      SizedBox(width: 8),
+                      Text(
+                        "($displayedRating)",
+                        style: kwikTextStlye(
+                          12.0,
+                          FontWeight.w300,
+                          colorCodes.graniteGrey,
+                        ),
                       ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ],
+                    ],
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
         SizedBox(height: 15),
         Column(
           children: [
-            infoRow("Service Fee Per ton", displayedServiceFee, displayedServiceFeeConvert),
+            infoRow(
+              "Service Fee Per ton",
+              displayedServiceFee,
+              displayedServiceFeeConvert,
+            ),
             SizedBox(height: 5),
-            infoRow("Delivery Time", displayedDeliveryDays, displayedDeliveryHours),
+            infoRow(
+              "Delivery Time",
+              displayedDeliveryDays,
+              displayedDeliveryHours,
+            ),
             SizedBox(height: 5),
             infoRow("Reviews", "${displayedRating} reviews", ""),
           ],

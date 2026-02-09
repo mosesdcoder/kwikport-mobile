@@ -96,12 +96,14 @@ class _PackagingAndDocumentationState extends State<PackagingAndDocumentation> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final tonnage = widget.exportData.selectedCapacity?.toInt() ?? 0;
-      
+
       if (tonnage <= 0) {
-        print("❌ Cannot fetch agencies: Invalid tonnage ($tonnage). selectedCapacity: ${widget.exportData.selectedCapacity}");
+        print(
+          "❌ Cannot fetch agencies: Invalid tonnage ($tonnage). selectedCapacity: ${widget.exportData.selectedCapacity}",
+        );
         return; // ✅ Don't call API if tonnage is 0 or negative
       }
-      
+
       print("🚚 Fetching agencies with tonnage: $tonnage");
       Provider.of<GetAgencyApi>(
         context,
@@ -134,7 +136,12 @@ class _PackagingAndDocumentationState extends State<PackagingAndDocumentation> {
       ),
       backgroundColor: colorCodes.whiteSmoke,
       body: ListView(
-        padding: const EdgeInsets.only(left: 20, right: 20, top: 20, bottom: 100),
+        padding: const EdgeInsets.only(
+          left: 20,
+          right: 20,
+          top: 20,
+          bottom: 100,
+        ),
         children: [
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 14),
@@ -191,7 +198,7 @@ class _PackagingAndDocumentationState extends State<PackagingAndDocumentation> {
             ),
           ),
           const SizedBox(height: 20),
-          if (agencyApi.loading) 
+          if (agencyApi.loading)
             const Center(child: CircularProgressIndicator()),
           if (!agencyApi.loading && agencyApi.agencies.isEmpty)
             Center(
@@ -211,14 +218,19 @@ class _PackagingAndDocumentationState extends State<PackagingAndDocumentation> {
                 final name = agency.name ?? 'Unnamed';
                 final rating = agency.rating?.toDouble() ?? 0.0;
                 final fee = agency.serviceFee?.toString() ?? '0';
-                final serviceFeeInUSD = agency.serviceFeeInUSD?.toString() ?? '0';
+                final serviceFeeInUSD =
+                    agency.serviceFeeInUSD?.toString() ?? '0';
                 final days = agency.numberOfDaysToDeliver?.toString() ?? '0';
 
                 return procurementAgencyContainer(
                   "assets/images/icons/dashboard/procurement_agency_logo.png",
                   name,
                   rating,
-                  MoneyUtils.formatMoney(serviceFeeInUSD, symbol: "\$", decimalDigits: 2),
+                  MoneyUtils.formatMoney(
+                    serviceFeeInUSD,
+                    symbol: "\$",
+                    decimalDigits: 2,
+                  ),
                   MoneyUtils.formatMoney(fee, symbol: "₦", decimalDigits: 2),
                   "$days days",
                   "${daysToHours(int.tryParse(days) ?? 0)} hours",
@@ -235,7 +247,7 @@ class _PackagingAndDocumentationState extends State<PackagingAndDocumentation> {
                   },
                   () async {
                     // Select button - Show confirmation dialog FIRST
-                    
+
                     // ✅ Log values being displayed in the dialog
                     print("==========================================");
                     print("📋 Confirmation Dialog Data:");
@@ -243,11 +255,13 @@ class _PackagingAndDocumentationState extends State<PackagingAndDocumentation> {
                     print("   - serviceFee (Naira): ${agency.serviceFee}");
                     print("   - serviceFeeInUSD: ${agency.serviceFeeInUSD}");
                     print("   - serviceFeeInUSD (variable): $serviceFeeInUSD");
-                    print("   - Formatted USD Fee: ${MoneyUtils.formatMoney(serviceFeeInUSD, symbol: "\$", decimalDigits: 2)}");
+                    print(
+                      "   - Formatted USD Fee: ${MoneyUtils.formatMoney(serviceFeeInUSD, symbol: "\$", decimalDigits: 2)}",
+                    );
                     print("   - Days: $days");
                     print("   - Stage: ${_getStageTitle()}");
                     print("==========================================");
-                    
+
                     final confirmed = await showDialog<bool>(
                       context: context,
                       barrierDismissible: true,
@@ -269,48 +283,79 @@ class _PackagingAndDocumentationState extends State<PackagingAndDocumentation> {
                                 const SizedBox(height: 16),
                                 Text(
                                   'Confirm Agency Selection',
-                                  style: kwikTextStlye(18.0, FontWeight.w600, colorCodes.black),
+                                  style: kwikTextStlye(
+                                    18.0,
+                                    FontWeight.w600,
+                                    colorCodes.black,
+                                  ),
                                   textAlign: TextAlign.center,
                                 ),
                                 const SizedBox(height: 12),
                                 Text(
                                   'Are you sure you want to select ${agency.name} as your agency for ${_getStageTitle()}?',
-                                  style: kwikTextStlye(14.0, FontWeight.w400, colorCodes.jetBlack),
+                                  style: kwikTextStlye(
+                                    14.0,
+                                    FontWeight.w400,
+                                    colorCodes.jetBlack,
+                                  ),
                                   textAlign: TextAlign.center,
                                 ),
                                 const SizedBox(height: 8),
                                 Container(
                                   padding: const EdgeInsets.all(12),
                                   decoration: BoxDecoration(
-                                    color: colorCodes.paleCornflowerBlue.withOpacity(0.2),
+                                    color: colorCodes.paleCornflowerBlue
+                                        .withOpacity(0.2),
                                     borderRadius: BorderRadius.circular(8),
                                   ),
                                   child: Column(
                                     children: [
                                       Row(
-                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
                                         children: [
                                           Text(
                                             'Service Fee:',
-                                            style: kwikTextStlye(12.0, FontWeight.w500, colorCodes.jetBlack),
+                                            style: kwikTextStlye(
+                                              12.0,
+                                              FontWeight.w500,
+                                              colorCodes.jetBlack,
+                                            ),
                                           ),
                                           Text(
-                                            MoneyUtils.formatMoney(serviceFeeInUSD, symbol: "\$", decimalDigits: 2),
-                                            style: kwikTextStlye(12.0, FontWeight.w600, colorCodes.black),
+                                            MoneyUtils.formatMoney(
+                                              serviceFeeInUSD,
+                                              symbol: "\$",
+                                              decimalDigits: 2,
+                                            ),
+                                            style: kwikTextStlye(
+                                              12.0,
+                                              FontWeight.w600,
+                                              colorCodes.black,
+                                            ),
                                           ),
                                         ],
                                       ),
                                       const SizedBox(height: 4),
                                       Row(
-                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
                                         children: [
                                           Text(
                                             'Delivery Time:',
-                                            style: kwikTextStlye(12.0, FontWeight.w500, colorCodes.jetBlack),
+                                            style: kwikTextStlye(
+                                              12.0,
+                                              FontWeight.w500,
+                                              colorCodes.jetBlack,
+                                            ),
                                           ),
                                           Text(
                                             '$days days',
-                                            style: kwikTextStlye(12.0, FontWeight.w600, colorCodes.black),
+                                            style: kwikTextStlye(
+                                              12.0,
+                                              FontWeight.w600,
+                                              colorCodes.black,
+                                            ),
                                           ),
                                         ],
                                       ),
@@ -326,15 +371,25 @@ class _PackagingAndDocumentationState extends State<PackagingAndDocumentation> {
                                           Navigator.of(context).pop(false);
                                         },
                                         style: OutlinedButton.styleFrom(
-                                          side: BorderSide(color: colorCodes.graniteGrey),
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(8),
+                                          side: BorderSide(
+                                            color: colorCodes.graniteGrey,
                                           ),
-                                          padding: const EdgeInsets.symmetric(vertical: 12),
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(
+                                              8,
+                                            ),
+                                          ),
+                                          padding: const EdgeInsets.symmetric(
+                                            vertical: 12,
+                                          ),
                                         ),
                                         child: Text(
                                           'Cancel',
-                                          style: kwikTextStlye(14.0, FontWeight.w600, colorCodes.graniteGrey),
+                                          style: kwikTextStlye(
+                                            14.0,
+                                            FontWeight.w600,
+                                            colorCodes.graniteGrey,
+                                          ),
                                         ),
                                       ),
                                     ),
@@ -345,15 +400,24 @@ class _PackagingAndDocumentationState extends State<PackagingAndDocumentation> {
                                           Navigator.of(context).pop(true);
                                         },
                                         style: ElevatedButton.styleFrom(
-                                          backgroundColor: colorCodes.yellowOrange,
+                                          backgroundColor:
+                                              colorCodes.yellowOrange,
                                           shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(8),
+                                            borderRadius: BorderRadius.circular(
+                                              8,
+                                            ),
                                           ),
-                                          padding: const EdgeInsets.symmetric(vertical: 12),
+                                          padding: const EdgeInsets.symmetric(
+                                            vertical: 12,
+                                          ),
                                         ),
                                         child: Text(
                                           'Confirm',
-                                          style: kwikTextStlye(14.0, FontWeight.w600, colorCodes.white),
+                                          style: kwikTextStlye(
+                                            14.0,
+                                            FontWeight.w600,
+                                            colorCodes.white,
+                                          ),
                                         ),
                                       ),
                                     ),
@@ -387,7 +451,9 @@ class _PackagingAndDocumentationState extends State<PackagingAndDocumentation> {
                     print("==========================================");
                     print("🚀 Calling select-agency API");
                     print("📋 Payload:");
-                    print("   - exporterContractId: ${widget.exporterContractId}");
+                    print(
+                      "   - exporterContractId: ${widget.exporterContractId}",
+                    );
                     print("   - agencyId: ${agency.id}");
                     print("   - stageType: ${widget.stageType}");
                     print("   - Agency Name: ${agency.name}");
@@ -406,13 +472,14 @@ class _PackagingAndDocumentationState extends State<PackagingAndDocumentation> {
 
                     // Store selected agency in provider
                     if (context.mounted) {
-                      context
-                          .read<SelectedAgencyProvider>()
-                          .setSelectedAgency(agency.id!, agency.name!);
+                      context.read<SelectedAgencyProvider>().setSelectedAgency(
+                        agency.id!,
+                        agency.name!,
+                      );
 
                       if (exportStageApi.success) {
                         print("✅ Agency selection successful!");
-                        
+
                         showDialog(
                           context: context,
                           barrierDismissible: false,
@@ -420,21 +487,34 @@ class _PackagingAndDocumentationState extends State<PackagingAndDocumentation> {
                             return AgencySelectionConfirmedDialog(
                               kwikticket: widget.kwikticket!,
                               exportData: widget.exportData,
-                              serviceFee: MoneyUtils.formatMoney(agency.serviceFeeInUSD ?? 0.0, symbol: "\$", decimalDigits: 2),
+                              serviceFee: MoneyUtils.formatMoney(
+                                agency.serviceFeeInUSD ?? 0.0,
+                                symbol: "\$",
+                                decimalDigits: 2,
+                              ),
                               totalcostTons:
                                   "${widget.exportData.selectedCapacity ?? 0} tons",
-                              totalCost: MoneyUtils.formatMoney(agency.serviceFeeInUSD ?? 0.0, symbol: "\$", decimalDigits: 2),
+                              totalCost: MoneyUtils.formatMoney(
+                                agency.serviceFeeInUSD ?? 0.0,
+                                symbol: "\$",
+                                decimalDigits: 2,
+                              ),
                               agencyName: agency.name ?? 'Unnamed Agency',
                             );
                           },
                         );
                       } else {
-                        print("❌ Agency selection failed: ${exportStageApi.message}");
-                        
+                        print(
+                          "❌ Agency selection failed: ${exportStageApi.message}",
+                        );
+
                         // Show error message
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
-                            content: Text(exportStageApi.message ?? 'Failed to select agency'),
+                            content: Text(
+                              exportStageApi.message ??
+                                  'Failed to select agency',
+                            ),
                             backgroundColor: Colors.red,
                             duration: const Duration(seconds: 3),
                           ),
@@ -442,6 +522,7 @@ class _PackagingAndDocumentationState extends State<PackagingAndDocumentation> {
                       }
                     }
                   },
+                  context,
                 );
               },
             ),

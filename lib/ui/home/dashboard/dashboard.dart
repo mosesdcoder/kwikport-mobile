@@ -408,9 +408,15 @@ class _DashboardState extends State<Dashboard> {
         extendBody: true,
         backgroundColor: colorCodes.whiteSmoke,
         body:
-            (dashboardApi.data?.userProfile == null)
+            // (dashboardApi.data?.userProfile == null)
+            //     ? Center(child: kwikportloader())
+            dashboardApi.loading
                 ? Center(child: kwikportloader())
                 : ListView(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 10.0,
+                    vertical: 50.0,
+                  ),
                   children: [
                     // Padding(
                     //   padding: EdgeInsets.symmetric(
@@ -527,7 +533,7 @@ class _DashboardState extends State<Dashboard> {
                                     vertical: 8.0,
                                   ),
                                   decoration: BoxDecoration(
-                                  // decoration: BoxDecoration(
+                                    // decoration: BoxDecoration(
                                     border: Border.all(
                                       width: 1.2,
                                       color: colorCodes.antiFlashWhite,

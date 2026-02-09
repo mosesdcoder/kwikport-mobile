@@ -73,18 +73,24 @@ class _WalletTransactionHistoryState extends State<WalletTransactionHistory>
     if (!mounted) return;
 
     final selectedType = paymentTypes[_tabController.index];
-    var filtered = selectedType == 'All'
-        ? allTransactions
-        : allTransactions.where((t) => t.paymentType == selectedType).toList();
+    var filtered =
+        selectedType == 'All'
+            ? allTransactions
+            : allTransactions
+                .where((t) => t.paymentType == selectedType)
+                .toList();
 
     final query = searcTransactioncontroller.text;
     if (query.isNotEmpty) {
-      filtered = filtered
-          .where((t) =>
-              t.paymentType.toLowerCase().contains(query.toLowerCase()) ||
-              t.reference.toLowerCase().contains(query.toLowerCase()) ||
-              t.paymentStatus.toLowerCase().contains(query.toLowerCase()))
-          .toList();
+      filtered =
+          filtered
+              .where(
+                (t) =>
+                    t.paymentType.toLowerCase().contains(query.toLowerCase()) ||
+                    t.reference.toLowerCase().contains(query.toLowerCase()) ||
+                    t.paymentStatus.toLowerCase().contains(query.toLowerCase()),
+              )
+              .toList();
     }
 
     setState(() {
@@ -102,7 +108,7 @@ class _WalletTransactionHistoryState extends State<WalletTransactionHistory>
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 513,
+      // height: 200 + (95 * filteredTransactions.length).toDouble(),
       width: 390,
       padding: EdgeInsets.symmetric(horizontal: 15, vertical: 20),
       decoration: BoxDecoration(
@@ -127,18 +133,21 @@ class _WalletTransactionHistoryState extends State<WalletTransactionHistory>
           ),
           SizedBox(height: 20),
           transactionHistoryTabBar(_tabController),
-          Expanded(
-            child: isLoading
-                ? Center(child: CircularProgressIndicator())
-                : errorMessage != null
+          SizedBox(
+            height: 91 * filteredTransactions.length.toDouble(),
+            child:
+                isLoading
+                    ? Center(child: CircularProgressIndicator())
+                    : errorMessage != null
                     ? Center(child: Text('Error: $errorMessage'))
                     : TabBarView(
-                        controller: _tabController,
-                        children: List.generate(
-                          paymentTypes.length,
-                          (index) => _buildTransactionList(),
-                        ),
+                      physics: NeverScrollableScrollPhysics(),
+                      controller: _tabController,
+                      children: List.generate(
+                        paymentTypes.length,
+                        (index) => _buildTransactionList(),
                       ),
+                    ),
           ),
         ],
       ),
@@ -156,7 +165,10 @@ class _WalletTransactionHistoryState extends State<WalletTransactionHistory>
     }
 
     return ListView.builder(
-      physics: ClampingScrollPhysics(),
+      shrinkWrap: true,
+      physics: NeverScrollableScrollPhysics(),
+
+      // physics: ClampingScrollPhysics(),
       itemCount: filteredTransactions.length,
       itemBuilder: (context, index) {
         final transaction = filteredTransactions[index];
@@ -172,7 +184,8 @@ class _WalletTransactionHistoryState extends State<WalletTransactionHistory>
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (_) => TransactionDetailScreen(transaction: transaction),
+                builder:
+                    (_) => TransactionDetailScreen(transaction: transaction),
               ),
             );
           },
@@ -190,7 +203,20 @@ class _WalletTransactionHistoryState extends State<WalletTransactionHistory>
   }
 
   String _getMonthName(int month) {
-    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const months = [
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
+    ];
     return months[month - 1];
   }
 
@@ -237,7 +263,7 @@ class _WalletTransactionHistoryState extends State<WalletTransactionHistory>
                 child: Text(
                   '₦',
                   style: TextStyle(
-                    fontFamily: 'Poppins',
+                    fontFamily: '',
                     fontSize: 18,
                     fontWeight: FontWeight.w700,
                     color: colorCodes.azureBlue,
@@ -304,6 +330,7 @@ class _WalletTransactionHistoryState extends State<WalletTransactionHistory>
                 14.0,
                 FontWeight.w600,
                 earningColor,
+                fontFamily: "",
               ),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,

@@ -33,15 +33,18 @@ class _ProcurementStageScreenState extends State<ProcurementStageScreen> {
   @override
   void initState() {
     super.initState();
-    final needsAgencySelection = widget.substages.isNotEmpty &&
+    final needsAgencySelection =
+        widget.substages.isNotEmpty &&
         widget.substages.first.isCurrent == true &&
         widget.substages.first.isCompleted == false;
-    
+
     if (needsAgencySelection) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         final tonnage = widget.kwikticket?.quantityToFulfill?.toInt() ?? 1;
-        Provider.of<GetAgencyApi>(context, listen: false)
-            .fetchAgenciesByStageType(2, tonnage: tonnage);
+        Provider.of<GetAgencyApi>(
+          context,
+          listen: false,
+        ).fetchAgenciesByStageType(2, tonnage: tonnage);
       });
     }
   }
@@ -49,7 +52,8 @@ class _ProcurementStageScreenState extends State<ProcurementStageScreen> {
   @override
   Widget build(BuildContext context) {
     final agencyProvider = Provider.of<GetAgencyApi>(context);
-    final needsAgencySelection = widget.substages.isNotEmpty &&
+    final needsAgencySelection =
+        widget.substages.isNotEmpty &&
         widget.substages.first.isCurrent == true &&
         widget.substages.first.isCompleted == false;
 
@@ -85,13 +89,23 @@ class _ProcurementStageScreenState extends State<ProcurementStageScreen> {
                 Center(
                   child: Padding(
                     padding: const EdgeInsets.all(40),
-                    child: Text('No agencies available.', style: kwikTextStlye(14.0, FontWeight.w400, colorCodes.black)),
+                    child: Text(
+                      'No agencies available.',
+                      style: kwikTextStlye(
+                        14.0,
+                        FontWeight.w400,
+                        colorCodes.black,
+                      ),
+                    ),
                   ),
                 )
               else
                 ...agencyProvider.agencies.map((agency) {
                   final serviceFeeNGN = agency.serviceFee ?? 0;
-                  final serviceFeeUSD = agency.fee?.serviceFeePerTonInUSD ?? agency.serviceFeeInUSD ?? 0;
+                  final serviceFeeUSD =
+                      agency.fee?.serviceFeePerTonInUSD ??
+                      agency.serviceFeeInUSD ??
+                      0;
                   final days = agency.numberOfDaysToDeliver ?? 0;
                   return Padding(
                     padding: const EdgeInsets.only(bottom: 20),
@@ -99,40 +113,63 @@ class _ProcurementStageScreenState extends State<ProcurementStageScreen> {
                       "assets/images/icons/dashboard/procurement_agency_logo.png",
                       agency.name,
                       agency.rating?.toDouble(),
-                      MoneyUtils.formatMoney(serviceFeeUSD, symbol: "\$", decimalDigits: 2),
-                      MoneyUtils.formatMoney(serviceFeeNGN, symbol: "₦", decimalDigits: 2),
+                      MoneyUtils.formatMoney(
+                        serviceFeeUSD,
+                        symbol: "\$",
+                        decimalDigits: 2,
+                      ),
+                      MoneyUtils.formatMoney(
+                        serviceFeeNGN,
+                        symbol: "₦",
+                        decimalDigits: 2,
+                      ),
                       "$days days",
                       "${days * 24} hours",
                       "23 reviews",
                       agency,
                       () {
-                        showDialog(context: context, builder: (_) => AgencyDetailsDialog(agency: agency));
+                        showDialog(
+                          context: context,
+                          builder: (_) => AgencyDetailsDialog(agency: agency),
+                        );
                       },
                       () {
-                        final tonnage = widget.kwikticket?.quantityToFulfill ?? 
-                                        widget.kwikticket?.totalQuantity ?? 
-                                        widget.kwikticket?.contract?.totalQuantity ?? 
-                                        0;
+                        final tonnage =
+                            widget.kwikticket?.quantityToFulfill ??
+                            widget.kwikticket?.totalQuantity ??
+                            widget.kwikticket?.contract?.totalQuantity ??
+                            0;
                         final serviceFeePerTon = agency.serviceFeePerTon ?? 0;
-                        final serviceFeePerTonUSD = agency.serviceFeePerTonInUSD ?? 0;
+                        final serviceFeePerTonUSD =
+                            agency.serviceFeePerTonInUSD ?? 0;
                         final totalCostNGN = serviceFeePerTon * tonnage;
                         final totalCostUSD = serviceFeePerTonUSD * tonnage;
-                        
+
                         showDialog(
                           barrierDismissible: false,
                           context: context,
-                          builder: (_) => ConfirmAgencySelectionDialog(
-                            serviceFee: MoneyUtils.formatMoney(serviceFeePerTonUSD, symbol: "\$", decimalDigits: 2),
-                            totalcostTons: tonnage,
-                            totalCost: totalCostNGN,
-                            agencyFeeDisplay: MoneyUtils.formatMoney(totalCostUSD, symbol: "\$", decimalDigits: 2),
-                            agencyName: agency.name,
-                            kwikticket: widget.kwikticket,
-                            agencyId: agency.id,
-                            agencyType: 2,
-                          ),
+                          builder:
+                              (_) => ConfirmAgencySelectionDialog(
+                                serviceFee: MoneyUtils.formatMoney(
+                                  serviceFeePerTonUSD,
+                                  symbol: "\$",
+                                  decimalDigits: 2,
+                                ),
+                                totalcostTons: tonnage,
+                                totalCost: totalCostNGN,
+                                agencyFeeDisplay: MoneyUtils.formatMoney(
+                                  totalCostUSD,
+                                  symbol: "\$",
+                                  decimalDigits: 2,
+                                ),
+                                agencyName: agency.name,
+                                kwikticket: widget.kwikticket,
+                                agencyId: agency.id,
+                                agencyType: 2,
+                              ),
                         );
                       },
+                      context,
                     ),
                   );
                 }).toList(),
@@ -169,7 +206,10 @@ class _ProcurementStageScreenState extends State<ProcurementStageScreen> {
               decoration: BoxDecoration(
                 color: colorCodes.white,
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(width: 1.5, color: colorCodes.paleCornflowerBlue),
+                border: Border.all(
+                  width: 1.5,
+                  color: colorCodes.paleCornflowerBlue,
+                ),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -184,34 +224,59 @@ class _ProcurementStageScreenState extends State<ProcurementStageScreen> {
                           shape: BoxShape.circle,
                         ),
                         child: Center(
-                          child: Text("1", style: kwikTextStlye(18.0, FontWeight.w600, colorCodes.paleCornflowerBlue)),
+                          child: Text(
+                            "1",
+                            style: kwikTextStlye(
+                              18.0,
+                              FontWeight.w600,
+                              colorCodes.paleCornflowerBlue,
+                            ),
+                          ),
                         ),
                       ),
                       const SizedBox(width: 12),
-                      Text("Commodity Sourcing", style: kwikTextStlye(18.0, FontWeight.w600, colorCodes.black)),
+                      Text(
+                        "Commodity Sourcing",
+                        style: kwikTextStlye(
+                          18.0,
+                          FontWeight.w600,
+                          colorCodes.black,
+                        ),
+                      ),
                     ],
                   ),
                   const SizedBox(height: 16),
                   Text(
                     "Track the progress of commodity sourcing and procurement for your export contract.",
-                    style: kwikTextStlye(14.0, FontWeight.w400, colorCodes.graniteGrey),
+                    style: kwikTextStlye(
+                      14.0,
+                      FontWeight.w400,
+                      colorCodes.graniteGrey,
+                    ),
                   ),
                 ],
               ),
             ),
             const SizedBox(height: 24),
-            
+
             // Substages Section
-            Text("Stage Progress", style: kwikTextStlye(16.0, FontWeight.w600, colorCodes.black)),
+            Text(
+              "Stage Progress",
+              style: kwikTextStlye(16.0, FontWeight.w600, colorCodes.black),
+            ),
             const SizedBox(height: 16),
-            ...widget.substages.map((substage) => Padding(
-              padding: const EdgeInsets.only(bottom: 12),
-              child: journeyCheckList(
-                substage.subStageName ?? "Unknown",
-                substage.isCompleted ?? false,
-                substage.isCurrent ?? false,
-              ),
-            )).toList(),
+            ...widget.substages
+                .map(
+                  (substage) => Padding(
+                    padding: const EdgeInsets.only(bottom: 12),
+                    child: journeyCheckList(
+                      substage.subStageName ?? "Unknown",
+                      substage.isCompleted ?? false,
+                      substage.isCurrent ?? false,
+                    ),
+                  ),
+                )
+                .toList(),
             const SizedBox(height: 120),
           ],
         ),

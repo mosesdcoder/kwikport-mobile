@@ -5,6 +5,7 @@ import 'package:kwik_port/api/controller/home/notification_api.dart';
 import 'package:kwik_port/colors/color.dart';
 import 'package:kwik_port/services/signalr_service.dart';
 import 'package:kwik_port/utils/button/bottom_navigatior_bar.dart';
+import 'package:kwik_port/utils/button/loading_dialog.dart';
 import 'package:kwik_port/utils/text/textstyle.dart';
 import 'package:provider/provider.dart';
 import 'package:swipe_refresh/swipe_refresh.dart';
@@ -88,7 +89,9 @@ class _NotificationScreenState extends State<NotificationScreen>
     });
   }
 
+  // bool _isLoading = false;
   Future<void> _fetchNotifications() async {
+    // setState(() => _isLoading = true);
     try {
       final response = await HttpService.getRequest('/User/user-notification');
       final Map<String, dynamic> data = json.decode(response.body);
@@ -136,9 +139,33 @@ class _NotificationScreenState extends State<NotificationScreen>
     } catch (e) {
       // Error handling
     }
+    // finally {
+    //   if (mounted) {
+    //     setState(() => _isLoading = false);
+    //   }
+    // }
   }
 
-  Future<void> _markAsRead(Map<String, dynamic> notification) async {
+  // Future<void> _markAsRead(Map<String, dynamic> notification) async {
+  //   final id = (notification['id'] ?? '').toString();
+  //   setState(() {
+  //     notification['status'] = 'read';
+  //     if (id.isNotEmpty) {
+  //       _readIds.add(id);
+  //     }
+  //     newNotification = false;
+  //   });
+
+  //   final prefs = await SharedPreferences.getInstance();
+  //   await prefs.setStringList('read_notification_ids', _readIds.toList());
+
+  //   if (id.isNotEmpty) {
+  //     try {
+  //       await HttpService.postRequest('/User/notification/read', {'id': id});
+  //     } catch (_) {}
+  //   }
+  // }
+   Future<void> _markAsRead(Map<String, dynamic> notification) async {
     final id = (notification['id'] ?? '').toString();
     setState(() {
       notification['status'] = 'read';
@@ -326,6 +353,9 @@ class _NotificationScreenState extends State<NotificationScreen>
         ),
       );
     }
+    // if (_isLoading && items.isEmpty) {
+    //   return Center(child: kwikportloader());
+    // }
 
     return ListView.separated(
       padding: const EdgeInsets.only(bottom: 40),

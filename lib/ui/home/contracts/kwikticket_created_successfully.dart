@@ -148,7 +148,7 @@ class _KwikticketCreatedSuccessfullyState
         ),
         pw.Text(
           value,
-          style: pw.TextStyle(fontSize: 12, fontWeight: pw.FontWeight.bold),
+          style: pw.TextStyle(fontSize: 12, fontWeight: pw.FontWeight.bold,),
         ),
       ],
     );
