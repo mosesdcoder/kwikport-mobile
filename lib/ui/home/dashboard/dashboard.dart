@@ -461,7 +461,7 @@ class _DashboardState extends State<Dashboard> {
                                       children: [
                                         activityProgressContainer(
                                           "assets/images/icons/kwik_tickets.png",
-                                          "My Exports",
+                                          "Kwiktickets",
                                           activeExports.toString().padLeft(
                                             2,
                                             '0',

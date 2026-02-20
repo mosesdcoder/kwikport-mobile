@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/gestures.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:kwik_port/api/controller/kwikTickets/create_kwikticket_api.dart';
 import 'package:kwik_port/api/model/dashboard_model.dart';
@@ -9,6 +10,7 @@ import 'package:kwik_port/main.dart';
 import 'package:kwik_port/ui/home/contracts/generate_contract_ticket_dialog.dart';
 import 'package:kwik_port/ui/home/contracts/kwikticket_created_successfully.dart';
 import 'package:kwik_port/ui/home/contracts/overviewRichText.dart';
+import 'package:kwik_port/ui/onboarding/auth/terms_and_conditions_screen.dart';
 import 'package:kwik_port/utils/button/bottom_navigatior_bar.dart';
 import 'package:kwik_port/utils/button/kwik_button.dart';
 import 'package:kwik_port/utils/text/textstyle.dart';
@@ -750,6 +752,12 @@ class _ContractDetailsDeliveredScreenState
                             TextSpan(
                               text: "Terms and Conditions. ",
                               style: TextStyle(color: colorCodes.azureBlue),
+                              recognizer: TapGestureRecognizer()..onTap = () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(builder: (context) => TermsAndConditionsScreen()),
+                                );
+                              },
                             ),
                             TextSpan(
                               text:

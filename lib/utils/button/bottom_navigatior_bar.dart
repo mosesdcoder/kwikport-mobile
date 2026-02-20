@@ -60,7 +60,7 @@ class _BottomnavigationbarState extends State<Bottomnavigationbar> {
               3,
               'ticket_enabled.png',
               'ticket.png',
-              'Kwiktickets',
+              'My Exports',
             ),
             btmNavCol(
               const WalletScreen(),
